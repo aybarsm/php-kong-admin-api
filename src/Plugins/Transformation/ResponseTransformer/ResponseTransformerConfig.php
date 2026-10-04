@@ -24,18 +24,18 @@ final readonly class ResponseTransformerConfig implements PluginConfig
     public const string NAME = 'response-transformer';
 
     /**
-     * @param ResponseTransformerAdd|null     $add
-     * @param ResponseTransformerAppend|null  $append
-     * @param ResponseTransformerRemove|null  $remove
-     * @param ResponseTransformerRename|null  $rename
-     * @param ResponseTransformerReplace|null $replace
+     * @param Add|null     $add
+     * @param Append|null  $append
+     * @param Remove|null  $remove
+     * @param Rename|null  $rename
+     * @param Replace|null $replace
      */
     public function __construct(
-        public ?ResponseTransformerAdd $add = null,
-        public ?ResponseTransformerAppend $append = null,
-        public ?ResponseTransformerRemove $remove = null,
-        public ?ResponseTransformerRename $rename = null,
-        public ?ResponseTransformerReplace $replace = null,
+        public ?Add $add = null,
+        public ?Append $append = null,
+        public ?Remove $remove = null,
+        public ?Rename $rename = null,
+        public ?Replace $replace = null,
     ) {
     }
 
@@ -52,11 +52,11 @@ final readonly class ResponseTransformerConfig implements PluginConfig
         $replace = Data::mapOrNull($data, 'replace');
 
         return new self(
-            add: $add === null ? null : ResponseTransformerAdd::fromArray($add),
-            append: $append === null ? null : ResponseTransformerAppend::fromArray($append),
-            remove: $remove === null ? null : ResponseTransformerRemove::fromArray($remove),
-            rename: $rename === null ? null : ResponseTransformerRename::fromArray($rename),
-            replace: $replace === null ? null : ResponseTransformerReplace::fromArray($replace),
+            add: $add === null ? null : Add::fromArray($add),
+            append: $append === null ? null : Append::fromArray($append),
+            remove: $remove === null ? null : Remove::fromArray($remove),
+            rename: $rename === null ? null : Rename::fromArray($rename),
+            replace: $replace === null ? null : Replace::fromArray($replace),
         );
     }
 

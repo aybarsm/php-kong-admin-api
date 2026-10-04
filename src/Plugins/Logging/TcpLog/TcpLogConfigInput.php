@@ -25,9 +25,9 @@ final readonly class TcpLogConfigInput implements Input
      * @param string|null                   $host              The IP address or host name to send data to. Required by the plugin doc.
      * @param int|null                      $port              The port to send data to on the upstream server. Required by the plugin doc.
      * @param array<array-key, string>|null $customFieldsByLua A list of key-value pairs, where the key is the name of a log field and the value is a chunk of Lua code, who…
-     * @param float|null                    $keepalive         An optional value in milliseconds that defines how long an idle connection lives before being closed. Default: `60000`.
+     * @param int|float|null                $keepalive         An optional value in milliseconds that defines how long an idle connection lives before being closed. Default: `60000`.
      * @param bool|null                     $sslVerify         When using TLS, this option enables verification of the certificate presented by the server. Default: `true`.
-     * @param float|null                    $timeout           An optional timeout in milliseconds when sending data to the upstream server. Default: `10000`.
+     * @param int|float|null                $timeout           An optional timeout in milliseconds when sending data to the upstream server. Default: `10000`.
      * @param bool|null                     $tls               Indicates whether to perform a TLS handshake against the remote server. Default: `false`.
      * @param string|null                   $tlsSni            An optional string that defines the SNI (Server Name Indication) hostname to send in the TLS handshake.
      */
@@ -35,9 +35,9 @@ final readonly class TcpLogConfigInput implements Input
         public ?string $host = null,
         public ?int $port = null,
         public ?array $customFieldsByLua = null,
-        public ?float $keepalive = null,
+        public int|float|null $keepalive = null,
         public ?bool $sslVerify = null,
-        public ?float $timeout = null,
+        public int|float|null $timeout = null,
         public ?bool $tls = null,
         public ?string $tlsSni = null,
     ) {

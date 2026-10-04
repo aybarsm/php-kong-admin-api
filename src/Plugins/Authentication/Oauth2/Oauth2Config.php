@@ -38,13 +38,13 @@ final readonly class Oauth2Config implements PluginConfig
      * @param bool|null         $hideCredentials               An optional boolean value telling the plugin to show or hide the credential from the upstream service. Default: `true`.
      * @param bool|null         $mandatoryScope                An optional boolean value telling the plugin to require at least one `scope` to be authorized by the end user. Default: `false`.
      * @param bool|null         $persistentRefreshToken        Default: `false`.
-     * @param Oauth2Pkce|null   $pkce                          Specifies a mode of how the Proof Key for Code Exchange (PKCE) should be handled by the plugin. Default: `lax`.
+     * @param Pkce|null         $pkce                          Specifies a mode of how the Proof Key for Code Exchange (PKCE) should be handled by the plugin. Default: `lax`.
      * @param string|null       $provisionKey                  The unique key the plugin has generated when it has been added to the Service.
      * @param string|null       $realm                         When authentication fails the plugin sends `WWW-Authenticate` header with `realm` attribute value.
-     * @param float|null        $refreshTokenTtl               Time-to-live value for data Default: `1209600`.
+     * @param int|float|null    $refreshTokenTtl               Time-to-live value for data Default: `1209600`.
      * @param bool|null         $reuseRefreshToken             An optional boolean value that indicates whether an OAuth refresh token is reused when refreshing an access t… Default: `false`.
      * @param list<string>|null $scopes                        Describes an array of scope names that will be available to the end user.
-     * @param float|null        $tokenExpiration               An optional integer value telling the plugin how many seconds a token should last, after which the client wil… Default: `7200`.
+     * @param int|float|null    $tokenExpiration               An optional integer value telling the plugin how many seconds a token should last, after which the client wil… Default: `7200`.
      */
     public function __construct(
         public ?bool $acceptHttpIfAlreadyTerminated = null,
@@ -58,13 +58,13 @@ final readonly class Oauth2Config implements PluginConfig
         public ?bool $hideCredentials = null,
         public ?bool $mandatoryScope = null,
         public ?bool $persistentRefreshToken = null,
-        public ?Oauth2Pkce $pkce = null,
+        public ?Pkce $pkce = null,
         public ?string $provisionKey = null,
         public ?string $realm = null,
-        public ?float $refreshTokenTtl = null,
+        public int|float|null $refreshTokenTtl = null,
         public ?bool $reuseRefreshToken = null,
         public ?array $scopes = null,
-        public ?float $tokenExpiration = null,
+        public int|float|null $tokenExpiration = null,
     ) {
     }
 
@@ -86,13 +86,13 @@ final readonly class Oauth2Config implements PluginConfig
             hideCredentials: Data::boolOrNull($data, 'hide_credentials'),
             mandatoryScope: Data::boolOrNull($data, 'mandatory_scope'),
             persistentRefreshToken: Data::boolOrNull($data, 'persistent_refresh_token'),
-            pkce: Data::enumOrNull($data, 'pkce', Oauth2Pkce::class),
+            pkce: Data::enumOrNull($data, 'pkce', Pkce::class),
             provisionKey: Data::stringOrNull($data, 'provision_key'),
             realm: Data::stringOrNull($data, 'realm'),
-            refreshTokenTtl: Data::floatOrNull($data, 'refresh_token_ttl'),
+            refreshTokenTtl: Data::numberOrNull($data, 'refresh_token_ttl'),
             reuseRefreshToken: Data::boolOrNull($data, 'reuse_refresh_token'),
             scopes: Data::stringListOrNull($data, 'scopes'),
-            tokenExpiration: Data::floatOrNull($data, 'token_expiration'),
+            tokenExpiration: Data::numberOrNull($data, 'token_expiration'),
         );
     }
 

@@ -77,8 +77,12 @@ rerun produces no diff, and `git status` must stay clean.
   the plugin accepts. **From the spec:** the generic `Plugin` fields of `{Plugin}Input` (`enabled`, `tags`,
   `ordering`, `partials`, …), so they match `Models\PluginInput`.
 - **Names are derived:** the namespace is `Plugins\{Category}\{Plugin}` (category directory verbatim, plugin =
-  PascalCase filename), and nested DTOs and enums are `{Plugin}` + the PascalCase config path. The `NAMES` table
-  overrides a derived name (keyed `(slug, location)`). A clash stops the generator.
+  PascalCase filename), and nested DTOs and enums are the PascalCase config path with no plugin prefix. A reserved
+  word or an imported name (`RESERVED`/`IMPORTED`) falls back to `{Plugin}` + the path. The `NAMES` table overrides
+  a derived name (keyed `(slug, location)`). A remaining clash stops the generator.
+- **Numbers:** a doc `number` is `int|float` (`Data::number()`/`numberOrNull()`), unlike spec models (`float`).
+- **Stale files are pruned:** generated files under `src/Plugins/{Category}/` and `tests/Fixtures/Plugins/` that a
+  run didn't write (renamed classes, removed docs) are deleted, so a rerun is still idempotent.
 - **Shared code:** it reuses `models.Prop`/`models.render()` through keyword hooks (attribute, `NAME` constant,
   `fromPlugin()`, `name` entry in `toArray()`, required note). The hooks default to the spec-model output,
   so the phase scripts are unaffected.

@@ -24,27 +24,27 @@ final readonly class DatadogConfig implements PluginConfig
     public const string NAME = 'datadog';
 
     /**
-     * @param string|null               $consumerTag    String to be attached as tag of the consumer. Default: `consumer`.
-     * @param float|null                $flushTimeout   Optional time in seconds.
-     * @param string|null               $host           A string representing a host name, such as example.com. Default: `localhost`.
-     * @param list<DatadogMetrics>|null $metrics        List of metrics to be logged.
-     * @param int|null                  $port           An integer representing a port number between 0 and 65535, inclusive. Default: `8125`.
-     * @param string|null               $prefix         String to be attached as a prefix to a metric's name. Default: `kong`.
-     * @param DatadogQueue|null         $queue
-     * @param int|null                  $queueSize      Maximum number of log entries to be sent on each message to the upstream server.
-     * @param int|null                  $retryCount     Number of times to retry when sending data to the upstream server.
-     * @param string|null               $routeNameTag   String to be attached as tag of the route name or ID.
-     * @param string|null               $serviceNameTag String to be attached as the name of the service. Default: `name`.
-     * @param string|null               $statusTag      String to be attached as the tag of the HTTP status. Default: `status`.
+     * @param string|null        $consumerTag    String to be attached as tag of the consumer. Default: `consumer`.
+     * @param int|float|null     $flushTimeout   Optional time in seconds.
+     * @param string|null        $host           A string representing a host name, such as example.com. Default: `localhost`.
+     * @param list<Metrics>|null $metrics        List of metrics to be logged.
+     * @param int|null           $port           An integer representing a port number between 0 and 65535, inclusive. Default: `8125`.
+     * @param string|null        $prefix         String to be attached as a prefix to a metric's name. Default: `kong`.
+     * @param Queue|null         $queue
+     * @param int|null           $queueSize      Maximum number of log entries to be sent on each message to the upstream server.
+     * @param int|null           $retryCount     Number of times to retry when sending data to the upstream server.
+     * @param string|null        $routeNameTag   String to be attached as tag of the route name or ID.
+     * @param string|null        $serviceNameTag String to be attached as the name of the service. Default: `name`.
+     * @param string|null        $statusTag      String to be attached as the tag of the HTTP status. Default: `status`.
      */
     public function __construct(
         public ?string $consumerTag = null,
-        public ?float $flushTimeout = null,
+        public int|float|null $flushTimeout = null,
         public ?string $host = null,
         public ?array $metrics = null,
         public ?int $port = null,
         public ?string $prefix = null,
-        public ?DatadogQueue $queue = null,
+        public ?Queue $queue = null,
         public ?int $queueSize = null,
         public ?int $retryCount = null,
         public ?string $routeNameTag = null,
@@ -64,12 +64,12 @@ final readonly class DatadogConfig implements PluginConfig
 
         return new self(
             consumerTag: Data::stringOrNull($data, 'consumer_tag'),
-            flushTimeout: Data::floatOrNull($data, 'flush_timeout'),
+            flushTimeout: Data::numberOrNull($data, 'flush_timeout'),
             host: Data::stringOrNull($data, 'host'),
-            metrics: $metrics === null ? null : array_map(DatadogMetrics::fromArray(...), $metrics),
+            metrics: $metrics === null ? null : array_map(Metrics::fromArray(...), $metrics),
             port: Data::intOrNull($data, 'port'),
             prefix: Data::stringOrNull($data, 'prefix'),
-            queue: $queue === null ? null : DatadogQueue::fromArray($queue),
+            queue: $queue === null ? null : Queue::fromArray($queue),
             queueSize: Data::intOrNull($data, 'queue_size'),
             retryCount: Data::intOrNull($data, 'retry_count'),
             routeNameTag: Data::stringOrNull($data, 'route_name_tag'),

@@ -24,20 +24,20 @@ final readonly class AiResponseTransformerConfig implements PluginConfig
     public const string NAME = 'ai-response-transformer';
 
     /**
-     * @param AiResponseTransformerLlm $llm
-     * @param string                   $prompt                           Use this prompt to tune the LLM system/assistant message for the returning proxy response (from the upstream)…
-     * @param string|null              $httpProxyHost                    A string representing a host name, such as example.com.
-     * @param int|null                 $httpProxyPort                    An integer representing a port number between 0 and 65535, inclusive.
-     * @param int|null                 $httpTimeout                      Timeout in milliseconds for the AI upstream service. Default: `60000`.
-     * @param string|null              $httpsProxyHost                   A string representing a host name, such as example.com.
-     * @param int|null                 $httpsProxyPort                   An integer representing a port number between 0 and 65535, inclusive.
-     * @param bool|null                $httpsVerify                      Verify the TLS certificate of the AI upstream service. Default: `true`.
-     * @param int|null                 $maxRequestBodySize               max allowed body size allowed to be introspected. Default: `1048576`.
-     * @param bool|null                $parseLlmResponseJsonInstructions Set true to read specific response format from the LLM, and accordingly set the status code / body / headers… Default: `false`.
-     * @param string|null              $transformationExtractPattern     Defines the regular expression that must match to indicate a successful AI transformation at the response pha…
+     * @param Llm         $llm
+     * @param string      $prompt                           Use this prompt to tune the LLM system/assistant message for the returning proxy response (from the upstream)…
+     * @param string|null $httpProxyHost                    A string representing a host name, such as example.com.
+     * @param int|null    $httpProxyPort                    An integer representing a port number between 0 and 65535, inclusive.
+     * @param int|null    $httpTimeout                      Timeout in milliseconds for the AI upstream service. Default: `60000`.
+     * @param string|null $httpsProxyHost                   A string representing a host name, such as example.com.
+     * @param int|null    $httpsProxyPort                   An integer representing a port number between 0 and 65535, inclusive.
+     * @param bool|null   $httpsVerify                      Verify the TLS certificate of the AI upstream service. Default: `true`.
+     * @param int|null    $maxRequestBodySize               max allowed body size allowed to be introspected. Default: `1048576`.
+     * @param bool|null   $parseLlmResponseJsonInstructions Set true to read specific response format from the LLM, and accordingly set the status code / body / headers… Default: `false`.
+     * @param string|null $transformationExtractPattern     Defines the regular expression that must match to indicate a successful AI transformation at the response pha…
      */
     public function __construct(
-        public AiResponseTransformerLlm $llm,
+        public Llm $llm,
         public string $prompt,
         public ?string $httpProxyHost = null,
         public ?int $httpProxyPort = null,
@@ -58,7 +58,7 @@ final readonly class AiResponseTransformerConfig implements PluginConfig
     public static function fromArray(array $data): static
     {
         return new self(
-            llm: AiResponseTransformerLlm::fromArray(Data::map($data, 'llm')),
+            llm: Llm::fromArray(Data::map($data, 'llm')),
             prompt: Data::string($data, 'prompt'),
             httpProxyHost: Data::stringOrNull($data, 'http_proxy_host'),
             httpProxyPort: Data::intOrNull($data, 'http_proxy_port'),

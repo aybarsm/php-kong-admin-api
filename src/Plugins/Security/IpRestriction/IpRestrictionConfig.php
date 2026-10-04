@@ -27,13 +27,13 @@ final readonly class IpRestrictionConfig implements PluginConfig
      * @param list<string>|null $allow   List of IPs or CIDR ranges to allow.
      * @param list<string>|null $deny    List of IPs or CIDR ranges to deny.
      * @param string|null       $message The message to send as a response body to rejected requests.
-     * @param float|null        $status  The HTTP status of the requests that will be rejected by the plugin.
+     * @param int|float|null    $status  The HTTP status of the requests that will be rejected by the plugin.
      */
     public function __construct(
         public ?array $allow = null,
         public ?array $deny = null,
         public ?string $message = null,
-        public ?float $status = null,
+        public int|float|null $status = null,
     ) {
     }
 
@@ -47,7 +47,7 @@ final readonly class IpRestrictionConfig implements PluginConfig
             allow: Data::stringListOrNull($data, 'allow'),
             deny: Data::stringListOrNull($data, 'deny'),
             message: Data::stringOrNull($data, 'message'),
-            status: Data::floatOrNull($data, 'status'),
+            status: Data::numberOrNull($data, 'status'),
         );
     }
 

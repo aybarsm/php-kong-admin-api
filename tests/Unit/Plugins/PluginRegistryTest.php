@@ -6,7 +6,7 @@ use Aybarsm\Kong\AdminApi\Exceptions\UnexpectedResponseException;
 use Aybarsm\Kong\AdminApi\Models\Plugin;
 use Aybarsm\Kong\AdminApi\Plugins\PluginRegistry;
 use Aybarsm\Kong\AdminApi\Plugins\TrafficControl\RequestSizeLimiting\RequestSizeLimitingConfig;
-use Aybarsm\Kong\AdminApi\Plugins\TrafficControl\RequestSizeLimiting\RequestSizeLimitingSizeUnit;
+use Aybarsm\Kong\AdminApi\Plugins\TrafficControl\RequestSizeLimiting\SizeUnit;
 use Aybarsm\Kong\AdminApi\Tests\Support\PluginDocs;
 
 covers(PluginRegistry::class);
@@ -29,7 +29,7 @@ it('maps a documented plugin to its typed config and an undocumented one to null
     $config = PluginRegistry::config(new Plugin(name: 'request-size-limiting', config: ['size_unit' => 'kilobytes', 'allowed_payload_size' => 10]));
 
     expect($config)->toBeInstanceOf(RequestSizeLimitingConfig::class)
-        ->and($config instanceof RequestSizeLimitingConfig ? $config->sizeUnit : null)->toBe(RequestSizeLimitingSizeUnit::Kilobytes)
+        ->and($config instanceof RequestSizeLimitingConfig ? $config->sizeUnit : null)->toBe(SizeUnit::Kilobytes)
         ->and(PluginRegistry::config(new Plugin(name: 'my-custom-plugin', config: ['anything' => true])))->toBeNull();
 });
 

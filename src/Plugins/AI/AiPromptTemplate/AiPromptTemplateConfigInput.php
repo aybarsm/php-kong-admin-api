@@ -22,10 +22,10 @@ final readonly class AiPromptTemplateConfigInput implements Input
     public const string NAME = 'ai-prompt-template';
 
     /**
-     * @param list<AiPromptTemplateTemplates>|null $templates                Array of templates available to the request context. Required by the plugin doc.
-     * @param bool|null                            $allowUntemplatedRequests Set true to allow requests that don't call or match any template. Default: `true`.
-     * @param bool|null                            $logOriginalRequest       Set true to add the original request to the Kong log plugin(s) output. Default: `false`.
-     * @param int|null                             $maxRequestBodySize       max allowed body size allowed to be introspected. Default: `1048576`.
+     * @param list<Templates>|null $templates                Array of templates available to the request context. Required by the plugin doc.
+     * @param bool|null            $allowUntemplatedRequests Set true to allow requests that don't call or match any template. Default: `true`.
+     * @param bool|null            $logOriginalRequest       Set true to add the original request to the Kong log plugin(s) output. Default: `false`.
+     * @param int|null             $maxRequestBodySize       max allowed body size allowed to be introspected. Default: `1048576`.
      */
     public function __construct(
         public ?array $templates = null,

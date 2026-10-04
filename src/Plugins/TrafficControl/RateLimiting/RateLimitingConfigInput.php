@@ -22,42 +22,42 @@ final readonly class RateLimitingConfigInput implements Input
     public const string NAME = 'rate-limiting';
 
     /**
-     * @param string|null              $customKey         Overrides the computed rate-limiting key with a literal value for this request, regardless of `limit_by`.
-     * @param float|null               $day               The number of HTTP requests that can be made per day.
-     * @param float|null               $errorCode         Set a custom error code to return when the rate limit is exceeded. Default: `429`.
-     * @param string|null              $errorMessage      Set a custom error message to return when the rate limit is exceeded. Default: `API rate limit exceeded`.
-     * @param bool|null                $faultTolerant     A boolean value that determines if the requests should be proxied even if Kong has troubles connecting a thir… Default: `true`.
-     * @param string|null              $headerName        A string representing an HTTP header name.
-     * @param bool|null                $hideClientHeaders Optionally hide informative response headers. Default: `false`.
-     * @param float|null               $hour              The number of HTTP requests that can be made per hour.
-     * @param RateLimitingLimitBy|null $limitBy           The entity that is used when aggregating the limits. Default: `consumer`.
-     * @param float|null               $minute            The number of HTTP requests that can be made per minute.
-     * @param float|null               $month             The number of HTTP requests that can be made per month.
-     * @param string|null              $path              A string representing a URL path, such as /path/to/resource.
-     * @param RateLimitingPolicy|null  $policy            The rate-limiting policies to use for retrieving and incrementing the limits. Default: `local`.
-     * @param RateLimitingRedis|null   $redis             Redis configuration
-     * @param float|null               $second            The number of HTTP requests that can be made per second.
-     * @param float|null               $syncRate          How often to sync counter data to the central data store. Default: `-1`.
-     * @param float|null               $year              The number of HTTP requests that can be made per year.
+     * @param string|null    $customKey         Overrides the computed rate-limiting key with a literal value for this request, regardless of `limit_by`.
+     * @param int|float|null $day               The number of HTTP requests that can be made per day.
+     * @param int|float|null $errorCode         Set a custom error code to return when the rate limit is exceeded. Default: `429`.
+     * @param string|null    $errorMessage      Set a custom error message to return when the rate limit is exceeded. Default: `API rate limit exceeded`.
+     * @param bool|null      $faultTolerant     A boolean value that determines if the requests should be proxied even if Kong has troubles connecting a thir… Default: `true`.
+     * @param string|null    $headerName        A string representing an HTTP header name.
+     * @param bool|null      $hideClientHeaders Optionally hide informative response headers. Default: `false`.
+     * @param int|float|null $hour              The number of HTTP requests that can be made per hour.
+     * @param LimitBy|null   $limitBy           The entity that is used when aggregating the limits. Default: `consumer`.
+     * @param int|float|null $minute            The number of HTTP requests that can be made per minute.
+     * @param int|float|null $month             The number of HTTP requests that can be made per month.
+     * @param string|null    $path              A string representing a URL path, such as /path/to/resource.
+     * @param Policy|null    $policy            The rate-limiting policies to use for retrieving and incrementing the limits. Default: `local`.
+     * @param Redis|null     $redis             Redis configuration
+     * @param int|float|null $second            The number of HTTP requests that can be made per second.
+     * @param int|float|null $syncRate          How often to sync counter data to the central data store. Default: `-1`.
+     * @param int|float|null $year              The number of HTTP requests that can be made per year.
      */
     public function __construct(
         public ?string $customKey = null,
-        public ?float $day = null,
-        public ?float $errorCode = null,
+        public int|float|null $day = null,
+        public int|float|null $errorCode = null,
         public ?string $errorMessage = null,
         public ?bool $faultTolerant = null,
         public ?string $headerName = null,
         public ?bool $hideClientHeaders = null,
-        public ?float $hour = null,
-        public ?RateLimitingLimitBy $limitBy = null,
-        public ?float $minute = null,
-        public ?float $month = null,
+        public int|float|null $hour = null,
+        public ?LimitBy $limitBy = null,
+        public int|float|null $minute = null,
+        public int|float|null $month = null,
         public ?string $path = null,
-        public ?RateLimitingPolicy $policy = null,
-        public ?RateLimitingRedis $redis = null,
-        public ?float $second = null,
-        public ?float $syncRate = null,
-        public ?float $year = null,
+        public ?Policy $policy = null,
+        public ?Redis $redis = null,
+        public int|float|null $second = null,
+        public int|float|null $syncRate = null,
+        public int|float|null $year = null,
     ) {
     }
 

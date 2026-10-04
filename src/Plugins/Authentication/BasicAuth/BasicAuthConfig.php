@@ -24,17 +24,17 @@ final readonly class BasicAuthConfig implements PluginConfig
     public const string NAME = 'basic-auth';
 
     /**
-     * @param string|null                        $anonymous            An optional string (Consumer UUID or username) value to use as an "anonymous" consumer if authentication fail…
-     * @param BasicAuthBruteForceProtection|null $bruteForceProtection
-     * @param bool|null                          $hideCredentials      An optional boolean value telling the plugin to show or hide the credential from the upstream service. Default: `true`.
-     * @param BasicAuthPrincipals|null           $principals
-     * @param string|null                        $realm                When authentication fails the plugin sends `WWW-Authenticate` header with `realm` attribute value. Default: `service`.
+     * @param string|null               $anonymous            An optional string (Consumer UUID or username) value to use as an "anonymous" consumer if authentication fail…
+     * @param BruteForceProtection|null $bruteForceProtection
+     * @param bool|null                 $hideCredentials      An optional boolean value telling the plugin to show or hide the credential from the upstream service. Default: `true`.
+     * @param Principals|null           $principals
+     * @param string|null               $realm                When authentication fails the plugin sends `WWW-Authenticate` header with `realm` attribute value. Default: `service`.
      */
     public function __construct(
         public ?string $anonymous = null,
-        public ?BasicAuthBruteForceProtection $bruteForceProtection = null,
+        public ?BruteForceProtection $bruteForceProtection = null,
         public ?bool $hideCredentials = null,
-        public ?BasicAuthPrincipals $principals = null,
+        public ?Principals $principals = null,
         public ?string $realm = null,
     ) {
     }
@@ -50,9 +50,9 @@ final readonly class BasicAuthConfig implements PluginConfig
 
         return new self(
             anonymous: Data::stringOrNull($data, 'anonymous'),
-            bruteForceProtection: $bruteForceProtection === null ? null : BasicAuthBruteForceProtection::fromArray($bruteForceProtection),
+            bruteForceProtection: $bruteForceProtection === null ? null : BruteForceProtection::fromArray($bruteForceProtection),
             hideCredentials: Data::boolOrNull($data, 'hide_credentials'),
-            principals: $principals === null ? null : BasicAuthPrincipals::fromArray($principals),
+            principals: $principals === null ? null : Principals::fromArray($principals),
             realm: Data::stringOrNull($data, 'realm'),
         );
     }

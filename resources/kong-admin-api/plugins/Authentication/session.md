@@ -1,12 +1,11 @@
 ---
-title: CORS Plugin Configuration Reference
-description: The CORS plugin lets you add Cross-Origin Resource Sharing (CORS) to
-  a Service or a Route.
-url: "/plugins/cors/reference/"
-canonical_url: "/plugins/cors/reference/"
+title: Session Plugin Configuration Reference
+description: Support sessions for Kong authentication plugins.
+url: "/plugins/session/reference/"
+canonical_url: "/plugins/session/reference/"
 content_type: reference
 min_version:
-  gateway: '1.0'
+  gateway: '1.3'
 products:
 - Kong Gateway
 tools:
@@ -16,6 +15,9 @@ tools:
 - KIC
 - Operator
 - Terraform
+tags:
+- authentication
+- session
 canonical: true
 works_on:
 - on-prem
@@ -24,7 +26,7 @@ works_on:
 
 ---
 
-# CORS Plugin Configuration Reference
+# Session Plugin Configuration Reference
 
 
 
@@ -40,78 +42,183 @@ works_on:
   "properties": {
     "config": {
       "properties": {
-        "allow_origin_absent": {
-          "default": true,
-          "description": "A boolean value that skip cors response headers when origin header of request is empty",
-          "type": "boolean"
-        },
-        "credentials": {
-          "default": false,
-          "description": "Flag to determine whether the `Access-Control-Allow-Credentials` header should be sent with `true` as the value.",
-          "type": "boolean"
-        },
-        "exposed_headers": {
-          "description": "Value for the `Access-Control-Expose-Headers` header. If not specified, no custom headers are exposed.",
-          "items": {
-            "type": "string"
-          },
-          "type": "array"
-        },
-        "headers": {
-          "description": "Value for the `Access-Control-Allow-Headers` header.",
-          "items": {
-            "type": "string"
-          },
-          "type": "array"
-        },
-        "max_age": {
-          "description": "Indicates how long the results of the preflight request can be cached, in `seconds`.",
+        "absolute_timeout": {
+          "default": 86400,
+          "description": "The session cookie absolute timeout, in seconds. Specifies how long the session can be used until it is no longer valid.",
           "type": "number"
         },
-        "methods": {
-          "default": [
-            "CONNECT",
-            "DELETE",
-            "GET",
-            "HEAD",
-            "OPTIONS",
-            "PATCH",
-            "POST",
-            "PUT",
-            "TRACE"
-          ],
-          "description": "'Value for the `Access-Control-Allow-Methods` header. Available options include `GET`, `HEAD`, `PUT`, `PATCH`, `POST`, `DELETE`, `OPTIONS`, `TRACE`, `CONNECT`. By default, all options are allowed.'",
+        "audience": {
+          "default": "default",
+          "description": "The session audience, which is the intended target application. For example `\"my-application\"`.",
+          "type": "string"
+        },
+        "bind": {
+          "description": "Bind the session to data acquired from the HTTP request or connection.",
           "items": {
             "enum": [
-              "CONNECT",
-              "DELETE",
-              "GET",
-              "HEAD",
-              "OPTIONS",
-              "PATCH",
-              "POST",
-              "PUT",
-              "TRACE"
+              "ip",
+              "scheme",
+              "user-agent"
             ],
             "type": "string"
           },
           "type": "array"
         },
-        "origins": {
-          "description": "List of allowed domains for the `Access-Control-Allow-Origin` header. If you want to allow all origins, add `*` as a single value to this configuration field. The accepted values can either be flat strings or PCRE regexes. NOTE: If you don't specify any allowed domains, all origins are allowed.",
+        "cookie_domain": {
+          "description": "The domain with which the cookie is intended to be exchanged.",
+          "type": "string"
+        },
+        "cookie_http_only": {
+          "default": true,
+          "description": "Applies the `HttpOnly` tag so that the cookie is sent only to a server.",
+          "type": "boolean"
+        },
+        "cookie_name": {
+          "default": "session",
+          "description": "The name of the cookie.",
+          "type": "string"
+        },
+        "cookie_path": {
+          "default": "/",
+          "description": "The resource in the host where the cookie is available.",
+          "type": "string"
+        },
+        "cookie_same_site": {
+          "default": "Strict",
+          "description": "Determines whether and how a cookie may be sent with cross-site requests.",
+          "enum": [
+            "Default",
+            "Lax",
+            "None",
+            "Strict"
+          ],
+          "type": "string"
+        },
+        "cookie_secure": {
+          "default": true,
+          "description": "Applies the Secure directive so that the cookie may be sent to the server only with an encrypted request over the HTTPS protocol.",
+          "type": "boolean"
+        },
+        "hash_subject": {
+          "default": false,
+          "description": "Whether to hash or not the subject when store_metadata is enabled.",
+          "type": "boolean"
+        },
+        "idling_timeout": {
+          "default": 900,
+          "description": "The session cookie idle time, in seconds.",
+          "type": "number"
+        },
+        "logout_methods": {
+          "default": [
+            "DELETE",
+            "POST"
+          ],
+          "description": "A set of HTTP methods that the plugin will respond to.",
           "items": {
+            "enum": [
+              "DELETE",
+              "GET",
+              "POST"
+            ],
             "type": "string"
           },
           "type": "array"
         },
-        "preflight_continue": {
+        "logout_post_arg": {
+          "default": "session_logout",
+          "description": "The POST argument passed to logout requests. Do not change this property.",
+          "type": "string"
+        },
+        "logout_query_arg": {
+          "default": "session_logout",
+          "description": "The query argument passed to logout requests.",
+          "type": "string"
+        },
+        "read_body_for_logout": {
           "default": false,
-          "description": "A boolean value that instructs the plugin to proxy the `OPTIONS` preflight request to the Upstream service.",
           "type": "boolean"
         },
-        "private_network": {
+        "remember": {
           "default": false,
-          "description": "Flag to determine whether the `Access-Control-Allow-Private-Network` header should be sent with `true` as the value.",
+          "description": "Enables or disables persistent sessions.",
+          "type": "boolean"
+        },
+        "remember_absolute_timeout": {
+          "default": 2592000,
+          "description": "The persistent session absolute timeout limit, in seconds.",
+          "type": "number"
+        },
+        "remember_cookie_name": {
+          "default": "remember",
+          "description": "Persistent session cookie name. Use with the `remember` configuration parameter.",
+          "type": "string"
+        },
+        "remember_rolling_timeout": {
+          "default": 604800,
+          "description": "The persistent session rolling timeout window, in seconds.",
+          "type": "number"
+        },
+        "request_headers": {
+          "description": "List of information to include, as headers, in the response to the downstream.",
+          "items": {
+            "enum": [
+              "absolute-timeout",
+              "audience",
+              "id",
+              "idling-timeout",
+              "rolling-timeout",
+              "subject",
+              "timeout"
+            ],
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "response_headers": {
+          "description": "List of information to include, as headers, in the response to the downstream.",
+          "items": {
+            "enum": [
+              "absolute-timeout",
+              "audience",
+              "id",
+              "idling-timeout",
+              "rolling-timeout",
+              "subject",
+              "timeout"
+            ],
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "rolling_timeout": {
+          "default": 3600,
+          "description": "The session cookie rolling timeout, in seconds. Specifies how long the session can be used until it needs to be renewed.",
+          "type": "number"
+        },
+        "secret": {
+          "description": "The secret that is used in keyed HMAC generation. \nThis field is [referenceable](/gateway/entities/vault/#how-do-i-reference-secrets-stored-in-a-vault). \nThis field is [encrypted](/gateway/keyring/).",
+          "type": "string",
+          "x-encrypted": true,
+          "x-referenceable": true
+        },
+        "stale_ttl": {
+          "default": 10,
+          "description": "The duration, in seconds, after which an old cookie is discarded, starting from the moment when the session becomes outdated and is replaced by a new one.",
+          "type": "number"
+        },
+        "storage": {
+          "default": "cookie",
+          "description": "Determines where the session data is stored. `kong`: Stores encrypted session data into Kong's current database strategy; the cookie will not contain any session data. `cookie`: Stores encrypted session data within the cookie itself.",
+          "enum": [
+            "cookie",
+            "kong"
+          ],
+          "type": "string"
+        },
+        "store_metadata": {
+          "default": false,
+          "description": "Whether to also store metadata of sessions, such as collecting data of sessions for a specific audience belonging to a specific subject.",
           "type": "boolean"
         }
       },
@@ -128,15 +235,21 @@ works_on:
         "http",
         "https"
       ],
-      "description": "A set of strings representing HTTP protocols.",
+      "description": "A set of strings representing protocols.",
       "items": {
+        "description": "A string representing a protocol, such as HTTP or HTTPS.",
         "enum": [
           "grpc",
           "grpcs",
           "http",
-          "https"
+          "https",
+          "tcp",
+          "tls",
+          "tls_passthrough",
+          "udp",
+          "ws",
+          "wss"
         ],
-        "minLength": 1,
         "type": "string"
       },
       "type": "array"
@@ -168,5 +281,7 @@ works_on:
 
 ## Related Resources
 
-- [DNS configuration reference](/gateway/network/dns-config-reference/)
+- [Authenticate Consumers with the Key Auth and Sessions plugins](/how-to/authenticate-consumers-with-session-and-key-auth/)
+
+- [Kong Gateway authentication](/gateway/authentication/)
 

@@ -22,16 +22,16 @@ final readonly class KeyAuthConfigInput implements Input
     public const string NAME = 'key-auth';
 
     /**
-     * @param string|null                      $anonymous       An optional string (consumer UUID or username) value to use as an “anonymous” consumer if authentication fail…
-     * @param bool|null                        $hideCredentials An optional boolean value telling the plugin to show or hide the credential from the upstream service. Default: `true`.
-     * @param list<KeyAuthIdentityRealms>|null $identityRealms  A configuration of Konnect Identity Realms that indicate where to source a consumer from.
-     * @param bool|null                        $keyInBody       If enabled, the plugin reads the request body. Default: `false`.
-     * @param bool|null                        $keyInHeader     If enabled (default), the plugin reads the request header and tries to find the key in it. Default: `true`.
-     * @param bool|null                        $keyInQuery      If enabled (default), the plugin reads the query parameter in the request and tries to find the key in it. Default: `true`.
-     * @param list<string>|null                $keyNames        Describes an array of parameter names where the plugin will look for a key. Default: `["apikey"]`.
-     * @param KeyAuthPrincipals|null           $principals
-     * @param string|null                      $realm           When authentication fails the plugin sends `WWW-Authenticate` header with `realm` attribute value.
-     * @param bool|null                        $runOnPreflight  A boolean value that indicates whether the plugin should run (and try to authenticate) on `OPTIONS` preflight… Default: `true`.
+     * @param string|null               $anonymous       An optional string (consumer UUID or username) value to use as an “anonymous” consumer if authentication fail…
+     * @param bool|null                 $hideCredentials An optional boolean value telling the plugin to show or hide the credential from the upstream service. Default: `true`.
+     * @param list<IdentityRealms>|null $identityRealms  A configuration of Konnect Identity Realms that indicate where to source a consumer from.
+     * @param bool|null                 $keyInBody       If enabled, the plugin reads the request body. Default: `false`.
+     * @param bool|null                 $keyInHeader     If enabled (default), the plugin reads the request header and tries to find the key in it. Default: `true`.
+     * @param bool|null                 $keyInQuery      If enabled (default), the plugin reads the query parameter in the request and tries to find the key in it. Default: `true`.
+     * @param list<string>|null         $keyNames        Describes an array of parameter names where the plugin will look for a key. Default: `["apikey"]`.
+     * @param Principals|null           $principals
+     * @param string|null               $realm           When authentication fails the plugin sends `WWW-Authenticate` header with `realm` attribute value.
+     * @param bool|null                 $runOnPreflight  A boolean value that indicates whether the plugin should run (and try to authenticate) on `OPTIONS` preflight… Default: `true`.
      */
     public function __construct(
         public ?string $anonymous = null,
@@ -41,7 +41,7 @@ final readonly class KeyAuthConfigInput implements Input
         public ?bool $keyInHeader = null,
         public ?bool $keyInQuery = null,
         public ?array $keyNames = null,
-        public ?KeyAuthPrincipals $principals = null,
+        public ?Principals $principals = null,
         public ?string $realm = null,
         public ?bool $runOnPreflight = null,
     ) {

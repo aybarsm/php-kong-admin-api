@@ -22,20 +22,20 @@ final readonly class RequestTransformerConfigInput implements Input
     public const string NAME = 'request-transformer';
 
     /**
-     * @param RequestTransformerAdd|null     $add
-     * @param RequestTransformerAppend|null  $append
-     * @param string|null                    $httpMethod A string representing an HTTP method, such as GET, POST, PUT, or DELETE.
-     * @param RequestTransformerRemove|null  $remove
-     * @param RequestTransformerRename|null  $rename
-     * @param RequestTransformerReplace|null $replace
+     * @param Add|null     $add
+     * @param Append|null  $append
+     * @param string|null  $httpMethod A string representing an HTTP method, such as GET, POST, PUT, or DELETE.
+     * @param Remove|null  $remove
+     * @param Rename|null  $rename
+     * @param Replace|null $replace
      */
     public function __construct(
-        public ?RequestTransformerAdd $add = null,
-        public ?RequestTransformerAppend $append = null,
+        public ?Add $add = null,
+        public ?Append $append = null,
         public ?string $httpMethod = null,
-        public ?RequestTransformerRemove $remove = null,
-        public ?RequestTransformerRename $rename = null,
-        public ?RequestTransformerReplace $replace = null,
+        public ?Remove $remove = null,
+        public ?Rename $rename = null,
+        public ?Replace $replace = null,
     ) {
     }
 

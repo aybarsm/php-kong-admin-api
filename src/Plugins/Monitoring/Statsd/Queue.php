@@ -1,0 +1,83 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Aybarsm\Kong\AdminApi\Plugins\Monitoring\Statsd;
+
+use Aybarsm\Kong\AdminApi\Attributes\PluginSchema;
+use Aybarsm\Kong\AdminApi\Contracts\Model;
+use Aybarsm\Kong\AdminApi\Internal\Data;
+use Override;
+
+/**
+ * The `config.queue` object of the StatsD plugin (doc `Monitoring/statsd.md`).
+ */
+#[PluginSchema('Monitoring/statsd.md', '#/properties/config/properties/queue')]
+final readonly class Queue implements Model
+{
+    /**
+     * @param int|float|null             $breakerCooldown    Time in seconds the circuit breaker stays open (fast-shedding entries) before it allows a single batch throug… Default: `60`.
+     * @param QueueConcurrencyLimit|null $concurrencyLimit   The number of of queue delivery timers. Default: `1`.
+     * @param int|null                   $failureThreshold   Number of consecutive failed batches after which the queue opens its circuit breaker and drops entries instea… Default: `0`.
+     * @param int|float|null             $initialRetryDelay  Time in seconds before the initial retry is made for a failing batch. Default: `0.01`.
+     * @param int|null                   $maxBatchSize       Maximum number of entries that can be processed at a time. Default: `1`.
+     * @param int|null                   $maxBytes           Maximum number of bytes that can be waiting on a queue, requires string content.
+     * @param int|float|null             $maxCoalescingDelay Maximum number of (fractional) seconds to elapse after the first entry was queued before the queue starts cal… Default: `1`.
+     * @param int|null                   $maxEntries         Maximum number of entries that can be waiting on the queue. Default: `10000`.
+     * @param int|float|null             $maxRetryDelay      Maximum time in seconds between retries, caps exponential backoff. Default: `60`.
+     * @param int|float|null             $maxRetryTime       Time in seconds before the queue gives up calling a failed handler for a batch. Default: `60`.
+     */
+    public function __construct(
+        public int|float|null $breakerCooldown = null,
+        public ?QueueConcurrencyLimit $concurrencyLimit = null,
+        public ?int $failureThreshold = null,
+        public int|float|null $initialRetryDelay = null,
+        public ?int $maxBatchSize = null,
+        public ?int $maxBytes = null,
+        public int|float|null $maxCoalescingDelay = null,
+        public ?int $maxEntries = null,
+        public int|float|null $maxRetryDelay = null,
+        public int|float|null $maxRetryTime = null,
+    ) {
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     */
+    #[Override]
+    public static function fromArray(array $data): static
+    {
+        return new self(
+            breakerCooldown: Data::numberOrNull($data, 'breaker_cooldown'),
+            concurrencyLimit: Data::enumOrNull($data, 'concurrency_limit', QueueConcurrencyLimit::class),
+            failureThreshold: Data::intOrNull($data, 'failure_threshold'),
+            initialRetryDelay: Data::numberOrNull($data, 'initial_retry_delay'),
+            maxBatchSize: Data::intOrNull($data, 'max_batch_size'),
+            maxBytes: Data::intOrNull($data, 'max_bytes'),
+            maxCoalescingDelay: Data::numberOrNull($data, 'max_coalescing_delay'),
+            maxEntries: Data::intOrNull($data, 'max_entries'),
+            maxRetryDelay: Data::numberOrNull($data, 'max_retry_delay'),
+            maxRetryTime: Data::numberOrNull($data, 'max_retry_time'),
+        );
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    #[Override]
+    public function toArray(): array
+    {
+        return Data::withoutNulls([
+            'breaker_cooldown' => $this->breakerCooldown,
+            'concurrency_limit' => $this->concurrencyLimit?->value,
+            'failure_threshold' => $this->failureThreshold,
+            'initial_retry_delay' => $this->initialRetryDelay,
+            'max_batch_size' => $this->maxBatchSize,
+            'max_bytes' => $this->maxBytes,
+            'max_coalescing_delay' => $this->maxCoalescingDelay,
+            'max_entries' => $this->maxEntries,
+            'max_retry_delay' => $this->maxRetryDelay,
+            'max_retry_time' => $this->maxRetryTime,
+        ]);
+    }
+}

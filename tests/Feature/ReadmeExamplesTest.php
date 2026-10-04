@@ -21,10 +21,10 @@ use Aybarsm\Kong\AdminApi\Models\ServiceInput;
 use Aybarsm\Kong\AdminApi\Pagination\ListOptions;
 use Aybarsm\Kong\AdminApi\Pagination\TagFilter;
 use Aybarsm\Kong\AdminApi\Plugins\PluginRegistry;
+use Aybarsm\Kong\AdminApi\Plugins\TrafficControl\RateLimiting\Policy;
 use Aybarsm\Kong\AdminApi\Plugins\TrafficControl\RateLimiting\RateLimitingConfig;
 use Aybarsm\Kong\AdminApi\Plugins\TrafficControl\RateLimiting\RateLimitingConfigInput;
 use Aybarsm\Kong\AdminApi\Plugins\TrafficControl\RateLimiting\RateLimitingInput;
-use Aybarsm\Kong\AdminApi\Plugins\TrafficControl\RateLimiting\RateLimitingPolicy;
 use Aybarsm\Kong\AdminApi\Tests\Support\Fixture;
 use Aybarsm\Kong\AdminApi\Tests\Support\MockKong;
 use GuzzleHttp\Client;
@@ -322,7 +322,7 @@ it('README: typed plugins', function (): void {
 
     // --- README ---
     $plugin = $kong->services()->plugins('billing')->create(new RateLimitingInput(
-        config: new RateLimitingConfigInput(minute: 100, policy: RateLimitingPolicy::Local),
+        config: new RateLimitingConfigInput(minute: 100, policy: Policy::Local),
         tags: ['edge'],
     ));
 

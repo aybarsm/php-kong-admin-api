@@ -22,19 +22,19 @@ final readonly class AiRequestTransformerConfigInput implements Input
     public const string NAME = 'ai-request-transformer';
 
     /**
-     * @param AiRequestTransformerLlm|null $llm                          Required by the plugin doc.
-     * @param string|null                  $prompt                       Use this prompt to tune the LLM system/assistant message for the incoming proxy request (from the client), an… Required by the plugin doc.
-     * @param string|null                  $httpProxyHost                A string representing a host name, such as example.com.
-     * @param int|null                     $httpProxyPort                An integer representing a port number between 0 and 65535, inclusive.
-     * @param int|null                     $httpTimeout                  Timeout in milliseconds for the AI upstream service. Default: `60000`.
-     * @param string|null                  $httpsProxyHost               A string representing a host name, such as example.com.
-     * @param int|null                     $httpsProxyPort               An integer representing a port number between 0 and 65535, inclusive.
-     * @param bool|null                    $httpsVerify                  Verify the TLS certificate of the AI upstream service. Default: `true`.
-     * @param int|null                     $maxRequestBodySize           max allowed body size allowed to be introspected. Default: `1048576`.
-     * @param string|null                  $transformationExtractPattern Defines the regular expression that must match to indicate a successful AI transformation at the request phas…
+     * @param Llm|null    $llm                          Required by the plugin doc.
+     * @param string|null $prompt                       Use this prompt to tune the LLM system/assistant message for the incoming proxy request (from the client), an… Required by the plugin doc.
+     * @param string|null $httpProxyHost                A string representing a host name, such as example.com.
+     * @param int|null    $httpProxyPort                An integer representing a port number between 0 and 65535, inclusive.
+     * @param int|null    $httpTimeout                  Timeout in milliseconds for the AI upstream service. Default: `60000`.
+     * @param string|null $httpsProxyHost               A string representing a host name, such as example.com.
+     * @param int|null    $httpsProxyPort               An integer representing a port number between 0 and 65535, inclusive.
+     * @param bool|null   $httpsVerify                  Verify the TLS certificate of the AI upstream service. Default: `true`.
+     * @param int|null    $maxRequestBodySize           max allowed body size allowed to be introspected. Default: `1048576`.
+     * @param string|null $transformationExtractPattern Defines the regular expression that must match to indicate a successful AI transformation at the request phas…
      */
     public function __construct(
-        public ?AiRequestTransformerLlm $llm = null,
+        public ?Llm $llm = null,
         public ?string $prompt = null,
         public ?string $httpProxyHost = null,
         public ?int $httpProxyPort = null,

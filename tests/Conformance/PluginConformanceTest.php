@@ -135,16 +135,19 @@ it('implements every plugin doc that is not blocked, and nothing else', function
 });
 
 it('blocks only docs that duplicate another plugin doc', function (): void {
+    $unjustified = [];
     foreach (PluginDocs::blocked() as $doc) {
         $config = PluginDocs::node($doc, '#/properties/config');
         $twins = array_filter(
             PluginDocs::all(),
             static fn (string $other): bool => $other !== $doc && PluginDocs::node($other, '#/properties/config') === $config,
         );
-
-        expect($twins)->not->toBeEmpty("$doc is blocked but duplicates no other doc: unblock it")
-            ->and(PluginDocs::name($doc))->not->toBe(pathinfo($doc, PATHINFO_FILENAME));
+        if ($twins === [] || PluginDocs::name($doc) === pathinfo($doc, PATHINFO_FILENAME)) {
+            $unjustified[] = $doc;
+        }
     }
+
+    expect($unjustified)->toBe([], 'blocked docs that are no longer copies of another doc: unblock them');
 });
 
 it('places, names and registers every plugin after its doc', function (): void {

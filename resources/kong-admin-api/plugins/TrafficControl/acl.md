@@ -1,9 +1,8 @@
 ---
-title: CORS Plugin Configuration Reference
-description: The CORS plugin lets you add Cross-Origin Resource Sharing (CORS) to
-  a Service or a Route.
-url: "/plugins/cors/reference/"
-canonical_url: "/plugins/cors/reference/"
+title: ACL Plugin Configuration Reference
+description: Control which Consumers can access Services and Routes
+url: "/plugins/acl/reference/"
+canonical_url: "/plugins/acl/reference/"
 content_type: reference
 min_version:
   gateway: '1.0'
@@ -16,6 +15,8 @@ tools:
 - KIC
 - Operator
 - Terraform
+tags:
+- traffic-control
 canonical: true
 works_on:
 - on-prem
@@ -24,7 +25,7 @@ works_on:
 
 ---
 
-# CORS Plugin Configuration Reference
+# ACL Plugin Configuration Reference
 
 
 
@@ -40,78 +41,51 @@ works_on:
   "properties": {
     "config": {
       "properties": {
-        "allow_origin_absent": {
-          "default": true,
-          "description": "A boolean value that skip cors response headers when origin header of request is empty",
+        "allow": {
+          "description": "Arbitrary group names that are allowed to consume the service or route. Exactly one of `config.allow`, `config.deny`, `config.allow_when`, or `config.deny_when` must be specified.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "allow_when": {
+          "description": "Allow the request if it matches any of these CEL boolean expressions evaluated against the request context (consumer, principal, HTTP attributes, consumer groups, etc.). Exactly one of `config.allow`, `config.deny`, `config.allow_when`, or `config.deny_when` must be specified.",
+          "items": {
+            "maxLength": 1024,
+            "minLength": 1,
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "always_use_authenticated_groups": {
+          "default": false,
+          "description": "If enabled (`true`), the authenticated groups will always be used even when an authenticated consumer already exists. If the authenticated groups don't exist, it will fallback to use the groups associated with the consumer. By default the authenticated groups will only be used when there is no consumer or the consumer is anonymous. This option is ignored when `allow_when` or `deny_when` is effective.",
           "type": "boolean"
         },
-        "credentials": {
+        "deny": {
+          "description": "Arbitrary group names that are not allowed to consume the service or route. Exactly one of `config.allow`, `config.deny`, `config.allow_when`, or `config.deny_when` must be specified.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "deny_when": {
+          "description": "Deny the request if it matches any of these CEL boolean expressions evaluated against the request context (consumer, principal, HTTP attributes, consumer groups, etc.). Exactly one of `config.allow`, `config.deny`, `config.allow_when`, or `config.deny_when` must be specified.",
+          "items": {
+            "maxLength": 1024,
+            "minLength": 1,
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "hide_groups_header": {
           "default": false,
-          "description": "Flag to determine whether the `Access-Control-Allow-Credentials` header should be sent with `true` as the value.",
+          "description": "If enabled (`true`), prevents the `X-Consumer-Groups` header from being sent in the request to the upstream service. This header is not set when allow_when or deny_when is used.",
           "type": "boolean"
         },
-        "exposed_headers": {
-          "description": "Value for the `Access-Control-Expose-Headers` header. If not specified, no custom headers are exposed.",
-          "items": {
-            "type": "string"
-          },
-          "type": "array"
-        },
-        "headers": {
-          "description": "Value for the `Access-Control-Allow-Headers` header.",
-          "items": {
-            "type": "string"
-          },
-          "type": "array"
-        },
-        "max_age": {
-          "description": "Indicates how long the results of the preflight request can be cached, in `seconds`.",
-          "type": "number"
-        },
-        "methods": {
-          "default": [
-            "CONNECT",
-            "DELETE",
-            "GET",
-            "HEAD",
-            "OPTIONS",
-            "PATCH",
-            "POST",
-            "PUT",
-            "TRACE"
-          ],
-          "description": "'Value for the `Access-Control-Allow-Methods` header. Available options include `GET`, `HEAD`, `PUT`, `PATCH`, `POST`, `DELETE`, `OPTIONS`, `TRACE`, `CONNECT`. By default, all options are allowed.'",
-          "items": {
-            "enum": [
-              "CONNECT",
-              "DELETE",
-              "GET",
-              "HEAD",
-              "OPTIONS",
-              "PATCH",
-              "POST",
-              "PUT",
-              "TRACE"
-            ],
-            "type": "string"
-          },
-          "type": "array"
-        },
-        "origins": {
-          "description": "List of allowed domains for the `Access-Control-Allow-Origin` header. If you want to allow all origins, add `*` as a single value to this configuration field. The accepted values can either be flat strings or PCRE regexes. NOTE: If you don't specify any allowed domains, all origins are allowed.",
-          "items": {
-            "type": "string"
-          },
-          "type": "array"
-        },
-        "preflight_continue": {
+        "include_consumer_groups": {
           "default": false,
-          "description": "A boolean value that instructs the plugin to proxy the `OPTIONS` preflight request to the Upstream service.",
-          "type": "boolean"
-        },
-        "private_network": {
-          "default": false,
-          "description": "Flag to determine whether the `Access-Control-Allow-Private-Network` header should be sent with `true` as the value.",
+          "description": "If enabled (`true`), allows the consumer-groups to be used in the `allow|deny` fields. This option is ignored when `allow_when` or `deny_when` is used.",
           "type": "boolean"
         }
       },
@@ -128,15 +102,16 @@ works_on:
         "http",
         "https"
       ],
-      "description": "A set of strings representing HTTP protocols.",
+      "description": "A list of the request protocols that will trigger this plugin. The default value, as well as the possible values allowed on this field, may change depending on the plugin type. For example, plugins that only work in stream mode will only support tcp and tls.",
       "items": {
         "enum": [
           "grpc",
           "grpcs",
           "http",
-          "https"
+          "https",
+          "ws",
+          "wss"
         ],
-        "minLength": 1,
         "type": "string"
       },
       "type": "array"
@@ -168,5 +143,9 @@ works_on:
 
 ## Related Resources
 
-- [DNS configuration reference](/gateway/network/dns-config-reference/)
+- [Use the ACL plugin with Consumer Groups](/how-to/use-acl-with-consumer-groups/)
+
+- [Kong Gateway traffic control and routing](/gateway/traffic-control-and-routing/)
+
+- [Dynamic plugin config with CEL](/gateway/plugins/expressible-fields/)
 

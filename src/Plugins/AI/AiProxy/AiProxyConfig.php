@@ -24,26 +24,26 @@ final readonly class AiProxyConfig implements PluginConfig
     public const string NAME = 'ai-proxy';
 
     /**
-     * @param AiProxyModel                  $model
-     * @param AiProxyRouteType              $routeType          The model's operation implementation, for this provider.
-     * @param AiProxyAuth|null              $auth
-     * @param AiProxyGenaiCategory|null     $genaiCategory      Generative AI category of the request Default: `text/generation`.
-     * @param AiProxyLlmFormat|null         $llmFormat          LLM input and output format and schema to use Default: `openai`.
-     * @param AiProxyLogging|null           $logging
-     * @param int|null                      $maxRequestBodySize max allowed body size allowed to be introspected. Default: `1048576`.
-     * @param bool|null                     $modelNameHeader    Display the model name selected in the X-Kong-LLM-Model response header Default: `true`.
-     * @param AiProxyResponseStreaming|null $responseStreaming  Whether to 'optionally allow', 'deny', or 'always' (force) the streaming of answers via server sent events. Default: `allow`.
+     * @param AiProxyModel           $model
+     * @param RouteType              $routeType          The model's operation implementation, for this provider.
+     * @param Auth|null              $auth
+     * @param GenaiCategory|null     $genaiCategory      Generative AI category of the request Default: `text/generation`.
+     * @param LlmFormat|null         $llmFormat          LLM input and output format and schema to use Default: `openai`.
+     * @param Logging|null           $logging
+     * @param int|null               $maxRequestBodySize max allowed body size allowed to be introspected. Default: `1048576`.
+     * @param bool|null              $modelNameHeader    Display the model name selected in the X-Kong-LLM-Model response header Default: `true`.
+     * @param ResponseStreaming|null $responseStreaming  Whether to 'optionally allow', 'deny', or 'always' (force) the streaming of answers via server sent events. Default: `allow`.
      */
     public function __construct(
         public AiProxyModel $model,
-        public AiProxyRouteType $routeType,
-        public ?AiProxyAuth $auth = null,
-        public ?AiProxyGenaiCategory $genaiCategory = null,
-        public ?AiProxyLlmFormat $llmFormat = null,
-        public ?AiProxyLogging $logging = null,
+        public RouteType $routeType,
+        public ?Auth $auth = null,
+        public ?GenaiCategory $genaiCategory = null,
+        public ?LlmFormat $llmFormat = null,
+        public ?Logging $logging = null,
         public ?int $maxRequestBodySize = null,
         public ?bool $modelNameHeader = null,
-        public ?AiProxyResponseStreaming $responseStreaming = null,
+        public ?ResponseStreaming $responseStreaming = null,
     ) {
     }
 
@@ -58,14 +58,14 @@ final readonly class AiProxyConfig implements PluginConfig
 
         return new self(
             model: AiProxyModel::fromArray(Data::map($data, 'model')),
-            routeType: Data::enum($data, 'route_type', AiProxyRouteType::class),
-            auth: $auth === null ? null : AiProxyAuth::fromArray($auth),
-            genaiCategory: Data::enumOrNull($data, 'genai_category', AiProxyGenaiCategory::class),
-            llmFormat: Data::enumOrNull($data, 'llm_format', AiProxyLlmFormat::class),
-            logging: $logging === null ? null : AiProxyLogging::fromArray($logging),
+            routeType: Data::enum($data, 'route_type', RouteType::class),
+            auth: $auth === null ? null : Auth::fromArray($auth),
+            genaiCategory: Data::enumOrNull($data, 'genai_category', GenaiCategory::class),
+            llmFormat: Data::enumOrNull($data, 'llm_format', LlmFormat::class),
+            logging: $logging === null ? null : Logging::fromArray($logging),
             maxRequestBodySize: Data::intOrNull($data, 'max_request_body_size'),
             modelNameHeader: Data::boolOrNull($data, 'model_name_header'),
-            responseStreaming: Data::enumOrNull($data, 'response_streaming', AiProxyResponseStreaming::class),
+            responseStreaming: Data::enumOrNull($data, 'response_streaming', ResponseStreaming::class),
         );
     }
 

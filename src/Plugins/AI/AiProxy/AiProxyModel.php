@@ -16,16 +16,16 @@ use Override;
 final readonly class AiProxyModel implements Model
 {
     /**
-     * @param AiProxyModelProvider     $provider   AI provider request format - Kong translates requests to and from the specified backend compatible formats.
-     * @param string|null              $modelAlias The model name parameter from the request that this model should map to.
-     * @param string|null              $name       Model name to execute.
-     * @param AiProxyModelOptions|null $options    Key/value settings for the model
+     * @param ModelProvider     $provider   AI provider request format - Kong translates requests to and from the specified backend compatible formats.
+     * @param string|null       $modelAlias The model name parameter from the request that this model should map to.
+     * @param string|null       $name       Model name to execute.
+     * @param ModelOptions|null $options    Key/value settings for the model
      */
     public function __construct(
-        public AiProxyModelProvider $provider,
+        public ModelProvider $provider,
         public ?string $modelAlias = null,
         public ?string $name = null,
-        public ?AiProxyModelOptions $options = null,
+        public ?ModelOptions $options = null,
     ) {
     }
 
@@ -38,10 +38,10 @@ final readonly class AiProxyModel implements Model
         $options = Data::mapOrNull($data, 'options');
 
         return new self(
-            provider: Data::enum($data, 'provider', AiProxyModelProvider::class),
+            provider: Data::enum($data, 'provider', ModelProvider::class),
             modelAlias: Data::stringOrNull($data, 'model_alias'),
             name: Data::stringOrNull($data, 'name'),
-            options: $options === null ? null : AiProxyModelOptions::fromArray($options),
+            options: $options === null ? null : ModelOptions::fromArray($options),
         );
     }
 

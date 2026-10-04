@@ -22,18 +22,18 @@ final readonly class ResponseTransformerConfigInput implements Input
     public const string NAME = 'response-transformer';
 
     /**
-     * @param ResponseTransformerAdd|null     $add
-     * @param ResponseTransformerAppend|null  $append
-     * @param ResponseTransformerRemove|null  $remove
-     * @param ResponseTransformerRename|null  $rename
-     * @param ResponseTransformerReplace|null $replace
+     * @param Add|null     $add
+     * @param Append|null  $append
+     * @param Remove|null  $remove
+     * @param Rename|null  $rename
+     * @param Replace|null $replace
      */
     public function __construct(
-        public ?ResponseTransformerAdd $add = null,
-        public ?ResponseTransformerAppend $append = null,
-        public ?ResponseTransformerRemove $remove = null,
-        public ?ResponseTransformerRename $rename = null,
-        public ?ResponseTransformerReplace $replace = null,
+        public ?Add $add = null,
+        public ?Append $append = null,
+        public ?Remove $remove = null,
+        public ?Rename $rename = null,
+        public ?Replace $replace = null,
     ) {
     }
 

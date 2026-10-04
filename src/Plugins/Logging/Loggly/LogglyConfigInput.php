@@ -26,29 +26,29 @@ final readonly class LogglyConfigInput implements Input
     public const string NAME = 'loggly';
 
     /**
-     * @param string|null                     $key                  This field is [referenceable](/gateway/entities/vault/#how-do-i-reference-secrets-stored-in-a-vault). Required by the plugin doc.
-     * @param LogglyClientErrorsSeverity|null $clientErrorsSeverity Default: `info`.
-     * @param array<array-key, string>|null   $customFieldsByLua    Lua code as a key-value map
-     * @param string|null                     $host                 A string representing a host name, such as example.com. Default: `logs-01.loggly.com`.
-     * @param LogglyLogLevel|null             $logLevel             Default: `info`.
-     * @param int|null                        $port                 An integer representing a port number between 0 and 65535, inclusive. Default: `514`.
-     * @param LogglyServerErrorsSeverity|null $serverErrorsSeverity Default: `info`.
-     * @param LogglySuccessfulSeverity|null   $successfulSeverity   Default: `info`.
-     * @param list<string>|null               $tags                 Default: `["kong"]`.
-     * @param float|null                      $timeout              Default: `10000`.
+     * @param string|null                   $key                  This field is [referenceable](/gateway/entities/vault/#how-do-i-reference-secrets-stored-in-a-vault). Required by the plugin doc.
+     * @param ClientErrorsSeverity|null     $clientErrorsSeverity Default: `info`.
+     * @param array<array-key, string>|null $customFieldsByLua    Lua code as a key-value map
+     * @param string|null                   $host                 A string representing a host name, such as example.com. Default: `logs-01.loggly.com`.
+     * @param LogLevel|null                 $logLevel             Default: `info`.
+     * @param int|null                      $port                 An integer representing a port number between 0 and 65535, inclusive. Default: `514`.
+     * @param ServerErrorsSeverity|null     $serverErrorsSeverity Default: `info`.
+     * @param SuccessfulSeverity|null       $successfulSeverity   Default: `info`.
+     * @param list<string>|null             $tags                 Default: `["kong"]`.
+     * @param int|float|null                $timeout              Default: `10000`.
      */
     public function __construct(
         #[SensitiveParameter]
         public ?string $key = null,
-        public ?LogglyClientErrorsSeverity $clientErrorsSeverity = null,
+        public ?ClientErrorsSeverity $clientErrorsSeverity = null,
         public ?array $customFieldsByLua = null,
         public ?string $host = null,
-        public ?LogglyLogLevel $logLevel = null,
+        public ?LogLevel $logLevel = null,
         public ?int $port = null,
-        public ?LogglyServerErrorsSeverity $serverErrorsSeverity = null,
-        public ?LogglySuccessfulSeverity $successfulSeverity = null,
+        public ?ServerErrorsSeverity $serverErrorsSeverity = null,
+        public ?SuccessfulSeverity $successfulSeverity = null,
         public ?array $tags = null,
-        public ?float $timeout = null,
+        public int|float|null $timeout = null,
     ) {
     }
 

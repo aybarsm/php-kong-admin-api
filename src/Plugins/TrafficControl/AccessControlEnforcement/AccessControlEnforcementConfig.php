@@ -24,14 +24,14 @@ final readonly class AccessControlEnforcementConfig implements PluginConfig
     public const string NAME = 'ace';
 
     /**
-     * @param string|null                               $anonymous    An optional string (consumer UUID or username) value to use as an `anonymous` consumer if authentication fail…
-     * @param AccessControlEnforcementMatchPolicy|null  $matchPolicy  Determines how the ACE plugin will behave when a request doesn't match an existing operation from an API or A… Default: `if_present`.
-     * @param AccessControlEnforcementRateLimiting|null $rateLimiting
+     * @param string|null       $anonymous    An optional string (consumer UUID or username) value to use as an `anonymous` consumer if authentication fail…
+     * @param MatchPolicy|null  $matchPolicy  Determines how the ACE plugin will behave when a request doesn't match an existing operation from an API or A… Default: `if_present`.
+     * @param RateLimiting|null $rateLimiting
      */
     public function __construct(
         public ?string $anonymous = null,
-        public ?AccessControlEnforcementMatchPolicy $matchPolicy = null,
-        public ?AccessControlEnforcementRateLimiting $rateLimiting = null,
+        public ?MatchPolicy $matchPolicy = null,
+        public ?RateLimiting $rateLimiting = null,
     ) {
     }
 
@@ -45,8 +45,8 @@ final readonly class AccessControlEnforcementConfig implements PluginConfig
 
         return new self(
             anonymous: Data::stringOrNull($data, 'anonymous'),
-            matchPolicy: Data::enumOrNull($data, 'match_policy', AccessControlEnforcementMatchPolicy::class),
-            rateLimiting: $rateLimiting === null ? null : AccessControlEnforcementRateLimiting::fromArray($rateLimiting),
+            matchPolicy: Data::enumOrNull($data, 'match_policy', MatchPolicy::class),
+            rateLimiting: $rateLimiting === null ? null : RateLimiting::fromArray($rateLimiting),
         );
     }
 

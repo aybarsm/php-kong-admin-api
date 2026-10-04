@@ -22,14 +22,14 @@ final readonly class AiPromptDecoratorConfigInput implements Input
     public const string NAME = 'ai-prompt-decorator';
 
     /**
-     * @param AiPromptDecoratorLlmFormat|null $llmFormat          LLM input and output format and schema to use Default: `openai`.
-     * @param int|null                        $maxRequestBodySize max allowed body size allowed to be introspected. Default: `1048576`.
-     * @param AiPromptDecoratorPrompts|null   $prompts
+     * @param LlmFormat|null $llmFormat          LLM input and output format and schema to use Default: `openai`.
+     * @param int|null       $maxRequestBodySize max allowed body size allowed to be introspected. Default: `1048576`.
+     * @param Prompts|null   $prompts
      */
     public function __construct(
-        public ?AiPromptDecoratorLlmFormat $llmFormat = null,
+        public ?LlmFormat $llmFormat = null,
         public ?int $maxRequestBodySize = null,
-        public ?AiPromptDecoratorPrompts $prompts = null,
+        public ?Prompts $prompts = null,
     ) {
     }
 

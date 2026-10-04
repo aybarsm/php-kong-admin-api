@@ -22,40 +22,40 @@ final readonly class OpentelemetryConfigInput implements Input
     public const string NAME = 'opentelemetry';
 
     /**
-     * @param OpentelemetryAccessLogs|null       $accessLogs                   Configuration for exporting access logs to an OTLP/HTTP endpoint.
-     * @param int|null                           $batchFlushDelay              The delay, in seconds, between two consecutive batches.
-     * @param int|null                           $batchSpanCount               The number of spans to be sent in a single batch.
-     * @param int|null                           $connectTimeout               An integer representing a timeout in milliseconds. Default: `1000`.
-     * @param OpentelemetryHeaderType|null       $headerType                   Default: `preserve`.
-     * @param array<array-key, string>|null      $headers                      The custom headers to be added in the HTTP request sent to the OTLP server.
-     * @param string|null                        $httpResponseHeaderForTraceid
-     * @param string|null                        $logsEndpoint                 An HTTP URL endpoint where internal logs are exported.
-     * @param OpentelemetryMetrics|null          $metrics                      Configuration for exporting metrics to an OTLP/HTTP endpoint.
-     * @param OpentelemetryPropagation|null      $propagation                  Default: `{"default_format": "w3c"}`.
-     * @param OpentelemetryQueue|null            $queue                        Default: `{"max_batch_size": 200}`.
-     * @param int|null                           $readTimeout                  An integer representing a timeout in milliseconds. Default: `5000`.
-     * @param array<array-key, string>|null      $resourceAttributes           A key-value map of resource attributes to be sent with the telemetry data.
-     * @param float|null                         $samplingRate                 Tracing sampling rate for configuring the probability-based sampler.
-     * @param OpentelemetrySamplingStrategy|null $samplingStrategy             The sampling strategy to use for OTLP `traces`. Default: `parent_drop_probability_fallback`.
-     * @param int|null                           $sendTimeout                  An integer representing a timeout in milliseconds. Default: `5000`.
-     * @param string|null                        $tracesEndpoint               A string representing a URL, such as https://example.com/path/to/resource?q=search.
+     * @param AccessLogs|null               $accessLogs                   Configuration for exporting access logs to an OTLP/HTTP endpoint.
+     * @param int|null                      $batchFlushDelay              The delay, in seconds, between two consecutive batches.
+     * @param int|null                      $batchSpanCount               The number of spans to be sent in a single batch.
+     * @param int|null                      $connectTimeout               An integer representing a timeout in milliseconds. Default: `1000`.
+     * @param HeaderType|null               $headerType                   Default: `preserve`.
+     * @param array<array-key, string>|null $headers                      The custom headers to be added in the HTTP request sent to the OTLP server.
+     * @param string|null                   $httpResponseHeaderForTraceid
+     * @param string|null                   $logsEndpoint                 An HTTP URL endpoint where internal logs are exported.
+     * @param Metrics|null                  $metrics                      Configuration for exporting metrics to an OTLP/HTTP endpoint.
+     * @param Propagation|null              $propagation                  Default: `{"default_format": "w3c"}`.
+     * @param Queue|null                    $queue                        Default: `{"max_batch_size": 200}`.
+     * @param int|null                      $readTimeout                  An integer representing a timeout in milliseconds. Default: `5000`.
+     * @param array<array-key, string>|null $resourceAttributes           A key-value map of resource attributes to be sent with the telemetry data.
+     * @param int|float|null                $samplingRate                 Tracing sampling rate for configuring the probability-based sampler.
+     * @param SamplingStrategy|null         $samplingStrategy             The sampling strategy to use for OTLP `traces`. Default: `parent_drop_probability_fallback`.
+     * @param int|null                      $sendTimeout                  An integer representing a timeout in milliseconds. Default: `5000`.
+     * @param string|null                   $tracesEndpoint               A string representing a URL, such as https://example.com/path/to/resource?q=search.
      */
     public function __construct(
-        public ?OpentelemetryAccessLogs $accessLogs = null,
+        public ?AccessLogs $accessLogs = null,
         public ?int $batchFlushDelay = null,
         public ?int $batchSpanCount = null,
         public ?int $connectTimeout = null,
-        public ?OpentelemetryHeaderType $headerType = null,
+        public ?HeaderType $headerType = null,
         public ?array $headers = null,
         public ?string $httpResponseHeaderForTraceid = null,
         public ?string $logsEndpoint = null,
-        public ?OpentelemetryMetrics $metrics = null,
-        public ?OpentelemetryPropagation $propagation = null,
-        public ?OpentelemetryQueue $queue = null,
+        public ?Metrics $metrics = null,
+        public ?Propagation $propagation = null,
+        public ?Queue $queue = null,
         public ?int $readTimeout = null,
         public ?array $resourceAttributes = null,
-        public ?float $samplingRate = null,
-        public ?OpentelemetrySamplingStrategy $samplingStrategy = null,
+        public int|float|null $samplingRate = null,
+        public ?SamplingStrategy $samplingStrategy = null,
         public ?int $sendTimeout = null,
         public ?string $tracesEndpoint = null,
     ) {

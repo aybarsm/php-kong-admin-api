@@ -107,6 +107,35 @@ final class Data
     }
 
     /**
+     * Reads a required plugin-doc `number`, keeping JSON integers as int.
+     *
+     * @param array<string, mixed> $data
+     *
+     * @throws UnexpectedResponseException
+     */
+    public static function number(array $data, string $key): int|float
+    {
+        return self::numberOrNull($data, $key) ?? throw self::missing($key);
+    }
+
+    /**
+     * Reads a plugin-doc `number`, keeping JSON integers as int.
+     *
+     * @param array<string, mixed> $data
+     *
+     * @throws UnexpectedResponseException
+     */
+    public static function numberOrNull(array $data, string $key): int|float|null
+    {
+        $value = $data[$key] ?? null;
+        if ($value === null || is_int($value) || is_float($value)) {
+            return $value;
+        }
+
+        throw self::invalid($key, 'number');
+    }
+
+    /**
      * @param array<string, mixed> $data
      *
      * @throws UnexpectedResponseException

@@ -24,40 +24,40 @@ final readonly class OpentelemetryConfig implements PluginConfig
     public const string NAME = 'opentelemetry';
 
     /**
-     * @param OpentelemetryAccessLogs|null       $accessLogs                   Configuration for exporting access logs to an OTLP/HTTP endpoint.
-     * @param int|null                           $batchFlushDelay              The delay, in seconds, between two consecutive batches.
-     * @param int|null                           $batchSpanCount               The number of spans to be sent in a single batch.
-     * @param int|null                           $connectTimeout               An integer representing a timeout in milliseconds. Default: `1000`.
-     * @param OpentelemetryHeaderType|null       $headerType                   Default: `preserve`.
-     * @param array<array-key, string>|null      $headers                      The custom headers to be added in the HTTP request sent to the OTLP server.
-     * @param string|null                        $httpResponseHeaderForTraceid
-     * @param string|null                        $logsEndpoint                 An HTTP URL endpoint where internal logs are exported.
-     * @param OpentelemetryMetrics|null          $metrics                      Configuration for exporting metrics to an OTLP/HTTP endpoint.
-     * @param OpentelemetryPropagation|null      $propagation                  Default: `{"default_format": "w3c"}`.
-     * @param OpentelemetryQueue|null            $queue                        Default: `{"max_batch_size": 200}`.
-     * @param int|null                           $readTimeout                  An integer representing a timeout in milliseconds. Default: `5000`.
-     * @param array<array-key, string>|null      $resourceAttributes           A key-value map of resource attributes to be sent with the telemetry data.
-     * @param float|null                         $samplingRate                 Tracing sampling rate for configuring the probability-based sampler.
-     * @param OpentelemetrySamplingStrategy|null $samplingStrategy             The sampling strategy to use for OTLP `traces`. Default: `parent_drop_probability_fallback`.
-     * @param int|null                           $sendTimeout                  An integer representing a timeout in milliseconds. Default: `5000`.
-     * @param string|null                        $tracesEndpoint               A string representing a URL, such as https://example.com/path/to/resource?q=search.
+     * @param AccessLogs|null               $accessLogs                   Configuration for exporting access logs to an OTLP/HTTP endpoint.
+     * @param int|null                      $batchFlushDelay              The delay, in seconds, between two consecutive batches.
+     * @param int|null                      $batchSpanCount               The number of spans to be sent in a single batch.
+     * @param int|null                      $connectTimeout               An integer representing a timeout in milliseconds. Default: `1000`.
+     * @param HeaderType|null               $headerType                   Default: `preserve`.
+     * @param array<array-key, string>|null $headers                      The custom headers to be added in the HTTP request sent to the OTLP server.
+     * @param string|null                   $httpResponseHeaderForTraceid
+     * @param string|null                   $logsEndpoint                 An HTTP URL endpoint where internal logs are exported.
+     * @param Metrics|null                  $metrics                      Configuration for exporting metrics to an OTLP/HTTP endpoint.
+     * @param Propagation|null              $propagation                  Default: `{"default_format": "w3c"}`.
+     * @param Queue|null                    $queue                        Default: `{"max_batch_size": 200}`.
+     * @param int|null                      $readTimeout                  An integer representing a timeout in milliseconds. Default: `5000`.
+     * @param array<array-key, string>|null $resourceAttributes           A key-value map of resource attributes to be sent with the telemetry data.
+     * @param int|float|null                $samplingRate                 Tracing sampling rate for configuring the probability-based sampler.
+     * @param SamplingStrategy|null         $samplingStrategy             The sampling strategy to use for OTLP `traces`. Default: `parent_drop_probability_fallback`.
+     * @param int|null                      $sendTimeout                  An integer representing a timeout in milliseconds. Default: `5000`.
+     * @param string|null                   $tracesEndpoint               A string representing a URL, such as https://example.com/path/to/resource?q=search.
      */
     public function __construct(
-        public ?OpentelemetryAccessLogs $accessLogs = null,
+        public ?AccessLogs $accessLogs = null,
         public ?int $batchFlushDelay = null,
         public ?int $batchSpanCount = null,
         public ?int $connectTimeout = null,
-        public ?OpentelemetryHeaderType $headerType = null,
+        public ?HeaderType $headerType = null,
         public ?array $headers = null,
         public ?string $httpResponseHeaderForTraceid = null,
         public ?string $logsEndpoint = null,
-        public ?OpentelemetryMetrics $metrics = null,
-        public ?OpentelemetryPropagation $propagation = null,
-        public ?OpentelemetryQueue $queue = null,
+        public ?Metrics $metrics = null,
+        public ?Propagation $propagation = null,
+        public ?Queue $queue = null,
         public ?int $readTimeout = null,
         public ?array $resourceAttributes = null,
-        public ?float $samplingRate = null,
-        public ?OpentelemetrySamplingStrategy $samplingStrategy = null,
+        public int|float|null $samplingRate = null,
+        public ?SamplingStrategy $samplingStrategy = null,
         public ?int $sendTimeout = null,
         public ?string $tracesEndpoint = null,
     ) {
@@ -75,21 +75,21 @@ final readonly class OpentelemetryConfig implements PluginConfig
         $queue = Data::mapOrNull($data, 'queue');
 
         return new self(
-            accessLogs: $accessLogs === null ? null : OpentelemetryAccessLogs::fromArray($accessLogs),
+            accessLogs: $accessLogs === null ? null : AccessLogs::fromArray($accessLogs),
             batchFlushDelay: Data::intOrNull($data, 'batch_flush_delay'),
             batchSpanCount: Data::intOrNull($data, 'batch_span_count'),
             connectTimeout: Data::intOrNull($data, 'connect_timeout'),
-            headerType: Data::enumOrNull($data, 'header_type', OpentelemetryHeaderType::class),
+            headerType: Data::enumOrNull($data, 'header_type', HeaderType::class),
             headers: Data::stringMapOrNull($data, 'headers'),
             httpResponseHeaderForTraceid: Data::stringOrNull($data, 'http_response_header_for_traceid'),
             logsEndpoint: Data::stringOrNull($data, 'logs_endpoint'),
-            metrics: $metrics === null ? null : OpentelemetryMetrics::fromArray($metrics),
-            propagation: $propagation === null ? null : OpentelemetryPropagation::fromArray($propagation),
-            queue: $queue === null ? null : OpentelemetryQueue::fromArray($queue),
+            metrics: $metrics === null ? null : Metrics::fromArray($metrics),
+            propagation: $propagation === null ? null : Propagation::fromArray($propagation),
+            queue: $queue === null ? null : Queue::fromArray($queue),
             readTimeout: Data::intOrNull($data, 'read_timeout'),
             resourceAttributes: Data::stringMapOrNull($data, 'resource_attributes'),
-            samplingRate: Data::floatOrNull($data, 'sampling_rate'),
-            samplingStrategy: Data::enumOrNull($data, 'sampling_strategy', OpentelemetrySamplingStrategy::class),
+            samplingRate: Data::numberOrNull($data, 'sampling_rate'),
+            samplingStrategy: Data::enumOrNull($data, 'sampling_strategy', SamplingStrategy::class),
             sendTimeout: Data::intOrNull($data, 'send_timeout'),
             tracesEndpoint: Data::stringOrNull($data, 'traces_endpoint'),
         );

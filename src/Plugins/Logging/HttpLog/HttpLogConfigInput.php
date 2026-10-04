@@ -29,33 +29,33 @@ final readonly class HttpLogConfigInput implements Input
     /**
      * @param string|null                   $httpEndpoint      A string representing a URL, such as https://example.com/path/to/resource?q=search. Required by the plugin doc.
      * @param ForeignKey|string|null        $clientCertificate Certificate to use as the mTLS client certificate when connecting to the configured HTTPS endpoint.
-     * @param HttpLogContentType|null       $contentType       Indicates the type of data sent. Default: `application/json`.
+     * @param ContentType|null              $contentType       Indicates the type of data sent. Default: `application/json`.
      * @param array<array-key, string>|null $customFieldsByLua Lua code as a key-value map
-     * @param float|null                    $flushTimeout      Optional time in seconds.
+     * @param int|float|null                $flushTimeout      Optional time in seconds.
      * @param array<array-key, string>|null $headers           An optional table of headers included in the HTTP message to the upstream server.
-     * @param float|null                    $keepalive         An optional value in milliseconds that defines how long an idle connection will live before being closed. Default: `60000`.
-     * @param HttpLogMethod|null            $method            An optional method used to send data to the HTTP server. Default: `POST`.
-     * @param HttpLogQueue|null             $queue
+     * @param int|float|null                $keepalive         An optional value in milliseconds that defines how long an idle connection will live before being closed. Default: `60000`.
+     * @param Method|null                   $method            An optional method used to send data to the HTTP server. Default: `POST`.
+     * @param Queue|null                    $queue
      * @param int|null                      $queueSize         Maximum number of log entries to be sent on each message to the upstream server.
      * @param int|null                      $retryCount        Number of times to retry when sending data to the upstream server.
      * @param bool|null                     $sslVerify         When using TLS, this option enables verification of the certificate presented by the server. Default: `true`.
-     * @param float|null                    $timeout           An optional timeout in milliseconds when sending data to the upstream server. Default: `10000`.
+     * @param int|float|null                $timeout           An optional timeout in milliseconds when sending data to the upstream server. Default: `10000`.
      */
     public function __construct(
         #[SensitiveParameter]
         public ?string $httpEndpoint = null,
         public ForeignKey|string|null $clientCertificate = null,
-        public ?HttpLogContentType $contentType = null,
+        public ?ContentType $contentType = null,
         public ?array $customFieldsByLua = null,
-        public ?float $flushTimeout = null,
+        public int|float|null $flushTimeout = null,
         public ?array $headers = null,
-        public ?float $keepalive = null,
-        public ?HttpLogMethod $method = null,
-        public ?HttpLogQueue $queue = null,
+        public int|float|null $keepalive = null,
+        public ?Method $method = null,
+        public ?Queue $queue = null,
         public ?int $queueSize = null,
         public ?int $retryCount = null,
         public ?bool $sslVerify = null,
-        public ?float $timeout = null,
+        public int|float|null $timeout = null,
     ) {
     }
 

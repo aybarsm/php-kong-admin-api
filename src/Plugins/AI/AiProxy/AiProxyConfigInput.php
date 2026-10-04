@@ -22,26 +22,26 @@ final readonly class AiProxyConfigInput implements Input
     public const string NAME = 'ai-proxy';
 
     /**
-     * @param AiProxyModel|null             $model              Required by the plugin doc.
-     * @param AiProxyRouteType|null         $routeType          The model's operation implementation, for this provider. Required by the plugin doc.
-     * @param AiProxyAuth|null              $auth
-     * @param AiProxyGenaiCategory|null     $genaiCategory      Generative AI category of the request Default: `text/generation`.
-     * @param AiProxyLlmFormat|null         $llmFormat          LLM input and output format and schema to use Default: `openai`.
-     * @param AiProxyLogging|null           $logging
-     * @param int|null                      $maxRequestBodySize max allowed body size allowed to be introspected. Default: `1048576`.
-     * @param bool|null                     $modelNameHeader    Display the model name selected in the X-Kong-LLM-Model response header Default: `true`.
-     * @param AiProxyResponseStreaming|null $responseStreaming  Whether to 'optionally allow', 'deny', or 'always' (force) the streaming of answers via server sent events. Default: `allow`.
+     * @param AiProxyModel|null      $model              Required by the plugin doc.
+     * @param RouteType|null         $routeType          The model's operation implementation, for this provider. Required by the plugin doc.
+     * @param Auth|null              $auth
+     * @param GenaiCategory|null     $genaiCategory      Generative AI category of the request Default: `text/generation`.
+     * @param LlmFormat|null         $llmFormat          LLM input and output format and schema to use Default: `openai`.
+     * @param Logging|null           $logging
+     * @param int|null               $maxRequestBodySize max allowed body size allowed to be introspected. Default: `1048576`.
+     * @param bool|null              $modelNameHeader    Display the model name selected in the X-Kong-LLM-Model response header Default: `true`.
+     * @param ResponseStreaming|null $responseStreaming  Whether to 'optionally allow', 'deny', or 'always' (force) the streaming of answers via server sent events. Default: `allow`.
      */
     public function __construct(
         public ?AiProxyModel $model = null,
-        public ?AiProxyRouteType $routeType = null,
-        public ?AiProxyAuth $auth = null,
-        public ?AiProxyGenaiCategory $genaiCategory = null,
-        public ?AiProxyLlmFormat $llmFormat = null,
-        public ?AiProxyLogging $logging = null,
+        public ?RouteType $routeType = null,
+        public ?Auth $auth = null,
+        public ?GenaiCategory $genaiCategory = null,
+        public ?LlmFormat $llmFormat = null,
+        public ?Logging $logging = null,
         public ?int $maxRequestBodySize = null,
         public ?bool $modelNameHeader = null,
-        public ?AiProxyResponseStreaming $responseStreaming = null,
+        public ?ResponseStreaming $responseStreaming = null,
     ) {
     }
 

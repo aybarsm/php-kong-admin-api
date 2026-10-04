@@ -24,20 +24,20 @@ final readonly class AiPromptGuardConfig implements PluginConfig
     public const string NAME = 'ai-prompt-guard';
 
     /**
-     * @param bool|null                       $allowAllConversationHistory If true, will ignore all previous chat prompts from the conversation history. Default: `false`.
-     * @param list<string>|null               $allowPatterns               Array of valid regex patterns, or valid questions from the 'user' role in chat.
-     * @param list<string>|null               $denyPatterns                Array of invalid regex patterns, or invalid questions from the 'user' role in chat.
-     * @param AiPromptGuardGenaiCategory|null $genaiCategory               Generative AI category of the request Default: `text/generation`.
-     * @param AiPromptGuardLlmFormat|null     $llmFormat                   LLM input and output format and schema to use Default: `openai`.
-     * @param bool|null                       $matchAllRoles               If true, will match all roles in addition to 'user' role in conversation history. Default: `false`.
-     * @param int|null                        $maxRequestBodySize          max allowed body size allowed to be introspected. Default: `1048576`.
+     * @param bool|null          $allowAllConversationHistory If true, will ignore all previous chat prompts from the conversation history. Default: `false`.
+     * @param list<string>|null  $allowPatterns               Array of valid regex patterns, or valid questions from the 'user' role in chat.
+     * @param list<string>|null  $denyPatterns                Array of invalid regex patterns, or invalid questions from the 'user' role in chat.
+     * @param GenaiCategory|null $genaiCategory               Generative AI category of the request Default: `text/generation`.
+     * @param LlmFormat|null     $llmFormat                   LLM input and output format and schema to use Default: `openai`.
+     * @param bool|null          $matchAllRoles               If true, will match all roles in addition to 'user' role in conversation history. Default: `false`.
+     * @param int|null           $maxRequestBodySize          max allowed body size allowed to be introspected. Default: `1048576`.
      */
     public function __construct(
         public ?bool $allowAllConversationHistory = null,
         public ?array $allowPatterns = null,
         public ?array $denyPatterns = null,
-        public ?AiPromptGuardGenaiCategory $genaiCategory = null,
-        public ?AiPromptGuardLlmFormat $llmFormat = null,
+        public ?GenaiCategory $genaiCategory = null,
+        public ?LlmFormat $llmFormat = null,
         public ?bool $matchAllRoles = null,
         public ?int $maxRequestBodySize = null,
     ) {
@@ -53,8 +53,8 @@ final readonly class AiPromptGuardConfig implements PluginConfig
             allowAllConversationHistory: Data::boolOrNull($data, 'allow_all_conversation_history'),
             allowPatterns: Data::stringListOrNull($data, 'allow_patterns'),
             denyPatterns: Data::stringListOrNull($data, 'deny_patterns'),
-            genaiCategory: Data::enumOrNull($data, 'genai_category', AiPromptGuardGenaiCategory::class),
-            llmFormat: Data::enumOrNull($data, 'llm_format', AiPromptGuardLlmFormat::class),
+            genaiCategory: Data::enumOrNull($data, 'genai_category', GenaiCategory::class),
+            llmFormat: Data::enumOrNull($data, 'llm_format', LlmFormat::class),
             matchAllRoles: Data::boolOrNull($data, 'match_all_roles'),
             maxRequestBodySize: Data::intOrNull($data, 'max_request_body_size'),
         );

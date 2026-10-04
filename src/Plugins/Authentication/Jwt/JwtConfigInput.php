@@ -22,16 +22,16 @@ final readonly class JwtConfigInput implements Input
     public const string NAME = 'jwt';
 
     /**
-     * @param string|null                  $anonymous         An optional string (consumer UUID or username) value to use as an “anonymous” consumer if authentication fail…
-     * @param list<JwtClaimsToVerify>|null $claimsToVerify    A list of registered claims (according to RFC 7519) that Kong can verify as well.
-     * @param list<string>|null            $cookieNames       A list of cookie names that Kong will inspect to retrieve JWTs. Default: `[]`.
-     * @param list<string>|null            $headerNames       A list of HTTP header names that Kong will inspect to retrieve JWTs. Default: `["authorization"]`.
-     * @param string|null                  $keyClaimName      The name of the claim in which the key identifying the secret must be passed. Default: `iss`.
-     * @param float|null                   $maximumExpiration A value between 0 and 31536000 (365 days) limiting the lifetime of the JWT to maximum_expiration seconds in t… Default: `0`.
-     * @param string|null                  $realm             When authentication fails the plugin sends `WWW-Authenticate` header with `realm` attribute value.
-     * @param bool|null                    $runOnPreflight    A boolean value that indicates whether the plugin should run (and try to authenticate) on OPTIONS preflight r… Default: `true`.
-     * @param bool|null                    $secretIsBase64    If true, the plugin assumes the credential’s secret to be base64 encoded. Default: `false`.
-     * @param list<string>|null            $uriParamNames     A list of querystring parameters that Kong will inspect to retrieve JWTs. Default: `["jwt"]`.
+     * @param string|null               $anonymous         An optional string (consumer UUID or username) value to use as an “anonymous” consumer if authentication fail…
+     * @param list<ClaimsToVerify>|null $claimsToVerify    A list of registered claims (according to RFC 7519) that Kong can verify as well.
+     * @param list<string>|null         $cookieNames       A list of cookie names that Kong will inspect to retrieve JWTs. Default: `[]`.
+     * @param list<string>|null         $headerNames       A list of HTTP header names that Kong will inspect to retrieve JWTs. Default: `["authorization"]`.
+     * @param string|null               $keyClaimName      The name of the claim in which the key identifying the secret must be passed. Default: `iss`.
+     * @param int|float|null            $maximumExpiration A value between 0 and 31536000 (365 days) limiting the lifetime of the JWT to maximum_expiration seconds in t… Default: `0`.
+     * @param string|null               $realm             When authentication fails the plugin sends `WWW-Authenticate` header with `realm` attribute value.
+     * @param bool|null                 $runOnPreflight    A boolean value that indicates whether the plugin should run (and try to authenticate) on OPTIONS preflight r… Default: `true`.
+     * @param bool|null                 $secretIsBase64    If true, the plugin assumes the credential’s secret to be base64 encoded. Default: `false`.
+     * @param list<string>|null         $uriParamNames     A list of querystring parameters that Kong will inspect to retrieve JWTs. Default: `["jwt"]`.
      */
     public function __construct(
         public ?string $anonymous = null,
@@ -39,7 +39,7 @@ final readonly class JwtConfigInput implements Input
         public ?array $cookieNames = null,
         public ?array $headerNames = null,
         public ?string $keyClaimName = null,
-        public ?float $maximumExpiration = null,
+        public int|float|null $maximumExpiration = null,
         public ?string $realm = null,
         public ?bool $runOnPreflight = null,
         public ?bool $secretIsBase64 = null,

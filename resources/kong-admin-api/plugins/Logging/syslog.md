@@ -1,9 +1,8 @@
 ---
-title: CORS Plugin Configuration Reference
-description: The CORS plugin lets you add Cross-Origin Resource Sharing (CORS) to
-  a Service or a Route.
-url: "/plugins/cors/reference/"
-canonical_url: "/plugins/cors/reference/"
+title: Syslog Plugin Configuration Reference
+description: Send request and response logs to Syslog
+url: "/plugins/syslog/reference/"
+canonical_url: "/plugins/syslog/reference/"
 content_type: reference
 min_version:
   gateway: '1.0'
@@ -16,6 +15,8 @@ tools:
 - KIC
 - Operator
 - Terraform
+tags:
+- logging
 canonical: true
 works_on:
 - on-prem
@@ -24,7 +25,7 @@ works_on:
 
 ---
 
-# CORS Plugin Configuration Reference
+# Syslog Plugin Configuration Reference
 
 
 
@@ -40,79 +41,105 @@ works_on:
   "properties": {
     "config": {
       "properties": {
-        "allow_origin_absent": {
-          "default": true,
-          "description": "A boolean value that skip cors response headers when origin header of request is empty",
-          "type": "boolean"
-        },
-        "credentials": {
-          "default": false,
-          "description": "Flag to determine whether the `Access-Control-Allow-Credentials` header should be sent with `true` as the value.",
-          "type": "boolean"
-        },
-        "exposed_headers": {
-          "description": "Value for the `Access-Control-Expose-Headers` header. If not specified, no custom headers are exposed.",
-          "items": {
-            "type": "string"
-          },
-          "type": "array"
-        },
-        "headers": {
-          "description": "Value for the `Access-Control-Allow-Headers` header.",
-          "items": {
-            "type": "string"
-          },
-          "type": "array"
-        },
-        "max_age": {
-          "description": "Indicates how long the results of the preflight request can be cached, in `seconds`.",
-          "type": "number"
-        },
-        "methods": {
-          "default": [
-            "CONNECT",
-            "DELETE",
-            "GET",
-            "HEAD",
-            "OPTIONS",
-            "PATCH",
-            "POST",
-            "PUT",
-            "TRACE"
+        "client_errors_severity": {
+          "default": "info",
+          "enum": [
+            "alert",
+            "crit",
+            "debug",
+            "emerg",
+            "err",
+            "info",
+            "notice",
+            "warning"
           ],
-          "description": "'Value for the `Access-Control-Allow-Methods` header. Available options include `GET`, `HEAD`, `PUT`, `PATCH`, `POST`, `DELETE`, `OPTIONS`, `TRACE`, `CONNECT`. By default, all options are allowed.'",
-          "items": {
-            "enum": [
-              "CONNECT",
-              "DELETE",
-              "GET",
-              "HEAD",
-              "OPTIONS",
-              "PATCH",
-              "POST",
-              "PUT",
-              "TRACE"
-            ],
+          "type": "string"
+        },
+        "custom_fields_by_lua": {
+          "additionalProperties": {
             "type": "string"
           },
-          "type": "array"
+          "description": "Lua code as a key-value map",
+          "type": "object"
         },
-        "origins": {
-          "description": "List of allowed domains for the `Access-Control-Allow-Origin` header. If you want to allow all origins, add `*` as a single value to this configuration field. The accepted values can either be flat strings or PCRE regexes. NOTE: If you don't specify any allowed domains, all origins are allowed.",
-          "items": {
-            "type": "string"
-          },
-          "type": "array"
+        "facility": {
+          "default": "user",
+          "description": "The facility is used by the operating system to decide how to handle each log message.",
+          "enum": [
+            "auth",
+            "authpriv",
+            "cron",
+            "daemon",
+            "ftp",
+            "kern",
+            "local0",
+            "local1",
+            "local2",
+            "local3",
+            "local4",
+            "local5",
+            "local6",
+            "local7",
+            "lpr",
+            "mail",
+            "news",
+            "syslog",
+            "user",
+            "uucp"
+          ],
+          "type": "string"
         },
-        "preflight_continue": {
-          "default": false,
-          "description": "A boolean value that instructs the plugin to proxy the `OPTIONS` preflight request to the Upstream service.",
-          "type": "boolean"
+        "log_level": {
+          "default": "info",
+          "enum": [
+            "alert",
+            "crit",
+            "debug",
+            "emerg",
+            "err",
+            "info",
+            "notice",
+            "warning"
+          ],
+          "type": "string"
         },
-        "private_network": {
-          "default": false,
-          "description": "Flag to determine whether the `Access-Control-Allow-Private-Network` header should be sent with `true` as the value.",
-          "type": "boolean"
+        "server_errors_severity": {
+          "default": "info",
+          "enum": [
+            "alert",
+            "crit",
+            "debug",
+            "emerg",
+            "err",
+            "info",
+            "notice",
+            "warning"
+          ],
+          "type": "string"
+        },
+        "successful_severity": {
+          "default": "info",
+          "enum": [
+            "alert",
+            "crit",
+            "debug",
+            "emerg",
+            "err",
+            "info",
+            "notice",
+            "warning"
+          ],
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "consumer": {
+      "additionalProperties": false,
+      "description": "If set, the plugin will activate only for requests where the specified has been authenticated. (Note that some plugins can not be restricted to consumers this way.). Leave unset for the plugin to activate regardless of the authenticated Consumer.",
+      "properties": {
+        "id": {
+          "type": "string"
         }
       },
       "type": "object"
@@ -128,15 +155,21 @@ works_on:
         "http",
         "https"
       ],
-      "description": "A set of strings representing HTTP protocols.",
+      "description": "A set of strings representing protocols.",
       "items": {
+        "description": "A string representing a protocol, such as HTTP or HTTPS.",
         "enum": [
           "grpc",
           "grpcs",
           "http",
-          "https"
+          "https",
+          "tcp",
+          "tls",
+          "tls_passthrough",
+          "udp",
+          "ws",
+          "wss"
         ],
-        "minLength": 1,
         "type": "string"
       },
       "type": "array"
@@ -164,9 +197,4 @@ works_on:
   }
 }
 ```
-
-
-## Related Resources
-
-- [DNS configuration reference](/gateway/network/dns-config-reference/)
 

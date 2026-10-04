@@ -24,10 +24,10 @@ final readonly class AiPromptTemplateConfig implements PluginConfig
     public const string NAME = 'ai-prompt-template';
 
     /**
-     * @param list<AiPromptTemplateTemplates> $templates                Array of templates available to the request context.
-     * @param bool|null                       $allowUntemplatedRequests Set true to allow requests that don't call or match any template. Default: `true`.
-     * @param bool|null                       $logOriginalRequest       Set true to add the original request to the Kong log plugin(s) output. Default: `false`.
-     * @param int|null                        $maxRequestBodySize       max allowed body size allowed to be introspected. Default: `1048576`.
+     * @param list<Templates> $templates                Array of templates available to the request context.
+     * @param bool|null       $allowUntemplatedRequests Set true to allow requests that don't call or match any template. Default: `true`.
+     * @param bool|null       $logOriginalRequest       Set true to add the original request to the Kong log plugin(s) output. Default: `false`.
+     * @param int|null        $maxRequestBodySize       max allowed body size allowed to be introspected. Default: `1048576`.
      */
     public function __construct(
         public array $templates,
@@ -44,7 +44,7 @@ final readonly class AiPromptTemplateConfig implements PluginConfig
     public static function fromArray(array $data): static
     {
         return new self(
-            templates: array_map(AiPromptTemplateTemplates::fromArray(...), Data::listOfMaps($data, 'templates')),
+            templates: array_map(Templates::fromArray(...), Data::listOfMaps($data, 'templates')),
             allowUntemplatedRequests: Data::boolOrNull($data, 'allow_untemplated_requests'),
             logOriginalRequest: Data::boolOrNull($data, 'log_original_request'),
             maxRequestBodySize: Data::intOrNull($data, 'max_request_body_size'),

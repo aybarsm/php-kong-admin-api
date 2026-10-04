@@ -24,13 +24,13 @@ final readonly class CorrelationIdConfig implements PluginConfig
     public const string NAME = 'correlation-id';
 
     /**
-     * @param bool|null                   $echoDownstream Whether to echo the header back to downstream (the client). Default: `false`.
-     * @param CorrelationIdGenerator|null $generator      The generator to use for the correlation ID. Default: `uuid#counter`.
-     * @param string|null                 $headerName     The HTTP header name to use for the correlation ID. Default: `Kong-Request-ID`.
+     * @param bool|null      $echoDownstream Whether to echo the header back to downstream (the client). Default: `false`.
+     * @param Generator|null $generator      The generator to use for the correlation ID. Default: `uuid#counter`.
+     * @param string|null    $headerName     The HTTP header name to use for the correlation ID. Default: `Kong-Request-ID`.
      */
     public function __construct(
         public ?bool $echoDownstream = null,
-        public ?CorrelationIdGenerator $generator = null,
+        public ?Generator $generator = null,
         public ?string $headerName = null,
     ) {
     }
@@ -43,7 +43,7 @@ final readonly class CorrelationIdConfig implements PluginConfig
     {
         return new self(
             echoDownstream: Data::boolOrNull($data, 'echo_downstream'),
-            generator: Data::enumOrNull($data, 'generator', CorrelationIdGenerator::class),
+            generator: Data::enumOrNull($data, 'generator', Generator::class),
             headerName: Data::stringOrNull($data, 'header_name'),
         );
     }

@@ -18,9 +18,11 @@ use Aybarsm\Kong\AdminApi\Plugins\Authentication\Jwt\JwtConfig;
 use Aybarsm\Kong\AdminApi\Plugins\Authentication\KeyAuth\KeyAuthConfig;
 use Aybarsm\Kong\AdminApi\Plugins\Authentication\LdapAuth\LdapAuthConfig;
 use Aybarsm\Kong\AdminApi\Plugins\Authentication\Oauth2\Oauth2Config;
+use Aybarsm\Kong\AdminApi\Plugins\Authentication\Session\SessionConfig;
 use Aybarsm\Kong\AdminApi\Plugins\Logging\FileLog\FileLogConfig;
 use Aybarsm\Kong\AdminApi\Plugins\Logging\HttpLog\HttpLogConfig;
 use Aybarsm\Kong\AdminApi\Plugins\Logging\Loggly\LogglyConfig;
+use Aybarsm\Kong\AdminApi\Plugins\Logging\Syslog\SyslogConfig;
 use Aybarsm\Kong\AdminApi\Plugins\Logging\TcpLog\TcpLogConfig;
 use Aybarsm\Kong\AdminApi\Plugins\Logging\UdpLog\UdpLogConfig;
 use Aybarsm\Kong\AdminApi\Plugins\Monitoring\Datadog\DatadogConfig;
@@ -33,6 +35,8 @@ use Aybarsm\Kong\AdminApi\Plugins\Security\BotDetection\BotDetectionConfig;
 use Aybarsm\Kong\AdminApi\Plugins\Security\Cors\CorsConfig;
 use Aybarsm\Kong\AdminApi\Plugins\Security\IpRestriction\IpRestrictionConfig;
 use Aybarsm\Kong\AdminApi\Plugins\TrafficControl\AccessControlEnforcement\AccessControlEnforcementConfig;
+use Aybarsm\Kong\AdminApi\Plugins\TrafficControl\Acl\AclConfig;
+use Aybarsm\Kong\AdminApi\Plugins\TrafficControl\ProxyCache\ProxyCacheConfig;
 use Aybarsm\Kong\AdminApi\Plugins\TrafficControl\RateLimiting\RateLimitingConfig;
 use Aybarsm\Kong\AdminApi\Plugins\TrafficControl\Redirect\RedirectConfig;
 use Aybarsm\Kong\AdminApi\Plugins\TrafficControl\RequestSizeLimiting\RequestSizeLimitingConfig;
@@ -65,6 +69,7 @@ final readonly class PluginRegistry
     {
         return [
             AccessControlEnforcementConfig::NAME => AccessControlEnforcementConfig::class,
+            AclConfig::NAME => AclConfig::class,
             AcmeConfig::NAME => AcmeConfig::class,
             AiPromptDecoratorConfig::NAME => AiPromptDecoratorConfig::class,
             AiPromptGuardConfig::NAME => AiPromptGuardConfig::class,
@@ -90,6 +95,7 @@ final readonly class PluginRegistry
             Oauth2Config::NAME => Oauth2Config::class,
             OpentelemetryConfig::NAME => OpentelemetryConfig::class,
             PrometheusConfig::NAME => PrometheusConfig::class,
+            ProxyCacheConfig::NAME => ProxyCacheConfig::class,
             RateLimitingConfig::NAME => RateLimitingConfig::class,
             RedirectConfig::NAME => RedirectConfig::class,
             RequestSizeLimitingConfig::NAME => RequestSizeLimitingConfig::class,
@@ -97,8 +103,10 @@ final readonly class PluginRegistry
             RequestTransformerConfig::NAME => RequestTransformerConfig::class,
             ResponseRateLimitingConfig::NAME => ResponseRateLimitingConfig::class,
             ResponseTransformerConfig::NAME => ResponseTransformerConfig::class,
+            SessionConfig::NAME => SessionConfig::class,
             StandardWebhooksConfig::NAME => StandardWebhooksConfig::class,
             StatsdConfig::NAME => StatsdConfig::class,
+            SyslogConfig::NAME => SyslogConfig::class,
             TcpLogConfig::NAME => TcpLogConfig::class,
             UdpLogConfig::NAME => UdpLogConfig::class,
             ZipkinConfig::NAME => ZipkinConfig::class,

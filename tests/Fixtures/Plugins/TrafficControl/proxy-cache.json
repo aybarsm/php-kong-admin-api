@@ -1,0 +1,31 @@
+{
+  "cache_by_principal": true,
+  "cache_control": true,
+  "cache_ttl": 1,
+  "content_type": [
+    "content_type-value"
+  ],
+  "ignore_uri_case": true,
+  "memory": {
+    "dictionary_name": "dictionary_name-value"
+  },
+  "request_method": [
+    "GET"
+  ],
+  "response_code": [
+    100
+  ],
+  "response_headers": {
+    "X-Cache-Key": true,
+    "X-Cache-Status": true,
+    "age": true
+  },
+  "storage_ttl": 1,
+  "strategy": "memory",
+  "vary_headers": [
+    "vary_headers-value"
+  ],
+  "vary_query_params": [
+    "vary_query_params-value"
+  ]
+}

@@ -24,22 +24,22 @@ final readonly class CorsConfig implements PluginConfig
     public const string NAME = 'cors';
 
     /**
-     * @param bool|null              $allowOriginAbsent A boolean value that skip cors response headers when origin header of request is empty Default: `true`.
-     * @param bool|null              $credentials       Flag to determine whether the `Access-Control-Allow-Credentials` header should be sent with `true` as the val… Default: `false`.
-     * @param list<string>|null      $exposedHeaders    Value for the `Access-Control-Expose-Headers` header.
-     * @param list<string>|null      $headers           Value for the `Access-Control-Allow-Headers` header.
-     * @param float|null             $maxAge            Indicates how long the results of the preflight request can be cached, in `seconds`.
-     * @param list<CorsMethods>|null $methods           'Value for the `Access-Control-Allow-Methods` header. Default: `["CONNECT", "DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT", "TRACE"]`.
-     * @param list<string>|null      $origins           List of allowed domains for the `Access-Control-Allow-Origin` header.
-     * @param bool|null              $preflightContinue A boolean value that instructs the plugin to proxy the `OPTIONS` preflight request to the Upstream service. Default: `false`.
-     * @param bool|null              $privateNetwork    Flag to determine whether the `Access-Control-Allow-Private-Network` header should be sent with `true` as the… Default: `false`.
+     * @param bool|null          $allowOriginAbsent A boolean value that skip cors response headers when origin header of request is empty Default: `true`.
+     * @param bool|null          $credentials       Flag to determine whether the `Access-Control-Allow-Credentials` header should be sent with `true` as the val… Default: `false`.
+     * @param list<string>|null  $exposedHeaders    Value for the `Access-Control-Expose-Headers` header.
+     * @param list<string>|null  $headers           Value for the `Access-Control-Allow-Headers` header.
+     * @param int|float|null     $maxAge            Indicates how long the results of the preflight request can be cached, in `seconds`.
+     * @param list<Methods>|null $methods           'Value for the `Access-Control-Allow-Methods` header. Default: `["CONNECT", "DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT", "TRACE"]`.
+     * @param list<string>|null  $origins           List of allowed domains for the `Access-Control-Allow-Origin` header.
+     * @param bool|null          $preflightContinue A boolean value that instructs the plugin to proxy the `OPTIONS` preflight request to the Upstream service. Default: `false`.
+     * @param bool|null          $privateNetwork    Flag to determine whether the `Access-Control-Allow-Private-Network` header should be sent with `true` as the… Default: `false`.
      */
     public function __construct(
         public ?bool $allowOriginAbsent = null,
         public ?bool $credentials = null,
         public ?array $exposedHeaders = null,
         public ?array $headers = null,
-        public ?float $maxAge = null,
+        public int|float|null $maxAge = null,
         public ?array $methods = null,
         public ?array $origins = null,
         public ?bool $preflightContinue = null,
@@ -58,8 +58,8 @@ final readonly class CorsConfig implements PluginConfig
             credentials: Data::boolOrNull($data, 'credentials'),
             exposedHeaders: Data::stringListOrNull($data, 'exposed_headers'),
             headers: Data::stringListOrNull($data, 'headers'),
-            maxAge: Data::floatOrNull($data, 'max_age'),
-            methods: Data::enumListOrNull($data, 'methods', CorsMethods::class),
+            maxAge: Data::numberOrNull($data, 'max_age'),
+            methods: Data::enumListOrNull($data, 'methods', Methods::class),
             origins: Data::stringListOrNull($data, 'origins'),
             preflightContinue: Data::boolOrNull($data, 'preflight_continue'),
             privateNetwork: Data::boolOrNull($data, 'private_network'),

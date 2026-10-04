@@ -93,7 +93,8 @@ Project specifics (decided 2026-10-04):
   `PluginConfig::fromPlugin()`), `{Plugin}ConfigInput`, and the nested DTOs and enums of the config. Every one
   carries `#[PluginSchema(doc, pointer)]`. The plugin resources accept `PluginInput|TypedPluginInput|array`;
   responses stay the generic `Models\Plugin`, and `PluginRegistry::config($plugin)` maps a documented
-  plugin's `config` to its typed DTO.
+  plugin's `config` to its typed DTO. A doc `number` is `int|float` in plugin classes (JSON integers stay int,
+  plugin-notes P6); spec models keep `float` (spec-notes Q14).
 - PHP 8.3: `readonly class` for every DTO, typed class constants, `#[\Override]` on implementations,
   union/intersection/DNF types, `match`, constructor promotion, backed enums for spec enums.
 - `declare(strict_types=1);` in every file. PSR-12, PSR-4. PHPStan level 9 with every array shape
@@ -108,9 +109,10 @@ Project specifics (decided 2026-10-04):
 - Path-parameter arguments: `$idOrName`, `$id`, `$idOrUsername` and so on, following the spec parameter's semantics.
 - Tests: `tests/Feature/Resources/{Resource}Test.php` (nested: `…/Nested/`), fixtures
   `tests/Fixtures/{snake_case_class}.json` (`CaCertificate` → `ca_certificate.json`) with every spec property.
-- Plugins: nested DTOs and enums are `{Plugin}` + the PascalCase config path without `config`, `[]` or `{}`
-  (`config.redis.cloud_authentication` → `RateLimitingRedisCloudAuthentication`), overridable only through the
-  generator's `NAMES` table. Enum cases are the PascalCase value (`llm/v1/chat` → `LlmV1Chat`, `HS256` → `Hs256`,
+- Plugins: nested DTOs and enums are the PascalCase config path without `config`, `[]` or `{}`, with no plugin
+  prefix (`config.redis.cloud_authentication` → `RateLimiting\RedisCloudAuthentication`). A PHP reserved word or a
+  name the generated files import (`Model`, `Input`, `Data`, `Protocol`, …) falls back to `{Plugin}` + the path
+  (`AiProxy\AiProxyModel`). Override names only through the generator's `NAMES` table (plugin-notes P9). Enum cases are the PascalCase value (`llm/v1/chat` → `LlmV1Chat`, `HS256` → `Hs256`,
   numbers → `Value8`, `ValueMinus1`). Plugin fixtures: `tests/Fixtures/Plugins/{Category}/{plugin}.json`.
 
 ## Definition of done

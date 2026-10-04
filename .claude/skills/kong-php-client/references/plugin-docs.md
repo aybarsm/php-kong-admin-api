@@ -34,7 +34,7 @@ for f in resources/kong-admin-api/plugins/*/*.md; do
 ## Keyword → PHP mapping (what `tools/generator/plugins.py` understands)
 | Doc schema | PHP |
 |---|---|
-| `string` / `integer` / `number` / `boolean` | `string` / `int` / `float` / `bool` (`number` is always `float`, even for counts) |
+| `string` / `integer` / `number` / `boolean` | `string` / `int` / `int\|float` / `bool` (`number` keeps JSON integers as int: `Data::number()`; P6) |
 | `enum` (string or integer) | a backed enum in the plugin namespace; root `protocols` uses the global `Enums\Protocol` |
 | `array` of scalars / enums / objects | `list<string>`, `list<int>`, `list<Enum>`, `list<Nested>` |
 | `object` with `properties` | nested `final readonly` DTO |
@@ -54,15 +54,17 @@ for f in resources/kong-admin-api/plugins/*/*.md; do
 | `{Plugin}Input` | Full plugin request body: `config`, the scope fields the doc lists, and the generic spec `Plugin` fields (`enabled`, `instance_name`, `tags`, `ordering`, `partials`, …). Sends `name` itself. | `TypedPluginInput` |
 | `{Plugin}Config` | Typed `config` from a response: `{Plugin}Config::fromPlugin($plugin)` or `PluginRegistry::config($plugin)` | `PluginConfig` (extends `Model`) |
 | `{Plugin}ConfigInput` | Typed `config` for a request; every field optional, nulls omitted | `Input` |
-| `{Plugin}{Path}` | Nested config objects (output DTOs, reused by the inputs) | `Model` |
-| `{Plugin}{Path}` enum | Enum at a config path; values verbatim from the doc | backed enum |
+| `{Path}` | Nested config objects (output DTOs, reused by the inputs), e.g. `RedisCloudAuthentication` | `Model` |
+| `{Path}` enum | Enum at a config path; values verbatim from the doc, e.g. `Policy` | backed enum |
 
 Every class carries `#[PluginSchema('{Category}/{plugin}.md', '<JSON pointer into the doc schema>')]`.
 `{Plugin}Input`, `{Plugin}Config` and `{Plugin}ConfigInput` declare `public const string NAME` (the wire name).
+Nested names have no plugin prefix. A PHP reserved word or a name the generated files import (`Model`, `Input`,
+`Data`, `Protocol`, … the generator's `RESERVED`/`IMPORTED` sets) falls back to `{Plugin}{Path}`, e.g. `AiProxyModel`.
 
 ```php
 $plugin = $client->services()->plugins('billing')->create(new RateLimitingInput(
-    config: new RateLimitingConfigInput(minute: 20.0, policy: RateLimitingPolicy::Local),
+    config: new RateLimitingConfigInput(minute: 20, policy: Policy::Local),
     tags: ['edge'],
 ));
 $config = RateLimitingConfig::fromPlugin($plugin);       // throws InvalidArgumentException for another plugin

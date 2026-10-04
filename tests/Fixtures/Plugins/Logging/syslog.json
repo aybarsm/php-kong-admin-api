@@ -1,0 +1,10 @@
+{
+  "client_errors_severity": "alert",
+  "custom_fields_by_lua": {
+    "key": "value"
+  },
+  "facility": "auth",
+  "log_level": "alert",
+  "server_errors_severity": "alert",
+  "successful_severity": "alert"
+}

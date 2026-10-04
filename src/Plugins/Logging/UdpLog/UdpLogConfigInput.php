@@ -25,13 +25,13 @@ final readonly class UdpLogConfigInput implements Input
      * @param string|null                   $host              A string representing a host name, such as example.com. Required by the plugin doc.
      * @param int|null                      $port              An integer representing a port number between 0 and 65535, inclusive. Required by the plugin doc.
      * @param array<array-key, string>|null $customFieldsByLua Lua code as a key-value map
-     * @param float|null                    $timeout           An optional timeout in milliseconds when sending data to the upstream server. Default: `10000`.
+     * @param int|float|null                $timeout           An optional timeout in milliseconds when sending data to the upstream server. Default: `10000`.
      */
     public function __construct(
         public ?string $host = null,
         public ?int $port = null,
         public ?array $customFieldsByLua = null,
-        public ?float $timeout = null,
+        public int|float|null $timeout = null,
     ) {
     }
 

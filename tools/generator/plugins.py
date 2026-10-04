@@ -6,7 +6,7 @@ skips the docs listed as blocked in `docs/plugin-notes.md`, and writes per plugi
   - `{Plugin}Input`        the whole plugin request body (TypedPluginInput; sends `name` itself)
   - `{Plugin}Config`       the typed `config` of a returned Plugin (PluginConfig::fromPlugin)
   - `{Plugin}ConfigInput`  the typed `config` of a request
-  - nested DTOs and backed enums of the config, named `{Plugin}` + PascalCase config path
+  - nested DTOs and backed enums of the config, named after the PascalCase config path (plugin-notes P9)
 plus `src/Plugins/PluginRegistry.php`, `tests/Fixtures/Plugins/{Category}/{plugin}.json` and the plugin table
 in README.md (between the `plugins:start`/`plugins:end` markers).
 
@@ -23,16 +23,35 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from fixtures import obj as fixture_object  # noqa: E402
+import models  # noqa: E402
 from models import NS, ROOT, SPEC, Prop, finalize, first_sentence, render, write  # noqa: E402
 
 DOCS = Path(ROOT, 'resources', 'kong-admin-api', 'plugins')
 NOTES = Path(ROOT, 'docs', 'plugin-notes.md')
 README = Path(ROOT, 'README.md')
 
-# (doc slug, config location) -> class name, for nested DTOs or enums whose derived name should be shortened.
+# (doc slug, config location) -> class name, for nested DTOs or enums whose derived name should be changed.
 # Locations are dotted config paths without the `config.` prefix, with `[]` for array items and `{}` for map values,
 # e.g. ('rate-limiting', 'redis.cloud_authentication'). Empty: every name is derived.
 NAMES = {}
+
+# Short names a nested class or enum can't take: PHP reserved words (case-insensitive) and every class name a generated
+# plugin file imports. Such a name falls back to `{Plugin}` + the path (plugin-notes P9).
+RESERVED = {
+    'abstract', 'and', 'array', 'as', 'bool', 'break', 'callable', 'case', 'catch', 'class', 'clone', 'const', 'continue',
+    'declare', 'default', 'do', 'echo', 'else', 'elseif', 'empty', 'enddeclare', 'endfor', 'endforeach', 'endif',
+    'endswitch', 'endwhile', 'enum', 'eval', 'exit', 'extends', 'false', 'final', 'finally', 'float', 'fn', 'for',
+    'foreach', 'function', 'global', 'goto', 'if', 'implements', 'include', 'instanceof', 'insteadof', 'int',
+    'interface', 'isset', 'iterable', 'list', 'match', 'mixed', 'namespace', 'never', 'new', 'null', 'numeric',
+    'object', 'or', 'parent', 'print', 'private', 'protected', 'public', 'readonly', 'require', 'resource', 'return',
+    'self', 'static', 'string', 'switch', 'throw', 'trait', 'true', 'try', 'unset', 'use', 'var', 'void', 'while',
+    'xor', 'yield',
+}
+IMPORTED = {
+    'Data', 'ForeignKey', 'Input', 'InvalidArgumentException', 'Model', 'Override', 'Plugin', 'PluginConfig',
+    'PluginOrdering', 'PluginPartial', 'PluginSchema', 'Protocol', 'SensitiveParameter', 'TypedPluginInput',
+    'UnexpectedResponseException',
+}
 
 # Root properties a plugin doc may declare; any other root property stops the generator.
 ROOT_FIELDS = ('config', 'consumer', 'consumer_group', 'expressions', 'protocols', 'route', 'service')
@@ -189,11 +208,28 @@ class PluginProp(Prop):
     def __init__(self, *args, external=False, default=None):
         super().__init__(*args)
         self.external = external
+        if self.kind == 'float':
+            self.kind = 'number'  # doc `number`: int|float, JSON integers stay int (plugin-notes P6)
         if default is not None:
             text = default if isinstance(default, str) else json.dumps(default, separators=(', ', ': '))
             if len(text) <= 80:
                 note = f'Default: `{text}`.'.replace('*/', '* /')
                 self.desc = (self.desc + ' ' if self.desc else '') + note
+
+    def native(self, input_mode):
+        if self.kind == 'number':
+            return 'int|float|null' if self.nullable(input_mode) else 'int|float'
+        return super().native(input_mode)
+
+    def phpdoc(self, input_mode):
+        if self.kind == 'number':
+            return 'int|float|null' if self.nullable(input_mode) else 'int|float'
+        return super().phpdoc(input_mode)
+
+    def reader(self):
+        if self.kind == 'number':
+            return None, f"Data::{'number' if self.required else 'numberOrNull'}($data, '{self.wire}')"
+        return super().reader()
 
     def uses(self):
         if self.kind == 'fk':
@@ -245,8 +281,13 @@ def names_for(doc):
     taken = {doc.plugin + 'Input', doc.plugin + 'Config', doc.plugin + 'ConfigInput'}
 
     def name(location):
-        bare = re.sub(r'\[\]|\{\}', '', location)
-        chosen = NAMES.get((doc.slug, location), doc.plugin + ''.join(pascal(s) for s in bare.split('.')))
+        short = ''.join(pascal(s) for s in re.sub(r'\[\]|\{\}', '', location).split('.'))
+        if (doc.slug, location) in NAMES:
+            chosen = NAMES[(doc.slug, location)]
+        elif short.lower() in RESERVED or short in IMPORTED or short in taken:
+            chosen = doc.plugin + short
+        else:
+            chosen = short
         if chosen in taken:
             raise SystemExit(f'{doc.rel}: derived class name {chosen} for {location} is taken; add a NAMES entry')
         taken.add(chosen)
@@ -436,12 +477,29 @@ def readme_table(docs):
         print('README.md')
 
 
+def prune():
+    """Deletes generated plugin files this run didn't write (renamed classes, removed docs or fields)."""
+    written = set(models.WRITTEN)
+    stale = [f for f in sorted(Path(ROOT, 'src', 'Plugins').glob('*/**/*.php'))
+             if f.relative_to(ROOT).as_posix() not in written]
+    stale += [f for f in sorted(Path(ROOT, 'tests', 'Fixtures', 'Plugins').glob('**/*.json'))
+              if f.relative_to(ROOT).as_posix() not in written]
+    for f in stale:
+        f.unlink()
+        print('deleted', f.relative_to(ROOT).as_posix())
+    for base in (Path(ROOT, 'src', 'Plugins'), Path(ROOT, 'tests', 'Fixtures', 'Plugins')):
+        for d in sorted((d for d in base.glob('**/*') if d.is_dir()), key=lambda d: -len(d.parts)):
+            if not any(d.iterdir()):
+                d.rmdir()
+
+
 def main():
     docs = load_docs()
     for doc in docs:
         generate(doc)
     registry(docs)
     finalize()
+    prune()
     readme_table(docs)
 
 

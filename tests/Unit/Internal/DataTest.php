@@ -18,6 +18,9 @@ it('reads present values of every scalar type', function (): void {
         ->and(Data::floatOrNull($data, 'fi'))->toBe(2.0)
         ->and(Data::float($data, 'f'))->toBe(1.5)
         ->and(Data::float($data, 'fi'))->toBe(2.0)
+        ->and(Data::number($data, 'f'))->toBe(1.5)
+        ->and(Data::number($data, 'fi'))->toBe(2)
+        ->and(Data::numberOrNull($data, 'i'))->toBe(7)
         ->and(Data::bool($data, 'b'))->toBeFalse();
 });
 
@@ -27,6 +30,7 @@ it('reads absent and null keys as null', function (string $key): void {
     expect(Data::stringOrNull($data, $key))->toBeNull()
         ->and(Data::intOrNull($data, $key))->toBeNull()
         ->and(Data::floatOrNull($data, $key))->toBeNull()
+        ->and(Data::numberOrNull($data, $key))->toBeNull()
         ->and(Data::boolOrNull($data, $key))->toBeNull()
         ->and(Data::stringListOrNull($data, $key))->toBeNull()
         ->and(Data::intListOrNull($data, $key))->toBeNull()
@@ -49,6 +53,7 @@ it('throws on missing required values', function (callable $read, string $key): 
     'list of maps' => [fn (): array => Data::listOfMaps([], 'e'), 'e'],
     'float' => [fn (): float => Data::float(['g' => null], 'g'), 'g'],
     'enum' => [fn (): Protocol => Data::enum([], 'h', Protocol::class), 'h'],
+    'number' => [fn (): int|float => Data::number([], 'n'), 'n'],
 ]);
 
 it('throws on values of the wrong type', function (callable $read, string $message): void {
@@ -58,6 +63,7 @@ it('throws on values of the wrong type', function (callable $read, string $messa
     'int from float' => [fn (): ?int => Data::intOrNull(['k' => 1.5], 'k'), 'Field "k" is not a valid integer.'],
     'int from string' => [fn (): ?int => Data::intOrNull(['k' => '1'], 'k'), 'Field "k" is not a valid integer.'],
     'number' => [fn (): ?float => Data::floatOrNull(['k' => '1.5'], 'k'), 'Field "k" is not a valid number.'],
+    'int or float' => [fn (): int|float|null => Data::numberOrNull(['k' => true], 'k'), 'Field "k" is not a valid number.'],
     'bool' => [fn (): ?bool => Data::boolOrNull(['k' => 1], 'k'), 'Field "k" is not a valid boolean.'],
     'string list items' => [fn (): ?array => Data::stringListOrNull(['k' => ['a', 1]], 'k'), 'Field "k" is not a valid list of strings.'],
     'int list items' => [fn (): ?array => Data::intListOrNull(['k' => [1, 'a']], 'k'), 'Field "k" is not a valid list of integers.'],

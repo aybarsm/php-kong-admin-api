@@ -24,14 +24,14 @@ final readonly class AiPromptDecoratorConfig implements PluginConfig
     public const string NAME = 'ai-prompt-decorator';
 
     /**
-     * @param AiPromptDecoratorLlmFormat|null $llmFormat          LLM input and output format and schema to use Default: `openai`.
-     * @param int|null                        $maxRequestBodySize max allowed body size allowed to be introspected. Default: `1048576`.
-     * @param AiPromptDecoratorPrompts|null   $prompts
+     * @param LlmFormat|null $llmFormat          LLM input and output format and schema to use Default: `openai`.
+     * @param int|null       $maxRequestBodySize max allowed body size allowed to be introspected. Default: `1048576`.
+     * @param Prompts|null   $prompts
      */
     public function __construct(
-        public ?AiPromptDecoratorLlmFormat $llmFormat = null,
+        public ?LlmFormat $llmFormat = null,
         public ?int $maxRequestBodySize = null,
-        public ?AiPromptDecoratorPrompts $prompts = null,
+        public ?Prompts $prompts = null,
     ) {
     }
 
@@ -44,9 +44,9 @@ final readonly class AiPromptDecoratorConfig implements PluginConfig
         $prompts = Data::mapOrNull($data, 'prompts');
 
         return new self(
-            llmFormat: Data::enumOrNull($data, 'llm_format', AiPromptDecoratorLlmFormat::class),
+            llmFormat: Data::enumOrNull($data, 'llm_format', LlmFormat::class),
             maxRequestBodySize: Data::intOrNull($data, 'max_request_body_size'),
-            prompts: $prompts === null ? null : AiPromptDecoratorPrompts::fromArray($prompts),
+            prompts: $prompts === null ? null : Prompts::fromArray($prompts),
         );
     }
 

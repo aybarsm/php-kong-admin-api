@@ -22,14 +22,14 @@ final readonly class RequestSizeLimitingConfigInput implements Input
     public const string NAME = 'request-size-limiting';
 
     /**
-     * @param int|null                         $allowedPayloadSize   Allowed request payload size in megabytes. Default: `128`.
-     * @param bool|null                        $requireContentLength Set to `true` to ensure a valid `Content-Length` header exists before reading the request body. Default: `false`.
-     * @param RequestSizeLimitingSizeUnit|null $sizeUnit             Size unit can be set either in `bytes`, `kilobytes`, or `megabytes` (default). Default: `megabytes`.
+     * @param int|null      $allowedPayloadSize   Allowed request payload size in megabytes. Default: `128`.
+     * @param bool|null     $requireContentLength Set to `true` to ensure a valid `Content-Length` header exists before reading the request body. Default: `false`.
+     * @param SizeUnit|null $sizeUnit             Size unit can be set either in `bytes`, `kilobytes`, or `megabytes` (default). Default: `megabytes`.
      */
     public function __construct(
         public ?int $allowedPayloadSize = null,
         public ?bool $requireContentLength = null,
-        public ?RequestSizeLimitingSizeUnit $sizeUnit = null,
+        public ?SizeUnit $sizeUnit = null,
     ) {
     }
 

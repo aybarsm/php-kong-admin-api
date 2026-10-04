@@ -24,24 +24,24 @@ final readonly class ResponseRateLimitingConfig implements PluginConfig
     public const string NAME = 'response-ratelimiting';
 
     /**
-     * @param bool|null                                         $blockOnFirstViolation A boolean value that determines if the requests should be blocked as soon as one limit is being exceeded. Default: `false`.
-     * @param bool|null                                         $faultTolerant         A boolean value that determines if the requests should be proxied even if Kong has troubles connecting a thir… Default: `true`.
-     * @param string|null                                       $headerName            The name of the response header used to increment the counters. Default: `x-kong-limit`.
-     * @param bool|null                                         $hideClientHeaders     Optionally hide informative response headers. Default: `false`.
-     * @param ResponseRateLimitingLimitBy|null                  $limitBy               The entity that will be used when aggregating the limits: `consumer`, `credential`, `ip`. Default: `consumer`.
-     * @param array<array-key, ResponseRateLimitingLimits>|null $limits                A map that defines rate limits for the plugin.
-     * @param ResponseRateLimitingPolicy|null                   $policy                The rate-limiting policies to use for retrieving and incrementing the limits. Default: `local`.
-     * @param ResponseRateLimitingRedis|null                    $redis                 Redis configuration
+     * @param bool|null                     $blockOnFirstViolation A boolean value that determines if the requests should be blocked as soon as one limit is being exceeded. Default: `false`.
+     * @param bool|null                     $faultTolerant         A boolean value that determines if the requests should be proxied even if Kong has troubles connecting a thir… Default: `true`.
+     * @param string|null                   $headerName            The name of the response header used to increment the counters. Default: `x-kong-limit`.
+     * @param bool|null                     $hideClientHeaders     Optionally hide informative response headers. Default: `false`.
+     * @param LimitBy|null                  $limitBy               The entity that will be used when aggregating the limits: `consumer`, `credential`, `ip`. Default: `consumer`.
+     * @param array<array-key, Limits>|null $limits                A map that defines rate limits for the plugin.
+     * @param Policy|null                   $policy                The rate-limiting policies to use for retrieving and incrementing the limits. Default: `local`.
+     * @param Redis|null                    $redis                 Redis configuration
      */
     public function __construct(
         public ?bool $blockOnFirstViolation = null,
         public ?bool $faultTolerant = null,
         public ?string $headerName = null,
         public ?bool $hideClientHeaders = null,
-        public ?ResponseRateLimitingLimitBy $limitBy = null,
+        public ?LimitBy $limitBy = null,
         public ?array $limits = null,
-        public ?ResponseRateLimitingPolicy $policy = null,
-        public ?ResponseRateLimitingRedis $redis = null,
+        public ?Policy $policy = null,
+        public ?Redis $redis = null,
     ) {
     }
 
@@ -59,10 +59,10 @@ final readonly class ResponseRateLimitingConfig implements PluginConfig
             faultTolerant: Data::boolOrNull($data, 'fault_tolerant'),
             headerName: Data::stringOrNull($data, 'header_name'),
             hideClientHeaders: Data::boolOrNull($data, 'hide_client_headers'),
-            limitBy: Data::enumOrNull($data, 'limit_by', ResponseRateLimitingLimitBy::class),
-            limits: $limits === null ? null : array_map(ResponseRateLimitingLimits::fromArray(...), $limits),
-            policy: Data::enumOrNull($data, 'policy', ResponseRateLimitingPolicy::class),
-            redis: $redis === null ? null : ResponseRateLimitingRedis::fromArray($redis),
+            limitBy: Data::enumOrNull($data, 'limit_by', LimitBy::class),
+            limits: $limits === null ? null : array_map(Limits::fromArray(...), $limits),
+            policy: Data::enumOrNull($data, 'policy', Policy::class),
+            redis: $redis === null ? null : Redis::fromArray($redis),
         );
     }
 

@@ -1,0 +1,17 @@
+{
+  "allow": [
+    "allow-value"
+  ],
+  "allow_when": [
+    "allow_when-value"
+  ],
+  "always_use_authenticated_groups": true,
+  "deny": [
+    "deny-value"
+  ],
+  "deny_when": [
+    "deny_when-value"
+  ],
+  "hide_groups_header": true,
+  "include_consumer_groups": true
+}

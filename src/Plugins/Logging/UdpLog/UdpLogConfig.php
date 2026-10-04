@@ -27,13 +27,13 @@ final readonly class UdpLogConfig implements PluginConfig
      * @param string                        $host              A string representing a host name, such as example.com.
      * @param int                           $port              An integer representing a port number between 0 and 65535, inclusive.
      * @param array<array-key, string>|null $customFieldsByLua Lua code as a key-value map
-     * @param float|null                    $timeout           An optional timeout in milliseconds when sending data to the upstream server. Default: `10000`.
+     * @param int|float|null                $timeout           An optional timeout in milliseconds when sending data to the upstream server. Default: `10000`.
      */
     public function __construct(
         public string $host,
         public int $port,
         public ?array $customFieldsByLua = null,
-        public ?float $timeout = null,
+        public int|float|null $timeout = null,
     ) {
     }
 
@@ -47,7 +47,7 @@ final readonly class UdpLogConfig implements PluginConfig
             host: Data::string($data, 'host'),
             port: Data::int($data, 'port'),
             customFieldsByLua: Data::stringMapOrNull($data, 'custom_fields_by_lua'),
-            timeout: Data::floatOrNull($data, 'timeout'),
+            timeout: Data::numberOrNull($data, 'timeout'),
         );
     }
 

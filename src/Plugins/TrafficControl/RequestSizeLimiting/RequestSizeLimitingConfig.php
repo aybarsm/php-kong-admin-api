@@ -24,14 +24,14 @@ final readonly class RequestSizeLimitingConfig implements PluginConfig
     public const string NAME = 'request-size-limiting';
 
     /**
-     * @param int|null                         $allowedPayloadSize   Allowed request payload size in megabytes. Default: `128`.
-     * @param bool|null                        $requireContentLength Set to `true` to ensure a valid `Content-Length` header exists before reading the request body. Default: `false`.
-     * @param RequestSizeLimitingSizeUnit|null $sizeUnit             Size unit can be set either in `bytes`, `kilobytes`, or `megabytes` (default). Default: `megabytes`.
+     * @param int|null      $allowedPayloadSize   Allowed request payload size in megabytes. Default: `128`.
+     * @param bool|null     $requireContentLength Set to `true` to ensure a valid `Content-Length` header exists before reading the request body. Default: `false`.
+     * @param SizeUnit|null $sizeUnit             Size unit can be set either in `bytes`, `kilobytes`, or `megabytes` (default). Default: `megabytes`.
      */
     public function __construct(
         public ?int $allowedPayloadSize = null,
         public ?bool $requireContentLength = null,
-        public ?RequestSizeLimitingSizeUnit $sizeUnit = null,
+        public ?SizeUnit $sizeUnit = null,
     ) {
     }
 
@@ -44,7 +44,7 @@ final readonly class RequestSizeLimitingConfig implements PluginConfig
         return new self(
             allowedPayloadSize: Data::intOrNull($data, 'allowed_payload_size'),
             requireContentLength: Data::boolOrNull($data, 'require_content_length'),
-            sizeUnit: Data::enumOrNull($data, 'size_unit', RequestSizeLimitingSizeUnit::class),
+            sizeUnit: Data::enumOrNull($data, 'size_unit', SizeUnit::class),
         );
     }
 

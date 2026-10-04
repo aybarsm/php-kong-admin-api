@@ -234,13 +234,13 @@ Plugins that have a configuration doc in `resources/kong-admin-api/plugins/` get
 
 ```php
 use Aybarsm\Kong\AdminApi\Plugins\PluginRegistry;
+use Aybarsm\Kong\AdminApi\Plugins\TrafficControl\RateLimiting\Policy;
 use Aybarsm\Kong\AdminApi\Plugins\TrafficControl\RateLimiting\RateLimitingConfig;
 use Aybarsm\Kong\AdminApi\Plugins\TrafficControl\RateLimiting\RateLimitingConfigInput;
 use Aybarsm\Kong\AdminApi\Plugins\TrafficControl\RateLimiting\RateLimitingInput;
-use Aybarsm\Kong\AdminApi\Plugins\TrafficControl\RateLimiting\RateLimitingPolicy;
 
 $plugin = $kong->services()->plugins('billing')->create(new RateLimitingInput(
-    config: new RateLimitingConfigInput(minute: 100, policy: RateLimitingPolicy::Local),
+    config: new RateLimitingConfigInput(minute: 100, policy: Policy::Local),
     tags: ['edge'],
 ));
 
@@ -254,7 +254,8 @@ $configs = array_map(PluginRegistry::config(...), $kong->plugins()->list()->data
 - **Bodies:** `{Plugin}Input` works with `create()`, `update()` and `upsert()` of `plugins()` and of the plugin resources nested under Services, Routes, Consumers and Consumer Groups. Its constructor offers only the scopes the plugin's doc allows; ACME, for example, has no `service` or `route`.
 - **Responses:** responses stay the generic `Plugin`. `{Plugin}Config::fromPlugin()` reads the typed config and throws `InvalidArgumentException` for another plugin. `PluginRegistry::config()` works on any plugin.
 - **Inputs:** like other input DTOs, config inputs omit nulls. Pass `config` as an array to send explicit nulls, or a `{vault://…}` reference for a non-string field.
-- **Docs and gaps:** each class's docblock names its doc, defaults, supported Partials and minimum Kong version. Plugins without a doc, or whose doc is wrong, use the generic `PluginInput` with an array `config`. [`docs/plugin-notes.md`](docs/plugin-notes.md) lists the blocked docs (`session`, `syslog`, `acl` and `proxy-cache` currently contain another plugin's doc) and the open questions.
+- **Docs and gaps:** each class's docblock names its doc, defaults, supported Partials and minimum Kong version. Plugins without a doc use the generic `PluginInput` with an array `config`. [`docs/plugin-notes.md`](docs/plugin-notes.md) records the decisions on doc quirks.
+- **Types and names:** a doc `number` is `int|float`, so integers stay integers. Nested classes and enums are named after their config path within the plugin's namespace, for example `RateLimiting\RedisCloudAuthentication` and `RateLimiting\Policy`.
 
 <!-- plugins:start -->
 | Category | Plugin (`name`) | Namespace `Aybarsm\Kong\AdminApi\Plugins\…` |
@@ -271,9 +272,11 @@ $configs = array_map(PluginRegistry::config(...), $kong->plugins()->list()->data
 | Authentication | Key Auth (`key-auth`) | `Authentication\KeyAuth\KeyAuthInput`, `…Config`, `…ConfigInput` |
 | Authentication | LDAP Authentication (`ldap-auth`) | `Authentication\LdapAuth\LdapAuthInput`, `…Config`, `…ConfigInput` |
 | Authentication | OAuth 2.0 Authentication (`oauth2`) | `Authentication\Oauth2\Oauth2Input`, `…Config`, `…ConfigInput` |
+| Authentication | Session (`session`) | `Authentication\Session\SessionInput`, `…Config`, `…ConfigInput` |
 | Logging | File Log (`file-log`) | `Logging\FileLog\FileLogInput`, `…Config`, `…ConfigInput` |
 | Logging | HTTP Log (`http-log`) | `Logging\HttpLog\HttpLogInput`, `…Config`, `…ConfigInput` |
 | Logging | Loggly (`loggly`) | `Logging\Loggly\LogglyInput`, `…Config`, `…ConfigInput` |
+| Logging | Syslog (`syslog`) | `Logging\Syslog\SyslogInput`, `…Config`, `…ConfigInput` |
 | Logging | TCP Log (`tcp-log`) | `Logging\TcpLog\TcpLogInput`, `…Config`, `…ConfigInput` |
 | Logging | UDP Log (`udp-log`) | `Logging\UdpLog\UdpLogInput`, `…Config`, `…ConfigInput` |
 | Monitoring | Datadog (`datadog`) | `Monitoring\Datadog\DatadogInput`, `…Config`, `…ConfigInput` |
@@ -286,6 +289,8 @@ $configs = array_map(PluginRegistry::config(...), $kong->plugins()->list()->data
 | Security | CORS (`cors`) | `Security\Cors\CorsInput`, `…Config`, `…ConfigInput` |
 | Security | IP Restriction (`ip-restriction`) | `Security\IpRestriction\IpRestrictionInput`, `…Config`, `…ConfigInput` |
 | TrafficControl | Access Control Enforcement (`ace`) | `TrafficControl\AccessControlEnforcement\AccessControlEnforcementInput`, `…Config`, `…ConfigInput` |
+| TrafficControl | ACL (`acl`) | `TrafficControl\Acl\AclInput`, `…Config`, `…ConfigInput` |
+| TrafficControl | Proxy Cache (`proxy-cache`) | `TrafficControl\ProxyCache\ProxyCacheInput`, `…Config`, `…ConfigInput` |
 | TrafficControl | Rate Limiting (`rate-limiting`) | `TrafficControl\RateLimiting\RateLimitingInput`, `…Config`, `…ConfigInput` |
 | TrafficControl | Redirect (`redirect`) | `TrafficControl\Redirect\RedirectInput`, `…Config`, `…ConfigInput` |
 | TrafficControl | Request Size Limiting (`request-size-limiting`) | `TrafficControl\RequestSizeLimiting\RequestSizeLimitingInput`, `…Config`, `…ConfigInput` |

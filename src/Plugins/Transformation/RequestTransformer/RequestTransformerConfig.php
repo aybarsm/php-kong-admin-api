@@ -24,20 +24,20 @@ final readonly class RequestTransformerConfig implements PluginConfig
     public const string NAME = 'request-transformer';
 
     /**
-     * @param RequestTransformerAdd|null     $add
-     * @param RequestTransformerAppend|null  $append
-     * @param string|null                    $httpMethod A string representing an HTTP method, such as GET, POST, PUT, or DELETE.
-     * @param RequestTransformerRemove|null  $remove
-     * @param RequestTransformerRename|null  $rename
-     * @param RequestTransformerReplace|null $replace
+     * @param Add|null     $add
+     * @param Append|null  $append
+     * @param string|null  $httpMethod A string representing an HTTP method, such as GET, POST, PUT, or DELETE.
+     * @param Remove|null  $remove
+     * @param Rename|null  $rename
+     * @param Replace|null $replace
      */
     public function __construct(
-        public ?RequestTransformerAdd $add = null,
-        public ?RequestTransformerAppend $append = null,
+        public ?Add $add = null,
+        public ?Append $append = null,
         public ?string $httpMethod = null,
-        public ?RequestTransformerRemove $remove = null,
-        public ?RequestTransformerRename $rename = null,
-        public ?RequestTransformerReplace $replace = null,
+        public ?Remove $remove = null,
+        public ?Rename $rename = null,
+        public ?Replace $replace = null,
     ) {
     }
 
@@ -54,12 +54,12 @@ final readonly class RequestTransformerConfig implements PluginConfig
         $replace = Data::mapOrNull($data, 'replace');
 
         return new self(
-            add: $add === null ? null : RequestTransformerAdd::fromArray($add),
-            append: $append === null ? null : RequestTransformerAppend::fromArray($append),
+            add: $add === null ? null : Add::fromArray($add),
+            append: $append === null ? null : Append::fromArray($append),
             httpMethod: Data::stringOrNull($data, 'http_method'),
-            remove: $remove === null ? null : RequestTransformerRemove::fromArray($remove),
-            rename: $rename === null ? null : RequestTransformerRename::fromArray($rename),
-            replace: $replace === null ? null : RequestTransformerReplace::fromArray($replace),
+            remove: $remove === null ? null : Remove::fromArray($remove),
+            rename: $rename === null ? null : Rename::fromArray($rename),
+            replace: $replace === null ? null : Replace::fromArray($replace),
         );
     }
 

@@ -27,39 +27,39 @@ final readonly class AcmeConfig implements PluginConfig
     public const string NAME = 'acme';
 
     /**
-     * @param string                 $accountEmail         The account identifier.
-     * @param AcmeAccountKey|null    $accountKey           The private key associated with the account.
-     * @param bool|null              $allowAnyDomain       If set to `true`, the plugin allows all domains and ignores any values in the `domains` list. Default: `false`.
-     * @param string|null            $apiUri               A string representing a URL, such as https://example.com/path/to/resource?q=search. Default: `https://acme-v02.api.letsencrypt.org/directory`.
-     * @param AcmeCertType|null      $certType             The certificate type to create. Default: `rsa`.
-     * @param list<string>|null      $domains              An array of strings representing hosts.
-     * @param string|null            $eabHmacKey           External account binding (EAB) base64-encoded URL string of the HMAC key.
-     * @param string|null            $eabKid               External account binding (EAB) key id.
-     * @param bool|null              $enableIpv4CommonName A boolean value that controls whether to include the IPv4 address in the common name field of generated certi… Default: `true`.
-     * @param float|null             $failBackoffMinutes   Minutes to wait for each domain that fails to create a certificate. Default: `5`.
-     * @param string|null            $preferredChain       A string value that specifies the preferred certificate chain to use when generating certificates.
-     * @param float|null             $renewThresholdDays   Days remaining to renew the certificate before it expires. Default: `14`.
-     * @param AcmeRsaKeySize|null    $rsaKeySize           RSA private key size for the certificate. Default: `4096`.
-     * @param AcmeStorage|null       $storage              The backend storage type to use. Default: `shm`.
-     * @param AcmeStorageConfig|null $storageConfig
-     * @param bool|null              $tosAccepted          If you are using Let's Encrypt, you must set this to `true` to agree the terms of service. Default: `false`.
+     * @param string             $accountEmail         The account identifier.
+     * @param AccountKey|null    $accountKey           The private key associated with the account.
+     * @param bool|null          $allowAnyDomain       If set to `true`, the plugin allows all domains and ignores any values in the `domains` list. Default: `false`.
+     * @param string|null        $apiUri               A string representing a URL, such as https://example.com/path/to/resource?q=search. Default: `https://acme-v02.api.letsencrypt.org/directory`.
+     * @param CertType|null      $certType             The certificate type to create. Default: `rsa`.
+     * @param list<string>|null  $domains              An array of strings representing hosts.
+     * @param string|null        $eabHmacKey           External account binding (EAB) base64-encoded URL string of the HMAC key.
+     * @param string|null        $eabKid               External account binding (EAB) key id.
+     * @param bool|null          $enableIpv4CommonName A boolean value that controls whether to include the IPv4 address in the common name field of generated certi… Default: `true`.
+     * @param int|float|null     $failBackoffMinutes   Minutes to wait for each domain that fails to create a certificate. Default: `5`.
+     * @param string|null        $preferredChain       A string value that specifies the preferred certificate chain to use when generating certificates.
+     * @param int|float|null     $renewThresholdDays   Days remaining to renew the certificate before it expires. Default: `14`.
+     * @param RsaKeySize|null    $rsaKeySize           RSA private key size for the certificate. Default: `4096`.
+     * @param Storage|null       $storage              The backend storage type to use. Default: `shm`.
+     * @param StorageConfig|null $storageConfig
+     * @param bool|null          $tosAccepted          If you are using Let's Encrypt, you must set this to `true` to agree the terms of service. Default: `false`.
      */
     public function __construct(
         public string $accountEmail,
-        public ?AcmeAccountKey $accountKey = null,
+        public ?AccountKey $accountKey = null,
         public ?bool $allowAnyDomain = null,
         public ?string $apiUri = null,
-        public ?AcmeCertType $certType = null,
+        public ?CertType $certType = null,
         public ?array $domains = null,
         public ?string $eabHmacKey = null,
         public ?string $eabKid = null,
         public ?bool $enableIpv4CommonName = null,
-        public ?float $failBackoffMinutes = null,
+        public int|float|null $failBackoffMinutes = null,
         public ?string $preferredChain = null,
-        public ?float $renewThresholdDays = null,
-        public ?AcmeRsaKeySize $rsaKeySize = null,
-        public ?AcmeStorage $storage = null,
-        public ?AcmeStorageConfig $storageConfig = null,
+        public int|float|null $renewThresholdDays = null,
+        public ?RsaKeySize $rsaKeySize = null,
+        public ?Storage $storage = null,
+        public ?StorageConfig $storageConfig = null,
         public ?bool $tosAccepted = null,
     ) {
     }
@@ -75,20 +75,20 @@ final readonly class AcmeConfig implements PluginConfig
 
         return new self(
             accountEmail: Data::string($data, 'account_email'),
-            accountKey: $accountKey === null ? null : AcmeAccountKey::fromArray($accountKey),
+            accountKey: $accountKey === null ? null : AccountKey::fromArray($accountKey),
             allowAnyDomain: Data::boolOrNull($data, 'allow_any_domain'),
             apiUri: Data::stringOrNull($data, 'api_uri'),
-            certType: Data::enumOrNull($data, 'cert_type', AcmeCertType::class),
+            certType: Data::enumOrNull($data, 'cert_type', CertType::class),
             domains: Data::stringListOrNull($data, 'domains'),
             eabHmacKey: Data::stringOrNull($data, 'eab_hmac_key'),
             eabKid: Data::stringOrNull($data, 'eab_kid'),
             enableIpv4CommonName: Data::boolOrNull($data, 'enable_ipv4_common_name'),
-            failBackoffMinutes: Data::floatOrNull($data, 'fail_backoff_minutes'),
+            failBackoffMinutes: Data::numberOrNull($data, 'fail_backoff_minutes'),
             preferredChain: Data::stringOrNull($data, 'preferred_chain'),
-            renewThresholdDays: Data::floatOrNull($data, 'renew_threshold_days'),
-            rsaKeySize: Data::enumOrNull($data, 'rsa_key_size', AcmeRsaKeySize::class),
-            storage: Data::enumOrNull($data, 'storage', AcmeStorage::class),
-            storageConfig: $storageConfig === null ? null : AcmeStorageConfig::fromArray($storageConfig),
+            renewThresholdDays: Data::numberOrNull($data, 'renew_threshold_days'),
+            rsaKeySize: Data::enumOrNull($data, 'rsa_key_size', RsaKeySize::class),
+            storage: Data::enumOrNull($data, 'storage', Storage::class),
+            storageConfig: $storageConfig === null ? null : StorageConfig::fromArray($storageConfig),
             tosAccepted: Data::boolOrNull($data, 'tos_accepted'),
         );
     }

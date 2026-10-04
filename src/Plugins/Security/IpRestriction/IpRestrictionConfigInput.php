@@ -25,13 +25,13 @@ final readonly class IpRestrictionConfigInput implements Input
      * @param list<string>|null $allow   List of IPs or CIDR ranges to allow.
      * @param list<string>|null $deny    List of IPs or CIDR ranges to deny.
      * @param string|null       $message The message to send as a response body to rejected requests.
-     * @param float|null        $status  The HTTP status of the requests that will be rejected by the plugin.
+     * @param int|float|null    $status  The HTTP status of the requests that will be rejected by the plugin.
      */
     public function __construct(
         public ?array $allow = null,
         public ?array $deny = null,
         public ?string $message = null,
-        public ?float $status = null,
+        public int|float|null $status = null,
     ) {
     }
 

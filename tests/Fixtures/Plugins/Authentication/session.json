@@ -1,0 +1,36 @@
+{
+  "absolute_timeout": 1.5,
+  "audience": "audience-value",
+  "bind": [
+    "ip"
+  ],
+  "cookie_domain": "cookie_domain-value",
+  "cookie_http_only": true,
+  "cookie_name": "cookie_name-value",
+  "cookie_path": "cookie_path-value",
+  "cookie_same_site": "Default",
+  "cookie_secure": true,
+  "hash_subject": true,
+  "idling_timeout": 1.5,
+  "logout_methods": [
+    "DELETE"
+  ],
+  "logout_post_arg": "logout_post_arg-value",
+  "logout_query_arg": "logout_query_arg-value",
+  "read_body_for_logout": true,
+  "remember": true,
+  "remember_absolute_timeout": 1.5,
+  "remember_cookie_name": "remember_cookie_name-value",
+  "remember_rolling_timeout": 1.5,
+  "request_headers": [
+    "absolute-timeout"
+  ],
+  "response_headers": [
+    "absolute-timeout"
+  ],
+  "rolling_timeout": 1.5,
+  "secret": "secret-value",
+  "stale_ttl": 1.5,
+  "storage": "cookie",
+  "store_metadata": true
+}

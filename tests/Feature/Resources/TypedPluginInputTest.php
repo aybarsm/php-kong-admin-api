@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 use Aybarsm\Kong\AdminApi\Models\Plugin;
 use Aybarsm\Kong\AdminApi\Plugins\PluginRegistry;
+use Aybarsm\Kong\AdminApi\Plugins\TrafficControl\RateLimiting\Policy;
 use Aybarsm\Kong\AdminApi\Plugins\TrafficControl\RateLimiting\RateLimitingConfig;
 use Aybarsm\Kong\AdminApi\Plugins\TrafficControl\RateLimiting\RateLimitingConfigInput;
 use Aybarsm\Kong\AdminApi\Plugins\TrafficControl\RateLimiting\RateLimitingInput;
-use Aybarsm\Kong\AdminApi\Plugins\TrafficControl\RateLimiting\RateLimitingPolicy;
 use Aybarsm\Kong\AdminApi\Resources\Nested\ConsumerGroupPlugins;
 use Aybarsm\Kong\AdminApi\Resources\Nested\ConsumerPlugins;
 use Aybarsm\Kong\AdminApi\Resources\Nested\RoutePlugins;
@@ -26,7 +26,7 @@ covers(Plugins::class, ServicePlugins::class, RoutePlugins::class, ConsumerPlugi
 function typedRateLimiting(): RateLimitingInput
 {
     return new RateLimitingInput(
-        config: new RateLimitingConfigInput(minute: 20, policy: RateLimitingPolicy::Local),
+        config: new RateLimitingConfigInput(minute: 20, policy: Policy::Local),
         enabled: true,
     );
 }
@@ -49,7 +49,7 @@ it('sends a typed plugin body on every write of every plugin resource', function
         'consumer group' => $kong->client->consumerGroups()->plugins('gold'),
         default => throw new LogicException($resource),
     };
-    $body = ['name' => 'rate-limiting', 'config' => ['minute' => 20.0, 'policy' => 'local'], 'enabled' => true];
+    $body = ['name' => 'rate-limiting', 'config' => ['minute' => 20, 'policy' => 'local'], 'enabled' => true];
 
     $created = $plugins->create(typedRateLimiting());
     expect($kong->lastRequest()->getMethod())->toBe('POST')
@@ -66,7 +66,7 @@ it('sends a typed plugin body on every write of every plugin resource', function
         ->and($kong->lastRequest()->getUri()->getPath())->toBe($path . '/p1')
         ->and($kong->lastJsonBody())->toEqual($body)
         ->and($created)->toBeInstanceOf(Plugin::class)
-        ->and(RateLimitingConfig::fromPlugin($created)->policy)->toBe(RateLimitingPolicy::Cluster);
+        ->and(RateLimitingConfig::fromPlugin($created)->policy)->toBe(Policy::Cluster);
 })->with([
     'plugins()' => ['plugins', '/plugins'],
     'services()->plugins()' => ['service', '/services/billing/plugins'],
