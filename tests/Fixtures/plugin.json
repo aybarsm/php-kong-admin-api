@@ -1,0 +1,60 @@
+{
+  "condition": "condition-value",
+  "config": {
+    "enabled": true,
+    "nested": {
+      "limit": 5
+    },
+    "option": "value"
+  },
+  "consumer": {
+    "id": "24418e78-8e43-5bf9-9c9b-17a48c6c2739"
+  },
+  "consumer_group": {
+    "id": "39610d63-e931-5af8-bd89-88e556df79cd"
+  },
+  "created_at": 1706598432,
+  "enabled": true,
+  "expressions": {
+    "enabled": true,
+    "nested": {
+      "limit": 5
+    },
+    "option": "value"
+  },
+  "id": "e4225a6f-a936-5875-8d2c-1a77469d23aa",
+  "instance_name": "instance_name-value",
+  "name": "name-value",
+  "ordering": {
+    "after": {
+      "access": [
+        "access-value"
+      ]
+    },
+    "before": {
+      "access": [
+        "access-value"
+      ]
+    }
+  },
+  "partials": [
+    {
+      "id": "33134e5b-0298-58e3-b120-b542c44f7079",
+      "name": "name-value",
+      "path": "path-value"
+    }
+  ],
+  "protocols": [
+    "grpc"
+  ],
+  "route": {
+    "id": "fddce39a-1a6d-5699-8068-ecaa57a27c1b"
+  },
+  "service": {
+    "id": "17a76e23-c894-5300-9dd0-5e67f2e4bf93"
+  },
+  "tags": [
+    "tags-value"
+  ],
+  "updated_at": 1706598432
+}

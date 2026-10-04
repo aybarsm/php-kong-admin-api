@@ -1,0 +1,19 @@
+{
+  "created_at": 1706598432,
+  "id": "e4225a6f-a936-5875-8d2c-1a77469d23aa",
+  "jwk": "jwk-value",
+  "kid": "kid-value",
+  "name": "name-value",
+  "pem": {
+    "private_key": "private_key-value",
+    "public_key": "public_key-value"
+  },
+  "set": {
+    "id": "ee6a6abd-48d4-58d7-97d0-1fc4480e5eb0"
+  },
+  "tags": [
+    "tags-value"
+  ],
+  "updated_at": 1706598432,
+  "x5t": "x5t-value"
+}

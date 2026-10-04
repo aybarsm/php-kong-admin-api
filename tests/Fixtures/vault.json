@@ -1,0 +1,18 @@
+{
+  "config": {
+    "enabled": true,
+    "nested": {
+      "limit": 5
+    },
+    "option": "value"
+  },
+  "created_at": 1706598432,
+  "description": "description-value",
+  "id": "e4225a6f-a936-5875-8d2c-1a77469d23aa",
+  "name": "name-value",
+  "prefix": "prefix-value",
+  "tags": [
+    "tags-value"
+  ],
+  "updated_at": 1706598432
+}

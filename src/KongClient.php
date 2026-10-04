@@ -7,8 +7,19 @@ namespace Aybarsm\Kong\AdminApi;
 use Aybarsm\Kong\AdminApi\Config\ClientConfig;
 use Aybarsm\Kong\AdminApi\Exceptions\InvalidArgumentException;
 use Aybarsm\Kong\AdminApi\Internal\Transport;
+use Aybarsm\Kong\AdminApi\Resources\CaCertificates;
+use Aybarsm\Kong\AdminApi\Resources\Certificates;
+use Aybarsm\Kong\AdminApi\Resources\Consumers;
+use Aybarsm\Kong\AdminApi\Resources\Keys;
+use Aybarsm\Kong\AdminApi\Resources\KeySets;
+use Aybarsm\Kong\AdminApi\Resources\Plugins;
 use Aybarsm\Kong\AdminApi\Resources\Routes;
 use Aybarsm\Kong\AdminApi\Resources\Services;
+use Aybarsm\Kong\AdminApi\Resources\Snis;
+use Aybarsm\Kong\AdminApi\Resources\Tags;
+use Aybarsm\Kong\AdminApi\Resources\Upstreams;
+use Aybarsm\Kong\AdminApi\Resources\Vaults;
+use Aybarsm\Kong\AdminApi\Resources\Workspaces;
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Psr7\HttpFactory;
 use GuzzleHttp\RequestOptions;
@@ -72,6 +83,94 @@ final readonly class KongClient
     public function withoutWorkspace(): self
     {
         return new self($this->config->withWorkspace(null), $this->httpClient, $this->httpFactory);
+    }
+
+    /**
+     * CaCertificates: `/ca_certificates`.
+     */
+    public function caCertificates(): CaCertificates
+    {
+        return new CaCertificates($this->transport);
+    }
+
+    /**
+     * Certificates: `/certificates`.
+     */
+    public function certificates(): Certificates
+    {
+        return new Certificates($this->transport);
+    }
+
+    /**
+     * Consumers: `/consumers`.
+     */
+    public function consumers(): Consumers
+    {
+        return new Consumers($this->transport);
+    }
+
+    /**
+     * KeySets: `/key-sets`.
+     */
+    public function keySets(): KeySets
+    {
+        return new KeySets($this->transport);
+    }
+
+    /**
+     * Keys: `/keys`.
+     */
+    public function keys(): Keys
+    {
+        return new Keys($this->transport);
+    }
+
+    /**
+     * Plugins: `/plugins`.
+     */
+    public function plugins(): Plugins
+    {
+        return new Plugins($this->transport);
+    }
+
+    /**
+     * SNIs: `/snis`.
+     */
+    public function snis(): Snis
+    {
+        return new Snis($this->transport);
+    }
+
+    /**
+     * Tags: `/tags`.
+     */
+    public function tags(): Tags
+    {
+        return new Tags($this->transport);
+    }
+
+    /**
+     * Upstreams: `/upstreams`.
+     */
+    public function upstreams(): Upstreams
+    {
+        return new Upstreams($this->transport);
+    }
+
+    /**
+     * Vaults: `/vaults`.
+     */
+    public function vaults(): Vaults
+    {
+        return new Vaults($this->transport);
+    }
+
+    /**
+     * Workspaces: `/workspaces`.
+     */
+    public function workspaces(): Workspaces
+    {
+        return new Workspaces($this->transport);
     }
 
     /**

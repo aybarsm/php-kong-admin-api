@@ -226,6 +226,37 @@ final class Data
     }
 
     /**
+     * A spec object whose `additionalProperties` are strings (e.g. `Workspace.config.meta`).
+     * Keys are `array-key` because numeric-looking JSON keys become integers in PHP.
+     *
+     * @param array<string, mixed> $data
+     *
+     * @return array<array-key, string>|null
+     *
+     * @throws UnexpectedResponseException
+     */
+    public static function stringMapOrNull(array $data, string $key): ?array
+    {
+        $value = $data[$key] ?? null;
+        if ($value === null) {
+            return null;
+        }
+        if (!is_array($value) || ($value !== [] && array_is_list($value))) {
+            throw self::invalid($key, 'object');
+        }
+
+        $out = [];
+        foreach ($value as $name => $item) {
+            if (!is_string($item)) {
+                throw self::invalid($key . '.' . $name, 'string');
+            }
+            $out[$name] = $item;
+        }
+
+        return $out;
+    }
+
+    /**
      * A spec object whose `additionalProperties` are lists of strings (e.g. `RouteJson.headers`).
      * Keys are `array-key` because numeric-looking JSON keys become integers in PHP.
      *

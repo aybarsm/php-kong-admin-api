@@ -13,6 +13,7 @@ use Aybarsm\Kong\AdminApi\Models\Service;
 use Aybarsm\Kong\AdminApi\Models\ServiceInput;
 use Aybarsm\Kong\AdminApi\Pagination\ListOptions;
 use Aybarsm\Kong\AdminApi\Pagination\Page;
+use Aybarsm\Kong\AdminApi\Resources\Nested\ServicePlugins;
 use Aybarsm\Kong\AdminApi\Resources\Nested\ServiceRoutes;
 use Generator;
 
@@ -141,5 +142,19 @@ final readonly class Services extends AbstractResource
         }
 
         return new ServiceRoutes($this->transport, [...$this->parent, self::SEGMENT, $serviceIdOrName]);
+    }
+
+    /**
+     * Plugins scoped to one Service: `/services/{ServiceIdOrName}/plugins`.
+     *
+     * @throws InvalidArgumentException when $serviceIdOrName is empty
+     */
+    public function plugins(string $serviceIdOrName): ServicePlugins
+    {
+        if ($serviceIdOrName === '') {
+            throw new InvalidArgumentException('Service ID or name must not be empty.');
+        }
+
+        return new ServicePlugins($this->transport, [...$this->parent, self::SEGMENT, $serviceIdOrName]);
     }
 }

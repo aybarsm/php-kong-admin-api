@@ -66,6 +66,9 @@ it('throws on values of the wrong type', function (callable $read, string $messa
     'header values not a list' => [fn (): ?array => Data::stringListMapOrNull(['k' => ['h' => 'a']], 'k'), 'Field "k.h" is not a valid list of strings.'],
     'header values object' => [fn (): ?array => Data::stringListMapOrNull(['k' => ['h' => ['x' => 'a']]], 'k'), 'Field "k.h" is not a valid list of strings.'],
     'header value not string' => [fn (): ?array => Data::stringListMapOrNull(['k' => ['h' => [1]]], 'k'), 'Field "k.h" is not a valid list of strings.'],
+    'string map is list' => [fn (): ?array => Data::stringMapOrNull(['k' => ['a']], 'k'), 'Field "k" is not a valid object.'],
+    'string map is scalar' => [fn (): ?array => Data::stringMapOrNull(['k' => 'a'], 'k'), 'Field "k" is not a valid object.'],
+    'string map value' => [fn (): ?array => Data::stringMapOrNull(['k' => ['a' => 1]], 'k'), 'Field "k.a" is not a valid string.'],
     'list of maps item' => [fn (): ?array => Data::listOfMapsOrNull(['k' => [['a' => 1], 'x']], 'k'), 'Field "k[1]" is not a valid object.'],
     'enum type' => [fn (): ?Protocol => Data::enumOrNull(['k' => 1.5], 'k', Protocol::class), 'Field "k" is not a valid enum value.'],
     'enum case' => [fn (): ?Protocol => Data::enumOrNull(['k' => 'gopher'], 'k', Protocol::class), 'Unexpected value for "k"'],
@@ -115,4 +118,10 @@ it('converts enum and model lists for toArray()', function (): void {
         ->and(Data::enumValues(null))->toBeNull()
         ->and(Data::toArrays([new Aybarsm\Kong\AdminApi\Models\Shared\IpPort('1.2.3.4', 1)]))->toBe([['ip' => '1.2.3.4', 'port' => 1]])
         ->and(Data::toArrays(null))->toBeNull();
+});
+
+it('reads string maps', function (): void {
+    expect(Data::stringMapOrNull(['m' => ['a' => 'b']], 'm'))->toBe(['a' => 'b'])
+        ->and(Data::stringMapOrNull(['m' => []], 'm'))->toBe([])
+        ->and(Data::stringMapOrNull([], 'm'))->toBeNull();
 });

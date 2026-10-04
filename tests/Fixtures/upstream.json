@@ -1,0 +1,78 @@
+{
+  "algorithm": "consistent-hashing",
+  "client_certificate": {
+    "id": "9adde6bd-b3b3-5bef-9031-f8fc718de475"
+  },
+  "created_at": 1706598432,
+  "hash_fallback": "consumer",
+  "hash_fallback_header": "hash_fallback_header-value",
+  "hash_fallback_query_arg": "hash_fallback_query_arg-value",
+  "hash_fallback_uri_capture": "hash_fallback_uri_capture-value",
+  "hash_on": "consumer",
+  "hash_on_cookie": "hash_on_cookie-value",
+  "hash_on_cookie_path": "hash_on_cookie_path-value",
+  "hash_on_header": "hash_on_header-value",
+  "hash_on_query_arg": "hash_on_query_arg-value",
+  "hash_on_uri_capture": "hash_on_uri_capture-value",
+  "healthchecks": {
+    "active": {
+      "concurrency": 1,
+      "headers": {
+        "x-header": [
+          "value-1",
+          "value-2"
+        ]
+      },
+      "healthy": {
+        "http_statuses": [
+          100
+        ],
+        "interval": 1.5,
+        "successes": 1
+      },
+      "http_path": "http_path-value",
+      "https_sni": "https_sni-value",
+      "https_verify_certificate": true,
+      "timeout": 1.5,
+      "type": "grpc",
+      "unhealthy": {
+        "http_failures": 1,
+        "http_statuses": [
+          100
+        ],
+        "interval": 1.5,
+        "tcp_failures": 1,
+        "timeouts": 1
+      }
+    },
+    "passive": {
+      "healthy": {
+        "http_statuses": [
+          100
+        ],
+        "successes": 1
+      },
+      "type": "grpc",
+      "unhealthy": {
+        "http_failures": 1,
+        "http_statuses": [
+          100
+        ],
+        "tcp_failures": 1,
+        "timeouts": 1
+      }
+    },
+    "threshold": 1.5
+  },
+  "host_header": "host_header-value",
+  "id": "e4225a6f-a936-5875-8d2c-1a77469d23aa",
+  "name": "name-value",
+  "slots": 10,
+  "sticky_sessions_cookie": "sticky_sessions_cookie-value",
+  "sticky_sessions_cookie_path": "sticky_sessions_cookie_path-value",
+  "tags": [
+    "tags-value"
+  ],
+  "updated_at": 1706598432,
+  "use_srv_name": true
+}

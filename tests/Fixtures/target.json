@@ -1,0 +1,14 @@
+{
+  "created_at": 1706598432.5,
+  "failover": true,
+  "id": "e4225a6f-a936-5875-8d2c-1a77469d23aa",
+  "tags": [
+    "tags-value"
+  ],
+  "target": "target-value",
+  "updated_at": 1706598432.5,
+  "upstream": {
+    "id": "b6b53c61-c66b-5f89-8c64-edd2c1fe9374"
+  },
+  "weight": 1
+}

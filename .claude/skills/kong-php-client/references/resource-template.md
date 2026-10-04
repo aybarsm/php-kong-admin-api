@@ -102,6 +102,8 @@ The `$body` argument accepts an `Input` DTO or a raw `array<string, mixed>`. Ext
   `WorkspaceOnly` for `/{workspace}`-only paths. A `WorkspaceOnly` attribute's path includes the
   `/{workspace}` prefix.
 - Only implement methods the spec defines. For example, Event-hooks has no `get()` or `update()`.
+- Nested resources live in `Resources\Nested\{Parent}{Child}`, one class per parent path, because each
+  parent path has its own operationIds (`list-plugin-with-service`, `list-plugin-with-route`, …).
 - Nested resources live in `Resources\Nested\`. They are built by an accessor on the parent resource,
   `new ServiceRoutes($this->transport, [...$this->parent, 'services', $serviceIdOrName])`, and the
   accessor needs no `#[Operation]`.

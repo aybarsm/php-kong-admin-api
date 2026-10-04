@@ -15,6 +15,7 @@ use Aybarsm\Kong\AdminApi\Models\RouteFactory;
 use Aybarsm\Kong\AdminApi\Models\RouteJsonInput;
 use Aybarsm\Kong\AdminApi\Pagination\ListOptions;
 use Aybarsm\Kong\AdminApi\Pagination\Page;
+use Aybarsm\Kong\AdminApi\Resources\Nested\RoutePlugins;
 use Generator;
 
 /**
@@ -130,5 +131,19 @@ final readonly class Routes extends AbstractResource
     public function delete(string $idOrName): void
     {
         $this->none(Transport::METHOD_DELETE, $this->path(OperationScope::Both, self::SEGMENT, $idOrName));
+    }
+
+    /**
+     * Plugins scoped to one Route: `/routes/{RouteIdOrName}/plugins`.
+     *
+     * @throws InvalidArgumentException when $routeIdOrName is empty
+     */
+    public function plugins(string $routeIdOrName): RoutePlugins
+    {
+        if ($routeIdOrName === '') {
+            throw new InvalidArgumentException('Route ID or name must not be empty.');
+        }
+
+        return new RoutePlugins($this->transport, [...$this->parent, self::SEGMENT, $routeIdOrName]);
     }
 }

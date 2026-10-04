@@ -1,0 +1,15 @@
+{
+  "cert": "cert-value",
+  "cert_alt": "cert_alt-value",
+  "created_at": 1706598432,
+  "id": "e4225a6f-a936-5875-8d2c-1a77469d23aa",
+  "key": "key-value",
+  "key_alt": "key_alt-value",
+  "snis": [
+    "snis-value"
+  ],
+  "tags": [
+    "tags-value"
+  ],
+  "updated_at": 1706598432
+}

@@ -110,6 +110,33 @@ final readonly class Service implements Model
   send an explicit null.
 - `x-encrypted` fields get `#[\SensitiveParameter]` and are redacted in `__debugInfo()`.
 
+## Nested (inline) objects
+An object with `properties` inside a schema gets its own `final readonly` Model named after its role
+(`UpstreamHealthchecks`, `UpstreamActiveHealthcheck`, `KeyPem`). Its `#[Schema]` is a JSON pointer:
+`#[Schema('#/components/schemas/Upstream/properties/healthchecks/properties/active')]`. Array items are
+followed automatically, so `#/components/schemas/Plugin/properties/partials` describes one `PluginPartial`.
+Nested DTOs are shared by the output and input classes.
+
+## `x-encrypted` properties
+```php
+/** Properties the spec marks `x-encrypted`; redacted in __debugInfo(). */
+private const array ENCRYPTED = ['key', 'keyAlt'];
+
+/** @return array<string, mixed> */
+public function __debugInfo(): array
+{
+    $values = get_object_vars($this);
+    foreach (self::ENCRYPTED as $property) {
+        if ($values[$property] !== null) {
+            $values[$property] = '***';
+        }
+    }
+
+    return $values;
+}
+```
+Input DTOs also mark those constructor parameters `#[SensitiveParameter]`.
+
 ## Enum
 ```php
 enum Protocol: string

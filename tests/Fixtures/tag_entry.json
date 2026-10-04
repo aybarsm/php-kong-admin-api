@@ -1,0 +1,6 @@
+{
+  "entity_id": "123e4567-e89b-12d3-a456-426614174000",
+  "entity_name": "my-service",
+  "entity_type": "service",
+  "tag": "production"
+}

@@ -71,6 +71,16 @@ it('maps 404 to NotFoundException', function (): void {
 - `Spec::operations()`, `Spec::schema($name)` and `Spec::document()` read the canonical spec (used by
   the conformance tests).
 
+## Generic model checks (no per-model test needed)
+`tests/Conformance/ModelRoundTripTest.php` runs over every `#[Schema]` DTO:
+- Every top-level output DTO needs `tests/Fixtures/{snake_case_class}.json` (e.g. `CaCertificate` →
+  `ca_certificate.json`). It must contain **every** spec property except `writeOnly` ones, with no
+  nulls, and `fromArray(fixture)->toArray()` must equal the fixture.
+- Every `XInput` is built from the output DTO's values and must serialise to the same array.
+- Every class whose schema has `x-encrypted` properties must declare `ENCRYPTED` (camelCase names)
+  and redact them in `__debugInfo()`.
+Write per-model unit tests only for behaviour these generic checks can't see (e.g. RouteFactory dispatch).
+
 ## Rules
 - Fixtures are shaped after the spec schema, with every property present and enum values taken
   from the spec. Add a round-trip test (`fromArray(fixture)->toArray() == fixture`).

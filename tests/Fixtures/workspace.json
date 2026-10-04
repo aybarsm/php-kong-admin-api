@@ -1,0 +1,39 @@
+{
+  "comment": "comment-value",
+  "config": {
+    "meta": {
+      "key": "value"
+    },
+    "portal": true,
+    "portal_access_request_email": true,
+    "portal_application_request_email": true,
+    "portal_application_status_email": true,
+    "portal_approved_email": true,
+    "portal_auth": "portal_auth-value",
+    "portal_auth_conf": "portal_auth_conf-value",
+    "portal_auto_approve": true,
+    "portal_cors_origins": [
+      "portal_cors_origins-value"
+    ],
+    "portal_developer_meta_fields": "portal_developer_meta_fields-value",
+    "portal_emails_from": "portal_emails_from-value",
+    "portal_emails_reply_to": "portal_emails_reply_to-value",
+    "portal_invite_email": true,
+    "portal_is_legacy": true,
+    "portal_reset_email": true,
+    "portal_reset_success_email": true,
+    "portal_session_conf": "portal_session_conf-value",
+    "portal_smtp_admin_emails": [
+      "portal_smtp_admin_emails-value"
+    ],
+    "portal_token_exp": 1
+  },
+  "created_at": 1706598432,
+  "id": "e4225a6f-a936-5875-8d2c-1a77469d23aa",
+  "meta": {
+    "color": "color-value",
+    "thumbnail": "thumbnail-value"
+  },
+  "name": "name-value",
+  "updated_at": 1706598432
+}

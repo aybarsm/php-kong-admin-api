@@ -97,11 +97,27 @@ final class Spec
     }
 
     /**
+     * A component schema by name, or any spec node by JSON pointer (`#/...`); array `items` are
+     * followed automatically when a pointer segment lands on an array schema.
+     *
      * @return array<string, mixed>
      */
-    public static function schema(string $name): array
+    public static function schema(string $nameOrPointer): array
     {
-        return self::section('components', 'schemas', $name);
+        if (!str_starts_with($nameOrPointer, '#/')) {
+            return self::section('components', 'schemas', $nameOrPointer);
+        }
+
+        $segments = array_map(
+            static fn (string $segment): string => str_replace(['~1', '~0'], ['/', '~'], $segment),
+            explode('/', substr($nameOrPointer, 2)),
+        );
+        $node = self::section(...$segments);
+        if (($node['type'] ?? null) === 'array' && is_array($node['items'] ?? null)) {
+            $node = self::stringKeys($node['items'], $nameOrPointer . '/items');
+        }
+
+        return $node;
     }
 
     /**
