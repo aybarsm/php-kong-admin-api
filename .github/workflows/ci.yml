@@ -26,7 +26,6 @@ jobs:
       - run: composer audit
       - run: composer cs
       - run: composer analyse
-      - run: composer test:types
 
   tests:
     runs-on: ubuntu-latest

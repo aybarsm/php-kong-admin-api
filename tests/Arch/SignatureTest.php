@@ -50,7 +50,9 @@ it('lets the KongClient constructor accept only PSR interfaces and config', func
         $types = [...$types, ...typeNames($parameter->getType())];
     }
 
-    expect($types)->each(fn ($type) => $type->toMatch('/^(Psr\\\\Http\\\\|Aybarsm\\\\Kong\\\\AdminApi\\\\Config\\\\|null$)/'));
+    foreach ($types as $type) {
+        expect($type)->toMatch('/^(Psr\\\\Http\\\\|Aybarsm\\\\Kong\\\\AdminApi\\\\Config\\\\|null$)/');
+    }
 });
 
 it('declares no native mixed type in src/', function (): void {

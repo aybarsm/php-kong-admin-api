@@ -9,8 +9,9 @@ Root namespace `Aybarsm\Kong\AdminApi\` → `src/`. Built against Kong Gateway *
 ## Commands
 - Install: `composer install`
 - Tests: `composer test` (Pest 4) · coverage gate: `composer test:coverage` (≥90%; needs pcov or xdebug)
-- Type coverage: `composer test:types` (100%) · mutation: `composer test:mutate` (≥80%)
-- Static analysis: `composer analyse` (PHPStan level 9, src + tests, no baseline)
+- Mutation: `composer test:mutate` (≥80%, parallel)
+- Static analysis: `composer analyse` (PHPStan level 9 + 100% type coverage via `tomasvotruba/type-coverage`,
+  src + tests, no baseline)
 - Code style: `composer cs` (check) · `composer cs:fix` (apply)
 - Everything CI runs: `composer ci && composer test:mutate` (mutation runs in `.github/workflows/mutation.yml`
   on pushes to `main`, weekly and on demand, not on pull requests; run it locally before pushing)

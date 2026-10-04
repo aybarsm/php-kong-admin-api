@@ -37,7 +37,8 @@ References: `references/spec-reading.md` (jq recipes), `references/resource-temp
 
 **Static analysis**
 10. PHPStan level 9 on src/ and tests/, with strict-rules, deprecation-rules and `reportUnmatchedIgnoredErrors`.
-    No baseline, no ignores without approval. Type coverage is 100% for params, returns and properties.
+    No baseline, no ignores without approval. Type coverage is 100% for params, returns, properties,
+    constants and `declare(strict_types=1)`, enforced by `tomasvotruba/type-coverage` inside PHPStan.
     (Both sources say level 9; Jeffallan's extras are stricter and adopted. Psalm is not used.)
 
 **Testing**

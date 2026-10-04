@@ -1,6 +1,7 @@
 includes:
     - vendor/phpstan/phpstan-strict-rules/rules.neon
     - vendor/phpstan/phpstan-deprecation-rules/rules.neon
+    - vendor/tomasvotruba/type-coverage/config/extension.neon
 
 parameters:
     level: 9
@@ -13,4 +14,11 @@ parameters:
     checkBenevolentUnionTypes: true
     checkTooWideReturnTypesInProtectedAndPublicMethods: true
     reportAnyTypeWideningInVarTag: true
+    # 100% native type coverage (merged php-pro rule 10), enforced inside PHPStan.
+    type_coverage:
+        return_type: 100
+        param_type: 100
+        property_type: 100
+        constant_type: 100
+        declare: 100
     # No baseline. No ignoreErrors. Adding either requires explicit approval.
