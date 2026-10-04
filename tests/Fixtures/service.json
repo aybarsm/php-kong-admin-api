@@ -1,0 +1,21 @@
+{
+  "ca_certificates": ["4e3ad2e4-0bc4-4638-8e34-c84a417ba39b"],
+  "client_certificate": {"id": "51e77dc2-8f3e-4afa-9d0e-0e3bbbcfd515"},
+  "connect_timeout": 60000,
+  "created_at": 1706598432,
+  "enabled": true,
+  "host": "example.internal",
+  "id": "49fd316e-c457-481c-9fc7-8079153e4f3c",
+  "name": "example-service",
+  "path": "/",
+  "port": 80,
+  "protocol": "http",
+  "read_timeout": 60000,
+  "retries": 5,
+  "tags": ["team-a", "production"],
+  "tls_sans": {"dnsnames": ["api.example.internal"], "uris": ["https://example.internal/id"]},
+  "tls_verify": true,
+  "tls_verify_depth": 3,
+  "updated_at": 1706684832,
+  "write_timeout": 60000
+}

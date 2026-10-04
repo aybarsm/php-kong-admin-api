@@ -1,0 +1,16 @@
+includes:
+    - vendor/phpstan/phpstan-strict-rules/rules.neon
+    - vendor/phpstan/phpstan-deprecation-rules/rules.neon
+
+parameters:
+    level: 9
+    paths:
+        - src
+        - tests
+    tmpDir: build/phpstan
+    reportUnmatchedIgnoredErrors: true
+    checkUninitializedProperties: true
+    checkBenevolentUnionTypes: true
+    checkTooWideReturnTypesInProtectedAndPublicMethods: true
+    reportAnyTypeWideningInVarTag: true
+    # No baseline. No ignoreErrors. Adding either requires explicit approval.
