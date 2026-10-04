@@ -1,0 +1,23 @@
+{
+  "consumer": {
+    "created_at": 1706598432,
+    "custom_id": "custom_id-value",
+    "id": "71b1c895-4616-5a5c-b88b-8270ea15d327",
+    "tags": [
+      "tags-value"
+    ],
+    "updated_at": 1706598432,
+    "username": "username-value"
+  },
+  "consumer_groups": [
+    {
+      "created_at": 1706598432,
+      "id": "dfbb1335-1c38-5b52-b32f-4dad51e6d7f1",
+      "name": "name-value",
+      "tags": [
+        "tags-value"
+      ],
+      "updated_at": 1706598432
+    }
+  ]
+}

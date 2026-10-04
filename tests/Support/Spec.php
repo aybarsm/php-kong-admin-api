@@ -50,16 +50,17 @@ final class Spec
      */
     public static function section(string ...$keys): array
     {
+        // Intermediate nodes may have integer keys (e.g. response status codes such as "201").
         $node = self::document();
         foreach ($keys as $key) {
             $next = $node[$key] ?? null;
             if (!is_array($next)) {
                 throw new RuntimeException('Spec node not found: ' . implode('.', $keys));
             }
-            $node = self::stringKeys($next, implode('.', $keys));
+            $node = $next;
         }
 
-        return $node;
+        return self::stringKeys($node, implode('.', $keys));
     }
 
     public static function infoVersion(): string

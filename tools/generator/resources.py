@@ -100,10 +100,21 @@ def resource(cfg):
     item_throw = f'     * @throws InvalidArgumentException when ${item_arg} is empty'
     if 'get' in methods:
         sc = scope('GET', item)
-        out += ['    /**', f'     * Get {cfg["article"]} {entity} by {cfg["item_arg_doc"]} (operationId `{spec_op("GET", item)}`).', '     *',
-                '     * @throws KongApiException', item_throw, '     */', opattr('GET', item),
-                f'    public function get(string ${item_arg}): {ret}', '    {',
-                f'        return {mapone}($this->object(', '            Transport::METHOD_GET,', f'            {path_expr(sc, True)},', '        ));', '    }', '']
+        get_ret = cfg.get('get_returns', ret)
+        get_map = cfg.get('get_mapone', mapone)
+        gq = cfg.get('get_query', [])
+        gq_sig = ''.join(f', ?{t} ${a} = null' for a, w, t, d in gq)
+        gq_doc = [f'     * @param {t}|null ${a} {d}' for a, w, t, d in gq]
+        gq_arg = ['            [' + ', '.join(f"'{w}' => ${a}" for a, w, t, d in gq) + '],'] if gq else []
+        get_doc = cfg.get('get_doc', [])
+        out += ['    /**', f'     * Get {cfg["article"]} {entity} by {cfg["item_arg_doc"]} (operationId `{spec_op("GET", item)}`).', '     *']
+        if get_doc:
+            out += [('     * ' + l).rstrip() for l in get_doc] + ['     *']
+        if gq_doc:
+            out += gq_doc + ['     *']
+        out += ['     * @throws KongApiException', item_throw, '     */', opattr('GET', item),
+                f'    public function get(string ${item_arg}{gq_sig}): {get_ret}', '    {',
+                f'        return {get_map}($this->object(', '            Transport::METHOD_GET,', f'            {path_expr(sc, True)},'] + gq_arg + ['        ));', '    }', '']
     if 'create' in methods:
         sc = scope('POST', coll)
         out += ['    /**', f'     * Create {cfg["article"]} {entity} (operationId `{spec_op("POST", coll)}`, body `{bodies.get("POST", "?")}`).', '     *',

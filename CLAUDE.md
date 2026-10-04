@@ -14,8 +14,8 @@ Root namespace `Aybarsm\Kong\AdminApi\` → `src/`. Built against Kong Gateway *
 - Code style: `composer cs` (check) · `composer cs:fix` (apply)
 - Everything CI runs: `composer ci && composer test:mutate`
 - One file: `vendor/bin/pest tests/Feature/Resources/ServicesTest.php`
-- Regenerate generated code: `python3 tools/generator/phase4a.py` (one script per phase; see
-  `tools/generator/README.md`). A rerun on an unchanged spec must leave `git status` clean.
+- Regenerate generated code: `python3 tools/generator/phase4a.py`, `… phase4b.py` (one script per phase,
+  run in order; see `tools/generator/README.md`). A rerun on an unchanged spec must leave `git status` clean.
 
 ## Kong API source of truth (strict)
 - The Kong Admin API specification lives only in `resources/kong-admin-api/{version}.yaml` or `resources/kong-admin-api/{version}.json`, where `{version}` is the Kong Gateway version. Both formats may be present for the same version; use whichever is more convenient to read and query. If both exist and disagree, stop and tell me.
@@ -36,7 +36,8 @@ Project specifics (decided 2026-10-04):
 ## Code generation
 - Uniform CRUD entities (DTOs, resources, fixtures, feature tests) come from `tools/generator/`, which reads
   the spec named by `KongSpec::SPEC_FILE`. Hand-written: `Service*`, `Route*`, `Services`, `Routes`,
-  `Tags`, `KongClient`, and any non-CRUD endpoint. Generated code passes the same gates as hand-written code.
+  `Tags`, `KongClient`, enums, and any non-CRUD endpoint (e.g. the Consumer Group membership and
+  override resources). The README lists them. Generated code passes the same gates as hand-written code.
 
 ## Architecture rules
 - `KongClient` is only a factory: `$client->services()->get($id)`, `$client->inWorkspace('x')->plugins()`.

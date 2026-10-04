@@ -13,6 +13,13 @@ use Aybarsm\Kong\AdminApi\Models\Consumer;
 use Aybarsm\Kong\AdminApi\Models\ConsumerInput;
 use Aybarsm\Kong\AdminApi\Pagination\ListOptions;
 use Aybarsm\Kong\AdminApi\Pagination\Page;
+use Aybarsm\Kong\AdminApi\Resources\Nested\ConsumerAcls;
+use Aybarsm\Kong\AdminApi\Resources\Nested\ConsumerBasicAuths;
+use Aybarsm\Kong\AdminApi\Resources\Nested\ConsumerConsumerGroups;
+use Aybarsm\Kong\AdminApi\Resources\Nested\ConsumerHmacAuths;
+use Aybarsm\Kong\AdminApi\Resources\Nested\ConsumerJwts;
+use Aybarsm\Kong\AdminApi\Resources\Nested\ConsumerKeyAuths;
+use Aybarsm\Kong\AdminApi\Resources\Nested\ConsumerMtlsAuths;
 use Aybarsm\Kong\AdminApi\Resources\Nested\ConsumerPlugins;
 use Generator;
 
@@ -145,5 +152,103 @@ final readonly class Consumers extends AbstractResource
         }
 
         return new ConsumerPlugins($this->transport, [...$this->parent, self::SEGMENT, $consumerId]);
+    }
+
+    /**
+     * ACLs of one Consumer: `/consumers/{ConsumerIdForNestedEntities}/acls`.
+     *
+     * @throws InvalidArgumentException when $consumerId is empty
+     */
+    public function acls(string $consumerId): ConsumerAcls
+    {
+        if ($consumerId === '') {
+            throw new InvalidArgumentException('Consumer ID must not be empty.');
+        }
+
+        return new ConsumerAcls($this->transport, [...$this->parent, self::SEGMENT, $consumerId]);
+    }
+
+    /**
+     * API keys of one Consumer: `/consumers/{ConsumerIdForNestedEntities}/key-auth`.
+     *
+     * @throws InvalidArgumentException when $consumerId is empty
+     */
+    public function keyAuths(string $consumerId): ConsumerKeyAuths
+    {
+        if ($consumerId === '') {
+            throw new InvalidArgumentException('Consumer ID must not be empty.');
+        }
+
+        return new ConsumerKeyAuths($this->transport, [...$this->parent, self::SEGMENT, $consumerId]);
+    }
+
+    /**
+     * Basic-auth credentials of one Consumer: `/consumers/{ConsumerIdForNestedEntities}/basic-auth`.
+     *
+     * @throws InvalidArgumentException when $consumerId is empty
+     */
+    public function basicAuths(string $consumerId): ConsumerBasicAuths
+    {
+        if ($consumerId === '') {
+            throw new InvalidArgumentException('Consumer ID must not be empty.');
+        }
+
+        return new ConsumerBasicAuths($this->transport, [...$this->parent, self::SEGMENT, $consumerId]);
+    }
+
+    /**
+     * HMAC-auth credentials of one Consumer: `/consumers/{ConsumerIdForNestedEntities}/hmac-auth`.
+     *
+     * @throws InvalidArgumentException when $consumerId is empty
+     */
+    public function hmacAuths(string $consumerId): ConsumerHmacAuths
+    {
+        if ($consumerId === '') {
+            throw new InvalidArgumentException('Consumer ID must not be empty.');
+        }
+
+        return new ConsumerHmacAuths($this->transport, [...$this->parent, self::SEGMENT, $consumerId]);
+    }
+
+    /**
+     * JWTs of one Consumer: `/consumers/{ConsumerIdForNestedEntities}/jwt`.
+     *
+     * @throws InvalidArgumentException when $consumerId is empty
+     */
+    public function jwts(string $consumerId): ConsumerJwts
+    {
+        if ($consumerId === '') {
+            throw new InvalidArgumentException('Consumer ID must not be empty.');
+        }
+
+        return new ConsumerJwts($this->transport, [...$this->parent, self::SEGMENT, $consumerId]);
+    }
+
+    /**
+     * MTLS-auth credentials of one Consumer: `/consumers/{ConsumerIdForNestedEntities}/mtls-auth`.
+     *
+     * @throws InvalidArgumentException when $consumerId is empty
+     */
+    public function mtlsAuths(string $consumerId): ConsumerMtlsAuths
+    {
+        if ($consumerId === '') {
+            throw new InvalidArgumentException('Consumer ID must not be empty.');
+        }
+
+        return new ConsumerMtlsAuths($this->transport, [...$this->parent, self::SEGMENT, $consumerId]);
+    }
+
+    /**
+     * Consumer Group memberships of one Consumer: `/consumers/{ConsumerIdOrUsername}/consumer_groups`.
+     *
+     * @throws InvalidArgumentException when $idOrUsername is empty
+     */
+    public function consumerGroups(string $idOrUsername): ConsumerConsumerGroups
+    {
+        if ($idOrUsername === '') {
+            throw new InvalidArgumentException('Consumer ID or username must not be empty.');
+        }
+
+        return new ConsumerConsumerGroups($this->transport, [...$this->parent, self::SEGMENT, $idOrUsername]);
     }
 }

@@ -27,11 +27,13 @@ def feature_test(cfg, accessor_expr, parent_path='', parent_cls=None, covers_ext
     key = (node.get('required') or sorted(node['properties']))[0]
     body = f"[{php_str(key)} => 'value']"
     fx = snake(model)
+    get_model = cfg.get('get_returns', model)
+    get_fx = snake(get_model)
     both = has_twin('GET', cfg['collection'])
     ns_res = NS + ('\\Resources\\Nested\\' if nested else '\\Resources\\')
     fn = lcfirst(cls) + 'Under' + ('Test' if not nested else 'NestedTest')
     covers = [cls] + list(covers_extra)
-    uses = sorted({ns_res + cls, NS + '\\Models\\' + model, NS + '\\Models\\' + model + 'Input',
+    uses = sorted({ns_res + cls, NS + '\\Models\\' + model, NS + '\\Models\\' + get_model, NS + '\\Models\\' + model + 'Input',
                    NS + '\\Exceptions\\NotFoundException', NS + '\\Exceptions\\InvalidArgumentException',
                    NS + '\\Pagination\\ListOptions', NS + '\\Pagination\\TagFilter',
                    NS + '\\Tests\\Support\\Fixture', NS + '\\Tests\\Support\\MockKong', NS + '\\KongClient'} | set(cfg.get('test_uses', [])))
@@ -43,6 +45,7 @@ def feature_test(cfg, accessor_expr, parent_path='', parent_cls=None, covers_ext
           '    $kong = MockKong::queue(match ($operation) {',
           f"        'list' => MockKong::json(200, ['data' => [Fixture::get('{fx}')]]),",
           "        'delete' => MockKong::raw(204),",
+          *([f"        'get' => MockKong::json(200, Fixture::get('{get_fx}')),"] if get_fx != fx else []),
           f"        default => MockKong::json(200, Fixture::get('{fx}')),",
           '    });',
           f'    $resource = {fn}($kong->client);', '',
@@ -83,30 +86,30 @@ def feature_test(cfg, accessor_expr, parent_path='', parent_cls=None, covers_ext
           "        ->and($kong->queryAt(2))->toBe(['size' => '1', 'offset' => 'p2'])",
           f"        ->and($kong->requestAt(2)->getUri()->getPath())->toBe('{base}');",
           '});', '']
-    L += [f"it('maps the response to {model}', function (): void {{",
-          f"    $kong = MockKong::queue(MockKong::json(200, Fixture::get('{fx}')));", '',
-          f"    expect({fn}($kong->client)->get('x'))->toEqual({model}::fromArray(Fixture::get('{fx}')));",
+    L += [f"it('maps the response to {get_model}', function (): void {{",
+          f"    $kong = MockKong::queue(MockKong::json(200, Fixture::get('{get_fx}')));", '',
+          f"    expect({fn}($kong->client)->get('x'))->toEqual({get_model}::fromArray(Fixture::get('{get_fx}')));",
           '});', '']
     if both:
         L += ["it('prefixes the workspace', function (): void {",
-              f"    $kong = MockKong::queue(MockKong::json(200, Fixture::get('{fx}')));", '',
+              f"    $kong = MockKong::queue(MockKong::json(200, Fixture::get('{get_fx}')));", '',
               f"    {fn}($kong->client->inWorkspace('team-a'))->get('x');", '',
               f"    expect($kong->lastRequest()->getUri()->getPath())->toBe('/team-a{base}/x');",
               '});', '']
     else:
         L += ["it('never prefixes a workspace on these global-only paths', function (): void {",
-              f"    $kong = MockKong::queue(MockKong::json(200, Fixture::get('{fx}')));", '',
+              f"    $kong = MockKong::queue(MockKong::json(200, Fixture::get('{get_fx}')));", '',
               f"    {fn}($kong->client->inWorkspace('team-a'))->get('x');", '',
               f"    expect($kong->lastRequest()->getUri()->getPath())->toBe('{base}/x');",
               '});', '']
     L += ["it('rejects an empty ID before sending anything', function (): void {",
           '    $kong = MockKong::queue();', '',
-          f"    expect(fn (): {model} => {fn}($kong->client)->get(''))->toThrow(InvalidArgumentException::class)",
+          f"    expect(fn (): {get_model} => {fn}($kong->client)->get(''))->toThrow(InvalidArgumentException::class)",
           '        ->and($kong->requestCount())->toBe(0);',
           '});', '',
           "it('maps 404 to NotFoundException', function (): void {",
           '    $kong = MockKong::queue(MockKong::raw(404));', '',
-          f"    expect(fn (): {model} => {fn}($kong->client)->get('missing'))",
+          f"    expect(fn (): {get_model} => {fn}($kong->client)->get('missing'))",
           f"        ->toThrow(NotFoundException::class, 'GET {base}/missing failed with HTTP 404.');",
           '});', '']
     for extra in cfg.get('test_extra', []):

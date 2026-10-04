@@ -7,11 +7,18 @@ namespace Aybarsm\Kong\AdminApi;
 use Aybarsm\Kong\AdminApi\Config\ClientConfig;
 use Aybarsm\Kong\AdminApi\Exceptions\InvalidArgumentException;
 use Aybarsm\Kong\AdminApi\Internal\Transport;
+use Aybarsm\Kong\AdminApi\Resources\Acls;
+use Aybarsm\Kong\AdminApi\Resources\BasicAuths;
 use Aybarsm\Kong\AdminApi\Resources\CaCertificates;
 use Aybarsm\Kong\AdminApi\Resources\Certificates;
+use Aybarsm\Kong\AdminApi\Resources\ConsumerGroups;
 use Aybarsm\Kong\AdminApi\Resources\Consumers;
+use Aybarsm\Kong\AdminApi\Resources\HmacAuths;
+use Aybarsm\Kong\AdminApi\Resources\Jwts;
+use Aybarsm\Kong\AdminApi\Resources\KeyAuths;
 use Aybarsm\Kong\AdminApi\Resources\Keys;
 use Aybarsm\Kong\AdminApi\Resources\KeySets;
+use Aybarsm\Kong\AdminApi\Resources\MtlsAuths;
 use Aybarsm\Kong\AdminApi\Resources\Plugins;
 use Aybarsm\Kong\AdminApi\Resources\Routes;
 use Aybarsm\Kong\AdminApi\Resources\Services;
@@ -171,6 +178,62 @@ final readonly class KongClient
     public function workspaces(): Workspaces
     {
         return new Workspaces($this->transport);
+    }
+
+    /**
+     * ACLs: `/acls`.
+     */
+    public function acls(): Acls
+    {
+        return new Acls($this->transport);
+    }
+
+    /**
+     * Basic-auth credentials: `/basic-auths`.
+     */
+    public function basicAuths(): BasicAuths
+    {
+        return new BasicAuths($this->transport);
+    }
+
+    /**
+     * Consumer Groups: `/consumer_groups`.
+     */
+    public function consumerGroups(): ConsumerGroups
+    {
+        return new ConsumerGroups($this->transport);
+    }
+
+    /**
+     * HMAC-auth credentials: `/hmac-auths`.
+     */
+    public function hmacAuths(): HmacAuths
+    {
+        return new HmacAuths($this->transport);
+    }
+
+    /**
+     * JWTs: `/jwts`.
+     */
+    public function jwts(): Jwts
+    {
+        return new Jwts($this->transport);
+    }
+
+    /**
+     * API keys (key-auth credentials): `/key-auths`.
+     */
+    public function keyAuths(): KeyAuths
+    {
+        return new KeyAuths($this->transport);
+    }
+
+    /**
+     * MTLS-auth credentials: `/mtls-auths`.
+     */
+    public function mtlsAuths(): MtlsAuths
+    {
+        return new MtlsAuths($this->transport);
     }
 
     /**

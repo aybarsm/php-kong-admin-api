@@ -1,0 +1,14 @@
+{
+  "config": {
+    "limit": [
+      10
+    ],
+    "retry_after_jitter_max": 1,
+    "window_size": [
+      10
+    ],
+    "window_type": "sliding"
+  },
+  "group": "test-group",
+  "plugin": "rate-limiting-advanced"
+}

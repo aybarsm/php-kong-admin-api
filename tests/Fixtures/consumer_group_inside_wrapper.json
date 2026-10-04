@@ -1,0 +1,11 @@
+{
+  "consumer_group": {
+    "created_at": 1706598432,
+    "id": "40de3444-7c43-58ae-bf3f-59e59cd43b4b",
+    "name": "name-value",
+    "tags": [
+      "tags-value"
+    ],
+    "updated_at": 1706598432
+  }
+}

@@ -11,6 +11,10 @@ def uid(seed):
 
 
 def value(node, path):
+    if '$ref' in node:
+        return obj(schema_node(node['$ref'].rsplit('/', 1)[-1]), path)
+    if node.get('type') == 'array' and '$ref' in node.get('items', {}):
+        return [obj(schema_node(node['items']['$ref'].rsplit('/', 1)[-1]), path + '[]')]
     if node.get('x-foreign'):
         return {'id': uid(path)}
     if 'enum' in node:

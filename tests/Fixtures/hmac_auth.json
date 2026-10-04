@@ -1,0 +1,12 @@
+{
+  "consumer": {
+    "id": "24418e78-8e43-5bf9-9c9b-17a48c6c2739"
+  },
+  "created_at": 1706598432,
+  "id": "e4225a6f-a936-5875-8d2c-1a77469d23aa",
+  "secret": "secret-value",
+  "tags": [
+    "tags-value"
+  ],
+  "username": "username-value"
+}

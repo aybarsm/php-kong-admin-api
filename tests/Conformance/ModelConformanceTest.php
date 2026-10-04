@@ -36,7 +36,11 @@ it('mirrors the spec schema properties, required-ness and writeOnly fields', fun
     foreach (schemaClasses() as $short => [$class, $schemaName]) {
         $schema = Spec::schema($schemaName);
         $properties = is_array($schema['properties'] ?? null) ? Spec::stringKeys($schema['properties'], $schemaName) : [];
-        $required = is_array($schema['required'] ?? null) ? $schema['required'] : [];
+        // The spec has dotted property names (`config.limit`); PHP names map dots like underscores.
+        $required = array_map(
+            static fn (mixed $name): string => str_replace('.', '_', is_string($name) ? $name : ''),
+            is_array($schema['required'] ?? null) ? $schema['required'] : [],
+        );
         $isInput = $class->implementsInterface(Input::class);
 
         $expected = [];
@@ -48,7 +52,7 @@ it('mirrors the spec schema properties, required-ness and writeOnly fields', fun
             if ($isInput && ($flags['readOnly'] ?? false) === true) {
                 continue;
             }
-            $expected[] = $name;
+            $expected[] = str_replace('.', '_', $name);
         }
 
         $constructor = $class->getConstructor();

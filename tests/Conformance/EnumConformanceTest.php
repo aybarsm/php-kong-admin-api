@@ -10,6 +10,7 @@ use Aybarsm\Kong\AdminApi\Enums\LogLevel;
 use Aybarsm\Kong\AdminApi\Enums\PartialType;
 use Aybarsm\Kong\AdminApi\Enums\PathHandling;
 use Aybarsm\Kong\AdminApi\Enums\Protocol;
+use Aybarsm\Kong\AdminApi\Enums\RateLimitWindowType;
 use Aybarsm\Kong\AdminApi\Enums\RbacRoleSource;
 use Aybarsm\Kong\AdminApi\Enums\UpstreamAlgorithm;
 use Aybarsm\Kong\AdminApi\Enums\UpstreamHashOn;
@@ -66,6 +67,7 @@ it('matches the spec enum values', function (string $enum, array $path): void {
     'Protocol @ components.schemas.PluginWithoutParents.protocols.items' => [Protocol::class, ['components', 'schemas', 'PluginWithoutParents', 'properties', 'protocols', 'items']],
     'Protocol @ components.schemas.RouteJson.protocols.items' => [Protocol::class, ['components', 'schemas', 'RouteJson', 'properties', 'protocols', 'items']],
     'Protocol @ components.schemas.RouteExpression.protocols.items' => [Protocol::class, ['components', 'schemas', 'RouteExpression', 'properties', 'protocols', 'items']],
+    'RateLimitWindowType @ components.requestBodies.consumerGroupsConfigResponse.config.window_type' => [RateLimitWindowType::class, ['components', 'requestBodies', 'consumerGroupsConfigResponse', 'content', 'application/json', 'schema', 'properties', 'config.window_type']],
 ]);
 
 it('matches the Partial discriminator mapping and each variant const', function (): void {

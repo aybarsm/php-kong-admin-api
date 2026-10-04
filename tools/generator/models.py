@@ -30,9 +30,21 @@ SPEC_PATH = _spec_file()
 SPEC = json.loads(SPEC_PATH.read_text())
 WRITTEN = []
 
+# Component schema name -> Models class, for properties that `$ref` another component schema.
+# Phases register the components they reference (e.g. {'Consumer': 'Consumer'}).
+REFS = {}
+
+
+def ref_class(ref):
+    name = ref.rsplit('/', 1)[-1]
+    if name not in REFS:
+        raise KeyError(f'REFS has no class for component schema {name!r}')
+    return REFS[name]
+
 
 def camel(name):
-    parts = name.split('_')
+    """snake_case (and the spec's dotted keys such as `config.limit`) to camelCase."""
+    parts = re.split(r'[_.]', name)
     return parts[0] + ''.join(p[:1].upper() + p[1:] for p in parts[1:])
 
 
@@ -76,7 +88,13 @@ class Prop:
         self.loc = loc
         t = node.get('type')
         self.kind = None
-        if node.get('x-foreign'):
+        if '$ref' in node:
+            self.kind = 'obj'
+            self.cls = ref_class(node['$ref'])
+        elif t == 'array' and '$ref' in node.get('items', {}):
+            self.kind = 'objlist'
+            self.cls = ref_class(node['items']['$ref'])
+        elif node.get('x-foreign'):
             self.kind = 'fk'
             self.cls = 'ForeignKey'
         elif 'enum' in node:
@@ -318,12 +336,17 @@ def finalize():
         print(p)
 
 
-def generate_entity(cls, schema, doc, nested_names, enum_names, input_doc=None, with_input=True, input_schema=None):
-    """Writes Models/{cls}.php, Models/{cls}Input.php and every nested DTO the schema needs."""
+def generate_entity(cls, schema, doc, nested_names, enum_names, input_doc=None, with_input=True, input_schema=None,
+                    with_output=True):
+    """Writes Models/{cls}.php, Models/{cls}Input.php and every nested DTO the schema needs.
+
+    `with_output=False` writes only the input (for inline request bodies that have no response twin).
+    """
     written = []
     props = build_props(cls, schema, nested_names, enum_names, '')
-    write(f'src/Models/{cls}.php', render(cls, schema, doc, props, False))
-    written.append(f'src/Models/{cls}.php')
+    if with_output:
+        write(f'src/Models/{cls}.php', render(cls, schema, doc, props, False))
+        written.append(f'src/Models/{cls}.php')
     if with_input:
         idoc = input_doc or [
             f'Request body for creating, updating or upserting {doc[0].split(" as returned")[0][0].lower() + doc[0].split(" as returned")[0][1:]}',
@@ -333,18 +356,19 @@ def generate_entity(cls, schema, doc, nested_names, enum_names, input_doc=None, 
         ]
         write(f'src/Models/{cls}Input.php', render(cls + 'Input', input_schema or schema, idoc, props, True))
         written.append(f'src/Models/{cls}Input.php')
-    # nested objects
-    base_pointer = '#/components/schemas/' + schema if not schema.startswith('#/') else schema
-    for (owner, loc), ncls in nested_names.items():
-        if owner != cls:
-            continue
-        pointer = base_pointer
-        for seg in loc.split('.'):
-            arr = seg.endswith('[]')
-            seg = seg.rstrip('[]') if arr else seg
-            pointer += '/properties/' + seg
-        nprops = build_props(cls, pointer, nested_names, enum_names, loc.replace('[]', ''))
-        ndoc = [f'The `{loc}` object of {cls} (spec `{schema}.{loc}`).']
-        write(f'src/Models/{ncls}.php', render(ncls, pointer, ndoc, nprops, False))
-        written.append(f'src/Models/{ncls}.php')
+    # nested objects reachable from this schema's properties (inline objects named in nested_names)
+    def walk(owner_props, pointer):
+        for p in owner_props:
+            key = (cls, p.loc + '[]') if p.kind == 'objlist' else (cls, p.loc)
+            if p.kind not in ('obj', 'objlist') or key not in nested_names:
+                continue
+            ncls = nested_names[key]
+            npointer = pointer + '/properties/' + p.wire
+            nprops = build_props(cls, npointer, nested_names, enum_names, p.loc)
+            ndoc = [f'The `{key[1]}` object of {cls} (spec `{schema}.{key[1]}`).']
+            write(f'src/Models/{ncls}.php', render(ncls, npointer, ndoc, nprops, False))
+            written.append(f'src/Models/{ncls}.php')
+            walk(nprops, npointer)
+
+    walk(props, '#/components/schemas/' + schema if not schema.startswith('#/') else schema)
     return written

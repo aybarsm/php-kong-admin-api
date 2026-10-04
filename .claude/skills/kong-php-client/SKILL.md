@@ -71,9 +71,10 @@ a. **Find the paths and schemas in the spec** (recipes in `references/spec-readi
 
 a2. **Generate or hand-write?** If the entity has the uniform shape (`list`/`all`/`get`/`create`/
    `update`/`upsert`/`delete` over a collection and item path), **use the generator**:
-   1. Add rows to the current phase script in `tools/generator/` (or a new `phaseNx.py` copied from
-      `phase4a.py`): the `ENTITIES` row, `NESTED` names for inline objects, `ENUMS` locations, a `CONFIGS`
-      row, plus `FIXTURES` and `ACCESSORS`.
+   1. Add rows to the current phase script in `tools/generator/` (or a new `phaseNx.py` following
+      `phase4b.py`): the `ENTITIES` row, `NESTED` names for inline objects, `ENUMS` locations, `models.REFS`
+      for `$ref`'d components, `OUTPUTS`/`INPUTS` for inline response and request bodies, a `CONFIGS` row,
+      plus `FIXTURES` and `ACCESSORS`.
    2. Run it and review the diff.
    3. Add the `KongClient` (or parent) accessor by hand.
    4. Skip to step f.
