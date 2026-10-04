@@ -20,7 +20,10 @@ def feature_test(cfg, accessor_expr, parent_path='', parent_cls=None, covers_ext
     cls, model = cfg['cls'], cfg['model']
     nested = cfg['nested']
     seg = cfg['segments']
-    base = parent_path + '/' + seg
+    core = parent_path + '/' + seg
+    # Workspace-only paths are always prefixed: the spec default `default` unless a workspace is set.
+    ws_only = cfg['collection'].startswith('/{workspace}/')
+    base = ('/default' if ws_only else '') + core
     item_arg = cfg['item_arg']
     schema = cfg['body_schema']['PATCH']
     node = schema_node(schema)
@@ -29,7 +32,9 @@ def feature_test(cfg, accessor_expr, parent_path='', parent_cls=None, covers_ext
     fx = snake(model)
     get_model = cfg.get('get_returns', model)
     get_fx = snake(get_model)
-    both = has_twin('GET', cfg['collection'])
+    # The workspace test calls get(), so decide by the item path (collection and item scopes can differ,
+    # e.g. /rbac_user_roles is global-only while GET /rbac_user_roles/{id} has a /{workspace} twin).
+    both = has_twin('GET', cfg['item']) or ws_only
     ns_res = NS + ('\\Resources\\Nested\\' if nested else '\\Resources\\')
     fn = lcfirst(cls) + 'Under' + ('Test' if not nested else 'NestedTest')
     covers = [cls] + list(covers_extra)
@@ -94,7 +99,7 @@ def feature_test(cfg, accessor_expr, parent_path='', parent_cls=None, covers_ext
         L += ["it('prefixes the workspace', function (): void {",
               f"    $kong = MockKong::queue(MockKong::json(200, Fixture::get('{get_fx}')));", '',
               f"    {fn}($kong->client->inWorkspace('team-a'))->get('x');", '',
-              f"    expect($kong->lastRequest()->getUri()->getPath())->toBe('/team-a{base}/x');",
+              f"    expect($kong->lastRequest()->getUri()->getPath())->toBe('/team-a{core}/x');",
               '});', '']
     else:
         L += ["it('never prefixes a workspace on these global-only paths', function (): void {",

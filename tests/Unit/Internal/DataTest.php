@@ -42,6 +42,8 @@ it('throws on missing required values', function (callable $read, string $key): 
     'int' => [fn (): int => Data::int(['b' => null], 'b'), 'b'],
     'bool' => [fn (): bool => Data::bool([], 'c'), 'c'],
     'map' => [fn (): array => Data::map([], 'd'), 'd'],
+    'free-form' => [fn (): array => Data::freeForm(['f' => null], 'f'), 'f'],
+    'string list' => [fn (): array => Data::stringList([], 'l'), 'l'],
     'list of maps' => [fn (): array => Data::listOfMaps([], 'e'), 'e'],
 ]);
 
@@ -90,8 +92,10 @@ it('reads lists, maps, free-form objects and enums', function (): void {
     ];
 
     expect(Data::stringListOrNull($data, 'strings'))->toBe(['a', 'b'])
+        ->and(Data::stringList($data, 'strings'))->toBe(['a', 'b'])
         ->and(Data::intListOrNull($data, 'ints'))->toBe([200, 302])
         ->and(Data::map($data, 'map'))->toBe(['x' => 1])
+        ->and(Data::freeForm($data, 'free'))->toBe([200 => 'ok', 'name' => 'x'])
         ->and(Data::mapOrNull($data, 'empty'))->toBe([])
         ->and(Data::freeFormOrNull($data, 'free'))->toBe([200 => 'ok', 'name' => 'x'])
         ->and(Data::listOfMaps($data, 'rows'))->toBe([['a' => 1], ['b' => 2]])

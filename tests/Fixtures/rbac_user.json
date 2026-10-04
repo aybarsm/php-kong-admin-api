@@ -1,0 +1,9 @@
+{
+  "comment": "comment-value",
+  "created_at": 1706598432,
+  "enabled": true,
+  "id": "e4225a6f-a936-5875-8d2c-1a77469d23aa",
+  "name": "name-value",
+  "updated_at": 1706598432,
+  "user_token_ident": "user_token_ident-value"
+}

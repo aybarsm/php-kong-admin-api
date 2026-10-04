@@ -1,0 +1,13 @@
+{
+  "created_at": 1706598432,
+  "group": {
+    "id": "1f3f6e33-6cdf-57c1-8211-27fc9a3bde56"
+  },
+  "rbac_role": {
+    "id": "7245291c-1630-595e-9e31-6b7ca4da7bb0"
+  },
+  "updated_at": 1706598432,
+  "workspace": {
+    "id": "2440a1ba-87fc-55d0-b400-f88fb1d44412"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "data": {
+    "create": {
+      "fields": [
+        "fields-value"
+      ]
+    },
+    "delete": {
+      "fields": [
+        "fields-value"
+      ]
+    },
+    "update": {
+      "fields": [
+        "fields-value"
+      ]
+    }
+  }
+}

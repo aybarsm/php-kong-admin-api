@@ -1,0 +1,15 @@
+{
+  "group": {
+    "comment": "comment-value",
+    "id": "14c854bc-21e1-5aa8-bcef-59e15ffe848a",
+    "name": "name-value",
+    "updated_at": "updated_at-value"
+  },
+  "group_id": "group_id-value",
+  "rbac_role": {
+    "id": "4c2cb834-882e-5e60-a9e9-504c891a5711",
+    "name": "name-value"
+  },
+  "role_id": "role_id-value",
+  "workspace": "workspace-value"
+}

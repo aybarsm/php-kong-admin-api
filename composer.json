@@ -43,7 +43,7 @@
         "test": "pest",
         "test:coverage": "pest --coverage --min=90",
         "test:types": "pest --type-coverage --min=100",
-        "test:mutate": "pest --mutate --min=80",
+        "test:mutate": "pest --mutate --parallel --min=80",
         "analyse": "phpstan analyse --memory-limit=1G",
         "cs": "php-cs-fixer fix --dry-run --diff",
         "cs:fix": "php-cs-fixer fix",

@@ -13,6 +13,8 @@ use Aybarsm\Kong\AdminApi\Models\Service;
 use Aybarsm\Kong\AdminApi\Models\ServiceInput;
 use Aybarsm\Kong\AdminApi\Pagination\ListOptions;
 use Aybarsm\Kong\AdminApi\Pagination\Page;
+use Aybarsm\Kong\AdminApi\Resources\Nested\ServiceDegraphqlRoutes;
+use Aybarsm\Kong\AdminApi\Resources\Nested\ServiceGraphqlCostDecorations;
 use Aybarsm\Kong\AdminApi\Resources\Nested\ServicePlugins;
 use Aybarsm\Kong\AdminApi\Resources\Nested\ServiceRoutes;
 use Generator;
@@ -156,5 +158,33 @@ final readonly class Services extends AbstractResource
         }
 
         return new ServicePlugins($this->transport, [...$this->parent, self::SEGMENT, $serviceIdOrName]);
+    }
+
+    /**
+     * DeGraphQL routes of one Service: `/services/{ServiceIdOrName}/degraphql/routes`.
+     *
+     * @throws InvalidArgumentException when $serviceIdOrName is empty
+     */
+    public function degraphqlRoutes(string $serviceIdOrName): ServiceDegraphqlRoutes
+    {
+        if ($serviceIdOrName === '') {
+            throw new InvalidArgumentException('Service ID or name must not be empty.');
+        }
+
+        return new ServiceDegraphqlRoutes($this->transport, [...$this->parent, self::SEGMENT, $serviceIdOrName]);
+    }
+
+    /**
+     * GraphQL cost decorations of one Service: `/services/{ServiceIdOrName}/graphql-rate-limiting-advanced/costs`.
+     *
+     * @throws InvalidArgumentException when $serviceIdOrName is empty
+     */
+    public function graphqlCostDecorations(string $serviceIdOrName): ServiceGraphqlCostDecorations
+    {
+        if ($serviceIdOrName === '') {
+            throw new InvalidArgumentException('Service ID or name must not be empty.');
+        }
+
+        return new ServiceGraphqlCostDecorations($this->transport, [...$this->parent, self::SEGMENT, $serviceIdOrName]);
     }
 }

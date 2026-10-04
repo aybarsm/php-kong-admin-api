@@ -18,6 +18,7 @@ Run from the repo root:
 ```bash
 python3 tools/generator/phase4a.py   # Phase 4a: core gateway entities
 python3 tools/generator/phase4b.py   # Phase 4b: consumer credentials and consumer groups
+python3 tools/generator/phase4c.py   # Phase 4c: Enterprise entities (RBAC, plugins, partials, admins, …)
 composer ci && composer test:mutate  # then run every gate
 ```
 
@@ -33,6 +34,7 @@ rerun produces no diff, and `git status` must stay clean.
 | `feature_tests.py` | One Pest feature test per resource config |
 | `phase4a.py` | Phase 4a tables (enum locations, inline-object names, resource configs) and the entry point. Its `top()`/`nested()`/`acc()` row helpers are reused by later phases |
 | `phase4b.py` | Phase 4b tables: credentials, Consumer Groups, membership/override response DTOs (`OUTPUTS`) and inline request-body inputs (`INPUTS`) |
+| `phase4c.py` | Phase 4c tables: Enterprise CRUD entities, global and workspace-only RBAC, Partial variants, and the DTOs of the hand-written Admins/Licenses/Event-hooks/workspace-group resources |
 
 ## What comes from where
 - **From the spec (never hand-entered):** property names, types, `required`, `nullable`, `writeOnly`,
@@ -48,7 +50,17 @@ rerun produces no diff, and `git status` must stay clean.
   `with_input=False` gives output only, and `with_output=False` gives `{cls}Input` only (inline request
   bodies). Only nested objects reachable from that schema are generated.
 - `$ref` properties and `$ref` array items become the registered `REFS` class.
-- Dotted spec keys (`config.limit`) become camelCase PHP names (`configLimit`) and are sent verbatim.
+- Spec keys with any separator (`config.limit`, `x5t#S256`) become camelCase PHP names (`configLimit`,
+  `x5tS256`) and are sent verbatim.
+- Objects whose only property is `id` map to `Shared\ForeignKey`. Objects with more properties
+  (including `x-foreign` ones such as `GroupRole.group`) get a nested DTO, so nothing is dropped. An object
+  with `properties` but no `type` is still treated as an object.
+- `models.FREEFORM` forces chosen `(class, location)` objects to plain arrays (Partial `config`, Q13;
+  event-hook sources `data`, Q17).
+- `const` properties get the constant as the input default (`PartialRedisCeInput::$type = 'redis-ce'`).
+- `generate_entity(..., contract='Partial')` makes a DTO implement a hand-written interface instead of `Model`.
+- Required lists and required free-form objects use the required readers (`Data::stringList`,
+  `Data::listOfMaps`, `Data::freeForm`).
 - Resource configs may override `get` (`get_returns`, `get_mapone`, `get_query`, `get_doc`), add
   list query parameters (`list_query`) and nested-resource accessors (`accessors`).
 
@@ -59,7 +71,10 @@ rerun produces no diff, and `git status` must stay clean.
 - Hand-written classes are never written by the generator: `Service`, `ServiceInput`, `Route*`,
   `Services`, `Routes`, `Tags`, the `KongClient` accessors, nested accessors on `Services`/`Routes`,
   `Nested\ConsumerGroupConsumers`, `Nested\ConsumerConsumerGroups`,
-  `Nested\ConsumerGroupRateLimitingAdvancedOverride`, and the enums.
+  `Nested\ConsumerGroupRateLimitingAdvancedOverride`, `Models\Partial`, `Models\PartialFactory`,
+  `Resources\Partials`, `Nested\PartialLinks`, `Resources\Admins`, `Resources\Licenses`,
+  `Resources\EventHooks`, `Resources\WorkspaceGroups`, `Nested\GroupRoles`,
+  `Nested\WorkspaceRbacUserRoles`, `Nested\WorkspaceRbacRoleEndpoints`, and the enums.
 - Anything the spec leaves ambiguous goes to `docs/spec-notes.md` as an open question before it goes
   into a table.
 - Every gate still applies to generated code: the conformance tests check it against the spec

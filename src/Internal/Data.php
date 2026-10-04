@@ -122,6 +122,18 @@ final class Data
     /**
      * @param array<string, mixed> $data
      *
+     * @return list<string>
+     *
+     * @throws UnexpectedResponseException
+     */
+    public static function stringList(array $data, string $key): array
+    {
+        return self::stringListOrNull($data, $key) ?? throw self::missing($key);
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     *
      * @return list<string>|null
      *
      * @throws UnexpectedResponseException
@@ -203,6 +215,20 @@ final class Data
         }
 
         return self::asMap($value, $key);
+    }
+
+    /**
+     * A required spec free-form object. See freeFormOrNull().
+     *
+     * @param array<string, mixed> $data
+     *
+     * @return array<array-key, mixed>
+     *
+     * @throws UnexpectedResponseException
+     */
+    public static function freeForm(array $data, string $key): array
+    {
+        return self::freeFormOrNull($data, $key) ?? throw self::missing($key);
     }
 
     /**

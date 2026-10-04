@@ -6,6 +6,7 @@ namespace Aybarsm\Kong\AdminApi\Resources;
 
 use Aybarsm\Kong\AdminApi\Contracts\Input;
 use Aybarsm\Kong\AdminApi\Enums\OperationScope;
+use Aybarsm\Kong\AdminApi\Exceptions\InvalidArgumentException;
 use Aybarsm\Kong\AdminApi\Exceptions\KongApiException;
 use Aybarsm\Kong\AdminApi\Exceptions\UnexpectedResponseException;
 use Aybarsm\Kong\AdminApi\Internal\Data;
@@ -61,6 +62,44 @@ abstract readonly class AbstractResource
         }
 
         return Data::asMap($payload, $method . ' ' . $path);
+    }
+
+    /**
+     * Sends a request expecting a bare JSON array of objects (no `data` envelope).
+     *
+     * @param array<string, string|int|bool|null> $query
+     * @param Input|array<string, mixed>|null     $body
+     *
+     * @return list<array<string, mixed>>
+     *
+     * @throws KongApiException
+     */
+    protected function items(string $method, string $path, array $query = [], Input|array|null $body = null): array
+    {
+        $payload = $this->transport->json($method, $path, $query, $this->body($body));
+        if (!array_is_list($payload)) {
+            throw new UnexpectedResponseException(
+                sprintf('%s %s returned a JSON object where an array was expected.', $method, $path),
+                method: $method,
+                path: $path,
+            );
+        }
+
+        return Data::listOfMaps(['items' => $payload], 'items');
+    }
+
+    /**
+     * Guards a required, non-path argument (e.g. a query value) against the empty string.
+     *
+     * @throws InvalidArgumentException
+     */
+    protected function required(string $value, string $label): string
+    {
+        if ($value === '') {
+            throw new InvalidArgumentException($label . ' must not be empty.');
+        }
+
+        return $value;
     }
 
     /**

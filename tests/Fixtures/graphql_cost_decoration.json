@@ -1,0 +1,16 @@
+{
+  "add_arguments": [
+    "add_arguments-value"
+  ],
+  "add_constant": 1.5,
+  "created_at": 1706598432,
+  "id": "e4225a6f-a936-5875-8d2c-1a77469d23aa",
+  "mul_arguments": [
+    "mul_arguments-value"
+  ],
+  "mul_constant": 1.5,
+  "service": {
+    "id": "17a76e23-c894-5300-9dd0-5e67f2e4bf93"
+  },
+  "type_path": "type_path-value"
+}

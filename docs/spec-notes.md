@@ -28,8 +28,11 @@ This is accepted as a converter artifact, and `v3.16.json` is canonical. Any oth
 | Q12 | 403 is never defined in the spec. | Maps to the base `KongApiException`. | open |
 | Q13 | `Partial*.config` is fully specified and deeply nested. | Kept as a plain array (`array<array-key, mixed>`) in v1. Top-level fields are typed. | **accepted for now** (2026-10-04) |
 | Q14 | `Target.created_at`/`updated_at` are `number`; everything else uses `integer`. | Follow the spec: `?float`. | open |
-| Q15 | `POST /admins` (200), `register`, `password_resets`, and several Keyring/Debug operations have no response schema. | Methods return `void`. | open |
+| Q15 | `POST /admins` (200), `register`, `password_resets`, `PATCH /workspace_/groups/{groups}`, and several Keyring/Debug operations have no response schema. `GET /admins/{adminNameOrId}/roles` declares only `{"description":"OK"}`. | Action methods return `void`. `Admins::roles()` returns the decoded JSON object untyped (`array<string, mixed>`), since a `void` getter would be useless. | open |
 | Q16 | Neither php-pro source gives a mutation threshold. | `--min=80`. | open |
+| Q17 | `ListSourcesResponse.data` and `ListSourceEventsResponse.data` (event-hook sources) spell out an example (`balancer.health`, `crud.acls`, `create/update/delete`) as if it were a fixed object, but they describe dynamic maps. | `data` is kept as a plain array (`array<array-key, mixed>`) on `EventHookSources` and `EventHookSourceEvents`, as with Partial `config` (Q13). | open |
+| Q18 | `RBACUser.user_token` is `writeOnly` and evidently a secret, but the spec does not mark it `x-encrypted` (nor `AdminRegistrationInput.password`/`token`, `AdminPasswordResetInput.password`/`token`, `LicenseReport.license.license_key`). | Spec-only rule: not redacted in `__debugInfo()` and no `#[SensitiveParameter]`. | open |
+| Q19 | RBAC users and roles exist twice: global `/rbac_users`, `/rbac_roles` and workspace-only `/{workspace}/rbac/users`, `/{workspace}/rbac/roles` (with their nested groups, roles, entities and endpoints). | Two explicit resource families instead of a runtime switch: `rbacUsers()`/`rbacRoles()` (global) and `workspaceRbacUsers()`/`workspaceRbacRoles()` (always `/{workspace}`-prefixed, default `default`). | open |
 
 ## Blocked operations
 

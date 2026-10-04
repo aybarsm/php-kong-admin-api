@@ -1,0 +1,6 @@
+{
+  "created_at": 1500508800,
+  "id": "30b4edb7-0847-4f65-af90-efbed8b0161f",
+  "payload": "{\\\"license\\\":{\\\"payload\\\":{\\\"admin_seats\\\":\\\"1\\\",\\\"customer\\\":\\\"Example Company, Inc\\\",\\\"dataplanes\\\":\\\"1\\\",\\\"license_creation_date\\\":\\\"2017-07-20\\\",\\\"license_expiration_date\\\":\\\"2017-07-21\\\",\\\"license_key\\\":\\\"00141000017ODj3AAG_a1V41000004wT0OEAU\\\",\\\"product_subscription\\\":\\\"Konnect Enterprise\\\",\\\"support_plan\\\":\\\"None\\\"},\\\"signature\\\":\\\"24cc21223633044c15c300be19cacc26ccc5aca0dd9a12df8a7324a1970fe304bc07b8dcd7fb08d7b92e04169313377ae3b550ead653b951bc44cd2eb59f6beb\\\",\\\"version\\\":\\\"1\\\"}}",
+  "updated_at": 1500508800
+}

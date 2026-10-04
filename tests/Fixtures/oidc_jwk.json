@@ -1,0 +1,38 @@
+{
+  "id": "e4225a6f-a936-5875-8d2c-1a77469d23aa",
+  "jwks": {
+    "keys": [
+      {
+        "alg": "alg-value",
+        "crv": "crv-value",
+        "d": "d-value",
+        "dp": "dp-value",
+        "dq": "dq-value",
+        "e": "e-value",
+        "issuer": "issuer-value",
+        "k": "k-value",
+        "key_ops": [
+          "key_ops-value"
+        ],
+        "kid": "kid-value",
+        "kty": "kty-value",
+        "n": "n-value",
+        "oth": "oth-value",
+        "p": "p-value",
+        "q": "q-value",
+        "qi": "qi-value",
+        "r": "r-value",
+        "t": "t-value",
+        "use": "use-value",
+        "x": "x-value",
+        "x5c": [
+          "x5c-value"
+        ],
+        "x5t": "x5t-value",
+        "x5t#S256": "x5t#S256-value",
+        "x5u": "x5u-value",
+        "y": "y-value"
+      }
+    ]
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "config": {
+    "body": "body-value",
+    "body_format": true,
+    "functions": [
+      "functions-value"
+    ],
+    "headers": {
+      "content-type": "content-type-value"
+    },
+    "headers_format": true,
+    "method": "method-value",
+    "payload": {
+      "text": "text-value"
+    },
+    "payload_format": true,
+    "secret": "secret-value",
+    "ssl_verify": true,
+    "url": "url-value"
+  },
+  "created_at": 1706598432,
+  "event": "event-value",
+  "handler": "handler-value",
+  "id": "e4225a6f-a936-5875-8d2c-1a77469d23aa",
+  "on_change": "on_change-value",
+  "snooze": 1,
+  "source": "source-value"
+}

@@ -1,0 +1,17 @@
+{
+  "consumer": {
+    "id": "24418e78-8e43-5bf9-9c9b-17a48c6c2739"
+  },
+  "created_at": 1706598432,
+  "custom_id": "custom_id-value",
+  "email": "email-value",
+  "id": "e4225a6f-a936-5875-8d2c-1a77469d23aa",
+  "rbac_token_enabled": true,
+  "rbac_user": {
+    "id": "d807fc05-fe92-5fa3-8529-2609d32ee359"
+  },
+  "status": 1,
+  "updated_at": 1706598432,
+  "username": "username-value",
+  "username_lower": "username_lower-value"
+}

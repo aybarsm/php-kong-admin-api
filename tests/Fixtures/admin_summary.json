@@ -1,0 +1,9 @@
+{
+  "created_at": 1706598432,
+  "email": "email-value",
+  "id": "e4225a6f-a936-5875-8d2c-1a77469d23aa",
+  "rbac_token_enabled": true,
+  "status": 1,
+  "updated_at": 1706598432,
+  "username": "username-value"
+}

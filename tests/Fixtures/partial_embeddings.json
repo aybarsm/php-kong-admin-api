@@ -1,0 +1,62 @@
+{
+  "config": {
+    "auth": {
+      "allow_override": true,
+      "aws_access_key_id": "aws_access_key_id-value",
+      "aws_secret_access_key": "aws_secret_access_key-value",
+      "azure_client_id": "azure_client_id-value",
+      "azure_client_secret": "azure_client_secret-value",
+      "azure_tenant_id": "azure_tenant_id-value",
+      "azure_use_managed_identity": true,
+      "gcp_metadata_url": "gcp_metadata_url-value",
+      "gcp_oauth_token_url": "gcp_oauth_token_url-value",
+      "gcp_service_account_json": "gcp_service_account_json-value",
+      "gcp_use_service_account": true,
+      "header_name": "header_name-value",
+      "header_value": "header_value-value",
+      "param_location": "body",
+      "param_name": "param_name-value",
+      "param_value": "param_value-value"
+    },
+    "model": {
+      "name": "name-value",
+      "options": {
+        "azure": {
+          "api_version": "api_version-value",
+          "deployment_id": "deployment_id-value",
+          "instance": "instance-value"
+        },
+        "bedrock": {
+          "aws_assume_role_arn": "aws_assume_role_arn-value",
+          "aws_region": "aws_region-value",
+          "aws_role_session_name": "aws_role_session_name-value",
+          "aws_sts_endpoint_url": "aws_sts_endpoint_url-value",
+          "batch_bucket_prefix": "batch_bucket_prefix-value",
+          "batch_role_arn": "batch_role_arn-value",
+          "embeddings_normalize": true,
+          "performance_config_latency": "performance_config_latency-value",
+          "video_output_s3_uri": "video_output_s3_uri-value"
+        },
+        "gemini": {
+          "api_endpoint": "api_endpoint-value",
+          "location_id": "location_id-value",
+          "project_id": "project_id-value"
+        },
+        "huggingface": {
+          "use_cache": true,
+          "wait_for_model": true
+        },
+        "upstream_url": "upstream_url-value"
+      },
+      "provider": "azure"
+    }
+  },
+  "created_at": 1706598432,
+  "id": "e4225a6f-a936-5875-8d2c-1a77469d23aa",
+  "name": "name-value",
+  "tags": [
+    "tags-value"
+  ],
+  "type": "embeddings",
+  "updated_at": 1706598432
+}

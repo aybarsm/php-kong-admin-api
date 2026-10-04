@@ -14,6 +14,15 @@ function snakeCase(string $name): string
 }
 
 /**
+ * Compares PHP and spec names ignoring separators: the spec also uses `.` and `#` in property names
+ * (`config.limit`, `x5t#S256`), which PHP names cannot contain.
+ */
+function wireKey(string $name): string
+{
+    return strtolower((string) preg_replace('/[^A-Za-z0-9]/', '', $name));
+}
+
+/**
  * @return array<string, array{ReflectionClass<object>, string}>
  */
 function schemaClasses(): array
@@ -36,9 +45,8 @@ it('mirrors the spec schema properties, required-ness and writeOnly fields', fun
     foreach (schemaClasses() as $short => [$class, $schemaName]) {
         $schema = Spec::schema($schemaName);
         $properties = is_array($schema['properties'] ?? null) ? Spec::stringKeys($schema['properties'], $schemaName) : [];
-        // The spec has dotted property names (`config.limit`); PHP names map dots like underscores.
         $required = array_map(
-            static fn (mixed $name): string => str_replace('.', '_', is_string($name) ? $name : ''),
+            static fn (mixed $name): string => wireKey(is_string($name) ? $name : ''),
             is_array($schema['required'] ?? null) ? $schema['required'] : [],
         );
         $isInput = $class->implementsInterface(Input::class);
@@ -52,7 +60,7 @@ it('mirrors the spec schema properties, required-ness and writeOnly fields', fun
             if ($isInput && ($flags['readOnly'] ?? false) === true) {
                 continue;
             }
-            $expected[] = str_replace('.', '_', $name);
+            $expected[] = wireKey($name);
         }
 
         $constructor = $class->getConstructor();
@@ -60,7 +68,7 @@ it('mirrors the spec schema properties, required-ness and writeOnly fields', fun
         /** @var ReflectionMethod $constructor */
         $actual = [];
         foreach ($constructor->getParameters() as $parameter) {
-            $wire = snakeCase($parameter->getName());
+            $wire = wireKey(snakeCase($parameter->getName()));
             $actual[] = $wire;
             $type = $parameter->getType();
             $nullable = $type === null || $type->allowsNull();

@@ -15,11 +15,13 @@ def value(node, path):
         return obj(schema_node(node['$ref'].rsplit('/', 1)[-1]), path)
     if node.get('type') == 'array' and '$ref' in node.get('items', {}):
         return [obj(schema_node(node['items']['$ref'].rsplit('/', 1)[-1]), path + '[]')]
-    if node.get('x-foreign'):
+    if node.get('type') == 'object' and set(node.get('properties', {})) == {'id'}:
         return {'id': uid(path)}
+    if 'const' in node:
+        return node['const']
     if 'enum' in node:
         return node['enum'][0]
-    t = node.get('type')
+    t = node.get('type') or ('object' if 'properties' in node else None)
     ex = node.get('example')
     if t == 'array':
         items = node.get('items', {})

@@ -1,0 +1,11 @@
+{
+  "roles": [
+    {
+      "comment": "comment-value",
+      "created_at": 1706598432,
+      "id": "b00a3cfa-bcde-5527-b68d-d7db9a06258a",
+      "is_default": true,
+      "name": "name-value"
+    }
+  ]
+}

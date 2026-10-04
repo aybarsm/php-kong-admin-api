@@ -12,9 +12,10 @@ Root namespace `Aybarsm\Kong\AdminApi\` → `src/`. Built against Kong Gateway *
 - Type coverage: `composer test:types` (100%) · mutation: `composer test:mutate` (≥80%)
 - Static analysis: `composer analyse` (PHPStan level 9, src + tests, no baseline)
 - Code style: `composer cs` (check) · `composer cs:fix` (apply)
-- Everything CI runs: `composer ci && composer test:mutate`
+- Everything CI runs: `composer ci && composer test:mutate` (mutation runs in `.github/workflows/mutation.yml`
+  on pushes to `main`, weekly and on demand, not on pull requests; run it locally before pushing)
 - One file: `vendor/bin/pest tests/Feature/Resources/ServicesTest.php`
-- Regenerate generated code: `python3 tools/generator/phase4a.py`, `… phase4b.py` (one script per phase,
+- Regenerate generated code: `python3 tools/generator/phase4a.py`, `… phase4b.py`, `… phase4c.py` (one script per phase,
   run in order; see `tools/generator/README.md`). A rerun on an unchanged spec must leave `git status` clean.
 
 ## Kong API source of truth (strict)

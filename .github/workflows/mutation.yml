@@ -1,0 +1,31 @@
+name: Mutation
+
+# Mutation testing is the slowest gate, so it stays out of the pull-request loop. It runs on every push to
+# main (so the gate still holds for everything merged), weekly (to catch drift from dependency updates
+# under unchanged code) and on demand.
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "17 3 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mutation-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  mutation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.3"
+          coverage: pcov
+      - uses: ramsey/composer-install@v4
+      - run: composer test:mutate

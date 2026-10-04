@@ -34,6 +34,10 @@ WRITTEN = []
 # Phases register the components they reference (e.g. {'Consumer': 'Consumer'}).
 REFS = {}
 
+# (owner class, location) pairs the spec defines as objects but that are deliberately kept as plain
+# arrays (`array<array-key, mixed>`), e.g. Partial `config` (spec-notes Q13).
+FREEFORM = set()
+
 
 def ref_class(ref):
     name = ref.rsplit('/', 1)[-1]
@@ -43,16 +47,21 @@ def ref_class(ref):
 
 
 def camel(name):
-    """snake_case (and the spec's dotted keys such as `config.limit`) to camelCase."""
-    parts = re.split(r'[_.]', name)
+    """snake_case (and spec keys with other separators, e.g. `config.limit`, `x5t#S256`) to camelCase."""
+    parts = [p for p in re.split(r'[^A-Za-z0-9]+', name) if p]
     return parts[0] + ''.join(p[:1].upper() + p[1:] for p in parts[1:])
 
 
-def pointer_node(pointer):
+def raw_node(pointer):
     node = SPEC
     for seg in pointer[2:].split('/'):
         seg = seg.replace('~1', '/').replace('~0', '~')
         node = node[int(seg)] if isinstance(node, list) else node[seg]
+    return node
+
+
+def pointer_node(pointer):
+    node = raw_node(pointer)
     if node.get('type') == 'array' and 'items' in node:
         node = node['items']
     return node
@@ -86,15 +95,20 @@ class Prop:
         self.desc = first_sentence(node.get('description', ''))
         loc = location + '.' + wire if location else wire
         self.loc = loc
-        t = node.get('type')
+        t = node.get('type') or ('object' if 'properties' in node else None)
         self.kind = None
-        if '$ref' in node:
+        self.const = node.get('const')
+        if (cls, loc) in FREEFORM:
+            self.kind = 'freeform'
+        elif '$ref' in node:
             self.kind = 'obj'
             self.cls = ref_class(node['$ref'])
         elif t == 'array' and '$ref' in node.get('items', {}):
             self.kind = 'objlist'
             self.cls = ref_class(node['items']['$ref'])
-        elif node.get('x-foreign'):
+        elif t == 'object' and set(node.get('properties', {})) == {'id'}:
+            # `{id}` references (marked `x-foreign` or not) share Shared\ForeignKey. An `x-foreign` object with
+            # more properties (e.g. GroupRole.group) falls through to a nested DTO so no field is dropped.
             self.kind = 'fk'
             self.cls = 'ForeignKey'
         elif 'enum' in node:
@@ -111,7 +125,7 @@ class Prop:
                 self.kind = 'stringlist'
             elif it == 'integer':
                 self.kind = 'intlist'
-            elif it == 'object' and 'properties' in items:
+            elif 'properties' in items and it in ('object', None):  # some spec items omit `type: object`
                 self.kind = 'objlist'
                 self.cls = nested_names[(cls, loc + '[]')]
             else:
@@ -185,6 +199,8 @@ class Prop:
                 return None, f"{cls}::fromArray(Data::map($data, '{w}'))"
             return f"{v} = Data::mapOrNull($data, '{w}');", f"{v} === null ? null : {cls}::fromArray({v})"
         if k == 'objlist':
+            if req:
+                return None, f"array_map({self.cls}::fromArray(...), Data::listOfMaps($data, '{w}'))"
             return f"{v} = Data::listOfMapsOrNull($data, '{w}');", f"{v} === null ? null : array_map({self.cls}::fromArray(...), {v})"
         simple = {
             'string': 'string' if req else 'stringOrNull',
@@ -205,6 +221,10 @@ class Prop:
             return None, f"Data::enumOrNull($data, '{w}', {self.cls}::class)"
         if k == 'enumlist':
             return None, f"Data::enumListOrNull($data, '{w}', {self.cls}::class)"
+        if k == 'freeform' and req:
+            return None, f"Data::freeForm($data, '{w}')"
+        if k == 'stringlist' and req:
+            return None, f"Data::stringList($data, '{w}')"
         if k in simple and (req is False or k in ('string', 'int', 'bool')):
             return None, f"Data::{simple[k]}($data, '{w}')"
         raise ValueError(f'no reader for {self.loc} {k} req={req}')
@@ -240,9 +260,10 @@ def build_props(cls, schema_name, nested_names, enum_names, location):
     return [p for p in props if p.required] + [p for p in props if not p.required]
 
 
-def render(cls, schema_name, doc, props, input_mode, extra_uses=(), sibling_ns=None):
+def render(cls, schema_name, doc, props, input_mode, extra_uses=(), sibling_ns=None, contract=None):
     uses = {NS + '\\Attributes\\Schema', NS + '\\Internal\\Data', 'Override'}
-    uses.add(NS + ('\\Contracts\\Input' if input_mode else '\\Contracts\\Model'))
+    if contract is None:
+        uses.add(NS + ('\\Contracts\\Input' if input_mode else '\\Contracts\\Model'))
     for p in props:
         uses |= p.uses()
         if p.kind in ('obj', 'objlist') and sibling_ns:
@@ -263,7 +284,7 @@ def render(cls, schema_name, doc, props, input_mode, extra_uses=(), sibling_ns=N
     lines += ['/**'] + [(' * ' + l).rstrip() for l in doc] + [' */']
     attr_name = schema_name.replace("'", "\\'")
     lines += [f"#[Schema('{attr_name}')]"]
-    contract = 'Input' if input_mode else 'Model'
+    contract = contract or ('Input' if input_mode else 'Model')
     lines += [f'final readonly class {cls} implements {contract}', '{']
 
     enc = [p.php for p in props if p.encrypted]
@@ -284,6 +305,8 @@ def render(cls, schema_name, doc, props, input_mode, extra_uses=(), sibling_ns=N
     lines += ['    /**'] + doc_params + ['     */', '    public function __construct(']
     for p in props:
         default = ' = null' if p.nullable(input_mode) else ''
+        if input_mode and p.const is not None:
+            default = f" = '{p.const}'"
         if input_mode and p.encrypted:
             lines.append('        #[SensitiveParameter]')
         lines.append(f'        public {p.native(input_mode)} ${p.php}{default},')
@@ -337,7 +360,7 @@ def finalize():
 
 
 def generate_entity(cls, schema, doc, nested_names, enum_names, input_doc=None, with_input=True, input_schema=None,
-                    with_output=True):
+                    with_output=True, contract=None):
     """Writes Models/{cls}.php, Models/{cls}Input.php and every nested DTO the schema needs.
 
     `with_output=False` writes only the input (for inline request bodies that have no response twin).
@@ -345,7 +368,7 @@ def generate_entity(cls, schema, doc, nested_names, enum_names, input_doc=None, 
     written = []
     props = build_props(cls, schema, nested_names, enum_names, '')
     if with_output:
-        write(f'src/Models/{cls}.php', render(cls, schema, doc, props, False))
+        write(f'src/Models/{cls}.php', render(cls, schema, doc, props, False, contract=contract))
         written.append(f'src/Models/{cls}.php')
     if with_input:
         idoc = input_doc or [
@@ -363,7 +386,8 @@ def generate_entity(cls, schema, doc, nested_names, enum_names, input_doc=None, 
             if p.kind not in ('obj', 'objlist') or key not in nested_names:
                 continue
             ncls = nested_names[key]
-            npointer = pointer + '/properties/' + p.wire
+            base = pointer + ('/items' if raw_node(pointer).get('type') == 'array' else '')
+            npointer = base + '/properties/' + p.wire.replace('~', '~0').replace('/', '~1')
             nprops = build_props(cls, npointer, nested_names, enum_names, p.loc)
             ndoc = [f'The `{key[1]}` object of {cls} (spec `{schema}.{key[1]}`).']
             write(f'src/Models/{ncls}.php', render(ncls, npointer, ndoc, nprops, False))

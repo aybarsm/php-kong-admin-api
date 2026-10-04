@@ -8,24 +8,44 @@ use Aybarsm\Kong\AdminApi\Config\ClientConfig;
 use Aybarsm\Kong\AdminApi\Exceptions\InvalidArgumentException;
 use Aybarsm\Kong\AdminApi\Internal\Transport;
 use Aybarsm\Kong\AdminApi\Resources\Acls;
+use Aybarsm\Kong\AdminApi\Resources\Admins;
 use Aybarsm\Kong\AdminApi\Resources\BasicAuths;
 use Aybarsm\Kong\AdminApi\Resources\CaCertificates;
 use Aybarsm\Kong\AdminApi\Resources\Certificates;
+use Aybarsm\Kong\AdminApi\Resources\ClonedPlugins;
 use Aybarsm\Kong\AdminApi\Resources\ConsumerGroups;
 use Aybarsm\Kong\AdminApi\Resources\Consumers;
+use Aybarsm\Kong\AdminApi\Resources\CustomPlugins;
+use Aybarsm\Kong\AdminApi\Resources\DegraphqlRoutes;
+use Aybarsm\Kong\AdminApi\Resources\EventHooks;
+use Aybarsm\Kong\AdminApi\Resources\GraphqlCostDecorations;
+use Aybarsm\Kong\AdminApi\Resources\GroupRbacRoles;
+use Aybarsm\Kong\AdminApi\Resources\Groups;
 use Aybarsm\Kong\AdminApi\Resources\HmacAuths;
 use Aybarsm\Kong\AdminApi\Resources\Jwts;
 use Aybarsm\Kong\AdminApi\Resources\KeyAuths;
 use Aybarsm\Kong\AdminApi\Resources\Keys;
 use Aybarsm\Kong\AdminApi\Resources\KeySets;
+use Aybarsm\Kong\AdminApi\Resources\Licenses;
 use Aybarsm\Kong\AdminApi\Resources\MtlsAuths;
+use Aybarsm\Kong\AdminApi\Resources\OidcJwks;
+use Aybarsm\Kong\AdminApi\Resources\Partials;
 use Aybarsm\Kong\AdminApi\Resources\Plugins;
+use Aybarsm\Kong\AdminApi\Resources\RbacRoleEndpoints;
+use Aybarsm\Kong\AdminApi\Resources\RbacRoleEntities;
+use Aybarsm\Kong\AdminApi\Resources\RbacRoles;
+use Aybarsm\Kong\AdminApi\Resources\RbacUserGroups;
+use Aybarsm\Kong\AdminApi\Resources\RbacUserRoles;
+use Aybarsm\Kong\AdminApi\Resources\RbacUsers;
 use Aybarsm\Kong\AdminApi\Resources\Routes;
 use Aybarsm\Kong\AdminApi\Resources\Services;
 use Aybarsm\Kong\AdminApi\Resources\Snis;
 use Aybarsm\Kong\AdminApi\Resources\Tags;
 use Aybarsm\Kong\AdminApi\Resources\Upstreams;
 use Aybarsm\Kong\AdminApi\Resources\Vaults;
+use Aybarsm\Kong\AdminApi\Resources\WorkspaceGroups;
+use Aybarsm\Kong\AdminApi\Resources\WorkspaceRbacRoles;
+use Aybarsm\Kong\AdminApi\Resources\WorkspaceRbacUsers;
 use Aybarsm\Kong\AdminApi\Resources\Workspaces;
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Psr7\HttpFactory;
@@ -234,6 +254,166 @@ final readonly class KongClient
     public function mtlsAuths(): MtlsAuths
     {
         return new MtlsAuths($this->transport);
+    }
+
+    /**
+     * Admins: `/admins`.
+     */
+    public function admins(): Admins
+    {
+        return new Admins($this->transport);
+    }
+
+    /**
+     * Cloned Plugins: `/cloned-plugins`.
+     */
+    public function clonedPlugins(): ClonedPlugins
+    {
+        return new ClonedPlugins($this->transport);
+    }
+
+    /**
+     * Custom Plugins: `/custom-plugins`.
+     */
+    public function customPlugins(): CustomPlugins
+    {
+        return new CustomPlugins($this->transport);
+    }
+
+    /**
+     * DeGraphQL routes: `/degraphql_routes`.
+     */
+    public function degraphqlRoutes(): DegraphqlRoutes
+    {
+        return new DegraphqlRoutes($this->transport);
+    }
+
+    /**
+     * Event hooks: `/event-hooks`.
+     */
+    public function eventHooks(): EventHooks
+    {
+        return new EventHooks($this->transport);
+    }
+
+    /**
+     * GraphQL cost decorations: `/graphql-rate-limiting-advanced/costs`.
+     */
+    public function graphqlCostDecorations(): GraphqlCostDecorations
+    {
+        return new GraphqlCostDecorations($this->transport);
+    }
+
+    /**
+     * Group RBAC roles: `/group_rbac_roles`.
+     */
+    public function groupRbacRoles(): GroupRbacRoles
+    {
+        return new GroupRbacRoles($this->transport);
+    }
+
+    /**
+     * Groups: `/groups`.
+     */
+    public function groups(): Groups
+    {
+        return new Groups($this->transport);
+    }
+
+    /**
+     * Licenses: `/licenses`.
+     */
+    public function licenses(): Licenses
+    {
+        return new Licenses($this->transport);
+    }
+
+    /**
+     * OpenID Connect JWK sets: `/oic_jwks`.
+     */
+    public function oidcJwks(): OidcJwks
+    {
+        return new OidcJwks($this->transport);
+    }
+
+    /**
+     * Partials: `/partials`.
+     */
+    public function partials(): Partials
+    {
+        return new Partials($this->transport);
+    }
+
+    /**
+     * RBAC role endpoints (global): `/rbac_role_endpoints`.
+     */
+    public function rbacRoleEndpoints(): RbacRoleEndpoints
+    {
+        return new RbacRoleEndpoints($this->transport);
+    }
+
+    /**
+     * RBAC role entities (global): `/rbac_role_entities`.
+     */
+    public function rbacRoleEntities(): RbacRoleEntities
+    {
+        return new RbacRoleEntities($this->transport);
+    }
+
+    /**
+     * RBAC roles (global): `/rbac_roles`.
+     */
+    public function rbacRoles(): RbacRoles
+    {
+        return new RbacRoles($this->transport);
+    }
+
+    /**
+     * RBAC user groups (global): `/rbac_user_groups`.
+     */
+    public function rbacUserGroups(): RbacUserGroups
+    {
+        return new RbacUserGroups($this->transport);
+    }
+
+    /**
+     * RBAC user roles (global): `/rbac_user_roles`.
+     */
+    public function rbacUserRoles(): RbacUserRoles
+    {
+        return new RbacUserRoles($this->transport);
+    }
+
+    /**
+     * RBAC users (global): `/rbac_users`.
+     */
+    public function rbacUsers(): RbacUsers
+    {
+        return new RbacUsers($this->transport);
+    }
+
+    /**
+     * Workspace groups: `/workspace_/groups`.
+     */
+    public function workspaceGroups(): WorkspaceGroups
+    {
+        return new WorkspaceGroups($this->transport);
+    }
+
+    /**
+     * RBAC roles of the current workspace: `/{workspace}/rbac/roles`.
+     */
+    public function workspaceRbacRoles(): WorkspaceRbacRoles
+    {
+        return new WorkspaceRbacRoles($this->transport);
+    }
+
+    /**
+     * RBAC users of the current workspace: `/{workspace}/rbac/users`.
+     */
+    public function workspaceRbacUsers(): WorkspaceRbacUsers
+    {
+        return new WorkspaceRbacUsers($this->transport);
     }
 
     /**

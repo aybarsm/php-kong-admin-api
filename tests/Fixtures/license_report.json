@@ -1,0 +1,60 @@
+{
+  "checksum": "6c53a59ed49b5b28a90c4a5ee74871a1ccca14387736987e740aacb6562c3007",
+  "consumers_count": 0,
+  "counters": {
+    "buckets": [
+      {
+        "bucket": "2025-01",
+        "request_count": 10
+      }
+    ],
+    "total_requests": 1.5
+  },
+  "db_version": "postgres 13.23",
+  "deployment_info": {
+    "connected_dp_count": 3,
+    "type": "traditional"
+  },
+  "kong_version": "3.14.0.1",
+  "license": {
+    "license_expiration_date": "2026-04-20",
+    "license_key": "00141000017ODj3AAG_a1V41000004wT0OEAU"
+  },
+  "plugins_count": {
+    "tiers": {
+      "custom": {
+        "enabled": true,
+        "nested": {
+          "limit": 5
+        },
+        "option": "value"
+      },
+      "enterprise": {
+        "enabled": true,
+        "nested": {
+          "limit": 5
+        },
+        "option": "value"
+      },
+      "free": {
+        "enabled": true,
+        "nested": {
+          "limit": 5
+        },
+        "option": "value"
+      }
+    },
+    "unique_route_kafkas": 0,
+    "unique_route_lambdas": 0
+  },
+  "rbac_users": 0,
+  "routes_count": 0,
+  "services_count": 0,
+  "system_info": {
+    "cores": 10,
+    "hostname": "kong-node-1",
+    "uname": "Linux aarch64"
+  },
+  "timestamp": 1776716058,
+  "workspaces_count": 1
+}
