@@ -9,6 +9,7 @@ use Aybarsm\Kong\AdminApi\Contracts\Input;
 use Aybarsm\Kong\AdminApi\Internal\Data;
 use Aybarsm\Kong\AdminApi\Models\Shared\ForeignKey;
 use Override;
+use SensitiveParameter;
 
 /**
  * Request body for creating, updating or upserting an API key (key-auth credential)
@@ -20,6 +21,9 @@ use Override;
 #[Schema('KeyAuth')]
 final readonly class KeyAuthInput implements Input
 {
+    /** Properties the spec marks `x-encrypted` (plus reviewed secrets, spec-notes Q18); redacted in __debugInfo(). */
+    private const array ENCRYPTED = ['key'];
+
     /**
      * @param ForeignKey|string|null $consumer
      * @param int|null               $createdAt Unix epoch when the resource was created.
@@ -32,6 +36,7 @@ final readonly class KeyAuthInput implements Input
         public ForeignKey|string|null $consumer = null,
         public ?int $createdAt = null,
         public ?string $id = null,
+        #[SensitiveParameter]
         public ?string $key = null,
         public ?array $tags = null,
         public ?int $ttl = null,
@@ -52,5 +57,22 @@ final readonly class KeyAuthInput implements Input
             'tags' => $this->tags,
             'ttl' => $this->ttl,
         ]);
+    }
+
+    /**
+     * Redacts `x-encrypted` values.
+     *
+     * @return array<string, mixed>
+     */
+    public function __debugInfo(): array
+    {
+        $values = get_object_vars($this);
+        foreach (self::ENCRYPTED as $property) {
+            if ($values[$property] !== null) {
+                $values[$property] = '***';
+            }
+        }
+
+        return $values;
     }
 }

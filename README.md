@@ -126,6 +126,10 @@ RBAC users and roles exist twice in the spec, so the client exposes both familie
 - `rbacUsers()` and `rbacRoles()` address the global `/rbac_users` and `/rbac_roles` paths.
 - `workspaceRbacUsers()` and `workspaceRbacRoles()` address `/{workspace}/rbac/users` and `/{workspace}/rbac/roles`. These exist only under a workspace; without one, the spec default `default` is used.
 
+`workspaceGroups()` is a separate Enterprise resource. It is not RBAC Groups (`groups()`) and not Consumer Groups:
+
+> Enterprise-only. Paths are taken verbatim from the Gateway Admin EE 3.16 spec, including the literal prefix `/workspace_/groups` (not `/workspaces/{workspace}/groups` and not `/groups`). The rendered spec and its curl examples use that string. It is not in Kong open-source and has not been verified against a running Kong Enterprise node. If a future spec revision changes the path, follow the spec; do not keep a local rewrite.
+
 ## Resources
 
 Every Kong entity is a resource on `KongClient`. Most have `list()`, `all()`, `get()`, `create()`, `update()` (PATCH), `upsert()` (PUT) and `delete()`. A resource only has the methods its spec paths define. Lookups take whatever the spec allows: an ID, an ID or name, an ID or username, and so on.
@@ -160,11 +164,14 @@ $resources = [
 use Aybarsm\Kong\AdminApi\Pagination\ListOptions;
 use Aybarsm\Kong\AdminApi\Pagination\TagFilter;
 
-$page = $kong->services()->list(new ListOptions(size: 100, tags: TagFilter::allOf('production', 'billing')));
+$options = new ListOptions(size: 100, tags: TagFilter::allOf('production', 'billing'));
+
+$page = $kong->services()->list($options);
 foreach ($page->data as $service) {
     $seen[] = $service->name;
 }
-$more = $page->hasMore();   // true when Kong returned an `offset`
+$more = $page->hasMore();                               // true when Kong returned an `offset`
+$next = $kong->services()->nextPage($page, $options);   // same filters; null after the last page
 
 foreach ($kong->services()->all(new ListOptions(tags: TagFilter::anyOf('team-a', 'team-b'))) as $service) {
     $seen[] = $service->name;   // fetched page by page, lazily
@@ -172,6 +179,7 @@ foreach ($kong->services()->all(new ListOptions(tags: TagFilter::anyOf('team-a',
 ```
 
 - `list()` returns one `Page`, with `data`, `offset` and `next`.
+- `nextPage($page, $options)` repeats the request with the page's `offset` and returns `null` after the last page. Kong's `next` link is exposed but not followed, because it drops filters on nested lists.
 - `all()` returns a lazy generator. It follows `offset` until Kong stops returning one, and stops with an exception if Kong repeats an offset.
 - `size` must be between 1 and 1000, the spec's bounds.
 - `TagFilter::allOf()` joins tags with `,` to mean AND; `TagFilter::anyOf()` joins them with `/` to mean OR.
@@ -188,7 +196,7 @@ $kong->services()->update('billing', ['ca_certificates' => null]);          // {
 
 - **Every write method accepts either form.** Input DTOs make every field optional, because PATCH reuses the same schema. Fields the spec requires on create are marked in each DTO's docblock.
 - **Response DTOs round-trip.** Each one has `fromArray()` and `toArray()`, using the spec's snake_case property names.
-- **Secrets stay hidden.** Properties the spec marks `x-encrypted` (certificate keys, credential secrets, key material) are redacted from `var_dump()`/`print_r()`.
+- **Secrets stay hidden.** Sensitive properties are redacted from `var_dump()`/`print_r()`; see [Sensitive fields](#sensitive-fields).
 
 ## Consumers and credentials
 
@@ -232,7 +240,8 @@ try {
     $kong->services()->create(['name' => 'no-host']);
 } catch (ValidationException $e) {
     $log[] = $e->kongMessage;                   // "schema violation (host: required field missing)"
-    $log[] = $e->details;                       // decoded error body
+    $log[] = $e->errorName;                     // "schema violation" (Kong error code 2)
+    $log[] = $e->errorFields;                   // ['host' => 'required field missing']
 }
 
 try {
@@ -248,16 +257,18 @@ try {
 |---|---|
 | `ValidationException` | HTTP 400 |
 | `UnauthorizedException` | HTTP 401 |
+| `ForbiddenException` | HTTP 403, e.g. an RBAC permission failure (not defined by the spec; standard HTTP semantics) |
 | `NotFoundException` | HTTP 404. Deletes return 204 even when the entity doesn't exist, as the spec defines. |
 | `ConflictException` | HTTP 409 |
 | `ServerException` | HTTP 5xx |
-| `KongApiException` | Any other HTTP error (e.g. 403, 405), and the base class of all of the above |
+| `KongApiException` | Any other HTTP error (e.g. 405), and the base class of all of the above |
 | `TransportException` | No response at all: network, DNS or TLS failures, wrapping the PSR-18 exception |
 | `UnexpectedResponseException` | A response that isn't valid JSON or doesn't match the spec schema |
 | `InvalidArgumentException` | Caller errors caught before sending (empty ID, page size out of range, invalid base URI) |
 
 - **Common interface:** every exception implements `KongExceptionInterface`.
 - **HTTP errors:** `KongApiException` exposes `statusCode`, `kongMessage` (the spec's `message` field), `details` (the decoded error body), `method` and `path`.
+- **Kong error table:** for database and validation errors, Kong returns `{code, name, message, fields}`. These are exposed as `errorCode` (e.g. `2` schema violation, `5` unique constraint violation), `errorName` and `errorFields` (per-field messages, possibly nested). They are `null`/empty when Kong sends only a `message`. The spec defines just `{message, status}`; the rest follows Kong's core error handling.
 - **Guzzle compatibility:** Guzzle's `RequestException`s are mapped by their response status too, so a client configured with `http_errors` behaves the same.
 
 ## Operational endpoints
@@ -271,20 +282,32 @@ $check = $kong->schemas()->validate('services', ['host' => 'billing.internal']);
 - `information()` covers `/`, `/status`, `/status/dns`, `/endpoints`, `/timers` and `/fips-status`, plus `HEAD`/`OPTIONS /{endpoint}`.
 - `debug()` gets and sets log levels.
 - `clustering()` covers hybrid-mode data planes.
-- `declarativeConfig()` reads and applies `/config`.
+- `declarativeConfig()` reads `/config` and applies a configuration with `apply(array)` (JSON) or `applyYaml(string)` (`application/yaml`, e.g. the contents of `kong.yaml`).
 - `cache()`, `keyring()`, `auditLogs()` and `schemas()` complete the operational set.
 
 ## Spec coverage
 
 The client implements all **657** operations in `resources/kong-admin-api/v3.16.json` except four. Those four live under `/{workspace}/rbac/roles/{id}/endpoints/{workspace}{RBACRoleEndpointId}`, a path template the spec gets wrong. Use `rbacRoleEndpoints()` for those items instead.
 
-Where the spec is ambiguous or inconsistent, the client follows the spec literally and documents the choice in [`docs/spec-notes.md`](docs/spec-notes.md). Examples:
+Where the spec is ambiguous or inconsistent, the client follows the spec literally. Each decision is recorded in [`docs/spec-notes.md`](docs/spec-notes.md).
 
-- `GET /licenses` returns a single license object.
-- Some request bodies use dotted keys.
-- Some response objects are documented by example only.
+### Spec quirks
 
-These notes are under review, and some behaviour may change before 1.0.
+These are implemented exactly as the 3.16 spec defines them. Some may look surprising:
+
+- **Licenses:** `licenses()->list()` returns a **single** `License`; the spec defines no list envelope for `GET /licenses`.
+- **Event hooks:** `create()`, `ping()` and `test()` return a `Page` of event hooks (the spec's list envelope), like `list()`.
+- **Admin workspaces:** `admins()->workspaces($admin)` returns a **single** `Workspace`.
+- **Tags, Admins and Event-hooks lists:** `list()` takes no options and has no `all()`, because the spec declares no `size`/`offset`/`tags` parameters for them.
+- **Rate-limiting override:** `consumerGroups()->rateLimitingAdvancedOverride($group)->upsert()` sends the spec's literal dotted keys (`config.limit`, `config.window_size`, …). Pass an array to send another shape.
+- **Workspace groups:** `workspaceGroups()` uses the literal `/workspace_/groups` path (see [Workspaces](#workspaces)).
+- **Timestamps:** `Target` timestamps are floats; the spec types them as `number`.
+- **Schemaless responses:** operations without a response schema return `void`, except `admins()->roles()`, which returns the decoded JSON as an array.
+- **Free-form fields:** Partial `config` and event-hook sources `data` are plain arrays.
+
+### Sensitive fields
+
+Properties the spec marks `x-encrypted` are redacted from `var_dump()`/`print_r()`. So are a reviewed set of other secrets the spec doesn't mark: key-auth keys, JWT secrets, RBAC user tokens, admin passwords and tokens, keyring material, webhook secrets and the license key. Their input DTO parameters are also `#[SensitiveParameter]`.
 
 ## Kong version support
 

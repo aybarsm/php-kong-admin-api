@@ -10,7 +10,7 @@ use Aybarsm\Kong\AdminApi\Internal\Data;
 /**
  * One page of a list operation: the spec's `{data, next, offset}` envelope.
  *
- * @template T
+ * @template-covariant T
  */
 final readonly class Page
 {

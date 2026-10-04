@@ -15,6 +15,9 @@ use Override;
 #[Schema('#/components/schemas/Event-Hooks/properties/data/items/properties/config')]
 final readonly class EventHookConfig implements Model
 {
+    /** Properties the spec marks `x-encrypted` (plus reviewed secrets, spec-notes Q18); redacted in __debugInfo(). */
+    private const array ENCRYPTED = ['secret'];
+
     /**
      * @param string|null                 $body
      * @param bool|null                   $bodyFormat
@@ -86,5 +89,22 @@ final readonly class EventHookConfig implements Model
             'ssl_verify' => $this->sslVerify,
             'url' => $this->url,
         ]);
+    }
+
+    /**
+     * Redacts `x-encrypted` values.
+     *
+     * @return array<string, mixed>
+     */
+    public function __debugInfo(): array
+    {
+        $values = get_object_vars($this);
+        foreach (self::ENCRYPTED as $property) {
+            if ($values[$property] !== null) {
+                $values[$property] = '***';
+            }
+        }
+
+        return $values;
     }
 }

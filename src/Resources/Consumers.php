@@ -61,6 +61,25 @@ final readonly class Consumers extends AbstractResource
     }
 
     /**
+     * The page after $page, or null when $page is the last (operationId `list-consumer`).
+     *
+     * Repeats list() with the page's `offset`, keeping the same filters and workspace. Kong's own `next`
+     * link is not followed (it drops filters on nested lists; spec-notes Q6).
+     *
+     * @param Page<Consumer> $page
+     * @param string|null $customId filter by `custom_id` (spec parameter `CustomId`)
+     *
+     * @return Page<Consumer>|null
+     *
+     * @throws KongApiException
+     */
+    #[Operation(Transport::METHOD_GET, '/consumers', 'list-consumer', OperationScope::Both)]
+    public function nextPage(Page $page, ?ListOptions $options = null, ?string $customId = null): ?Page
+    {
+        return $page->offset === null ? null : $this->list(($options ?? new ListOptions())->withOffset($page->offset), $customId);
+    }
+
+    /**
      * Get a Consumer by ID or username (operationId `get-consumer`).
      *
      * @throws KongApiException

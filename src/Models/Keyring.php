@@ -15,6 +15,9 @@ use Override;
 #[Schema('Keyring')]
 final readonly class Keyring implements Model
 {
+    /** Properties the spec marks `x-encrypted` (plus reviewed secrets, spec-notes Q18); redacted in __debugInfo(). */
+    private const array ENCRYPTED = ['key'];
+
     /**
      * @param string|null $id  The ID of the key.
      * @param string|null $key The generated encryption key.
@@ -47,5 +50,22 @@ final readonly class Keyring implements Model
             'id' => $this->id,
             'key' => $this->key,
         ]);
+    }
+
+    /**
+     * Redacts `x-encrypted` values.
+     *
+     * @return array<string, mixed>
+     */
+    public function __debugInfo(): array
+    {
+        $values = get_object_vars($this);
+        foreach (self::ENCRYPTED as $property) {
+            if ($values[$property] !== null) {
+                $values[$property] = '***';
+            }
+        }
+
+        return $values;
     }
 }

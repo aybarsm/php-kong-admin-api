@@ -52,6 +52,24 @@ final readonly class KeySetKeys extends AbstractResource
     }
 
     /**
+     * The page after $page, or null when $page is the last (operationId `list-key-with-key-set`).
+     *
+     * Repeats list() with the page's `offset`, keeping the same filters and workspace. Kong's own `next`
+     * link is not followed (it drops filters on nested lists; spec-notes Q6).
+     *
+     * @param Page<Key> $page
+     *
+     * @return Page<Key>|null
+     *
+     * @throws KongApiException
+     */
+    #[Operation(Transport::METHOD_GET, '/key-sets/{KeySetIdOrName}/keys', 'list-key-with-key-set', OperationScope::Both)]
+    public function nextPage(Page $page, ?ListOptions $options = null): ?Page
+    {
+        return $page->offset === null ? null : $this->list(($options ?? new ListOptions())->withOffset($page->offset));
+    }
+
+    /**
      * Get a Key by ID or name (operationId `get-key-with-key-set`).
      *
      * @throws KongApiException

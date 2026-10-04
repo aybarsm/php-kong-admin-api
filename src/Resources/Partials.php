@@ -58,6 +58,24 @@ final readonly class Partials extends AbstractResource
     }
 
     /**
+     * The page after $page, or null when $page is the last (operationId `list-partial`).
+     *
+     * Repeats list() with the page's `offset`, keeping the same filters and workspace. Kong's own `next`
+     * link is not followed (it drops filters on nested lists; spec-notes Q6).
+     *
+     * @param Page<Partial> $page
+     *
+     * @return Page<Partial>|null
+     *
+     * @throws KongApiException
+     */
+    #[Operation(Transport::METHOD_GET, '/partials', 'list-partial', OperationScope::Both)]
+    public function nextPage(Page $page, ?ListOptions $options = null): ?Page
+    {
+        return $page->offset === null ? null : $this->list(($options ?? new ListOptions())->withOffset($page->offset));
+    }
+
+    /**
      * Get a Partial by ID (operationId `get-partial`).
      *
      * @throws KongApiException

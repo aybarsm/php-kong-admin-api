@@ -30,9 +30,8 @@ final readonly class DeclarativeConfig extends AbstractResource
     }
 
     /**
-     * Load a declarative configuration (operationId `create-config`, POST). The spec's request and 201
-     * response bodies are free-form objects; the request is sent as JSON (the spec also lists YAML and
-     * multipart, which this client does not use).
+     * Load a declarative configuration (operationId `create-config`, POST) sent as JSON. The spec's request and
+     * 201 response bodies are free-form objects. See applyYaml() for YAML documents (spec-notes Q20).
      *
      * @param array<string, mixed> $config the declarative configuration document
      *
@@ -44,5 +43,23 @@ final readonly class DeclarativeConfig extends AbstractResource
     public function apply(array $config): array
     {
         return $this->object(Transport::METHOD_POST, $this->path(OperationScope::GlobalOnly, self::SEGMENT), body: $config);
+    }
+
+    /**
+     * Load a declarative configuration from a YAML document (operationId `create-config`, POST), sent as
+     * `Content-Type: application/yaml`, which the spec lists for this operation (spec-notes Q20).
+     *
+     * @param string $yaml the declarative configuration, e.g. the contents of kong.yaml
+     *
+     * @return array<string, mixed>
+     *
+     * @throws KongApiException
+     */
+    #[Operation(Transport::METHOD_POST, '/config', 'create-config', OperationScope::GlobalOnly)]
+    public function applyYaml(string $yaml): array
+    {
+        $path = $this->path(OperationScope::GlobalOnly, self::SEGMENT);
+
+        return $this->asObject($this->transport->raw(Transport::METHOD_POST, $path, $yaml, 'application/yaml'), Transport::METHOD_POST, $path);
     }
 }

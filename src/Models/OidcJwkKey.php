@@ -15,7 +15,7 @@ use Override;
 #[Schema('#/components/schemas/OidcJwk/properties/jwks/properties/keys')]
 final readonly class OidcJwkKey implements Model
 {
-    /** Properties the spec marks `x-encrypted`; redacted in __debugInfo(). */
+    /** Properties the spec marks `x-encrypted` (plus reviewed secrets, spec-notes Q18); redacted in __debugInfo(). */
     private const array ENCRYPTED = ['d', 'dp', 'dq', 'k', 'oth', 'p', 'q', 'qi', 'r', 't'];
 
     /**

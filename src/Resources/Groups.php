@@ -50,6 +50,24 @@ final readonly class Groups extends AbstractResource
     }
 
     /**
+     * The page after $page, or null when $page is the last (operationId `list-group`).
+     *
+     * Repeats list() with the page's `offset`, keeping the same filters and workspace. Kong's own `next`
+     * link is not followed (it drops filters on nested lists; spec-notes Q6).
+     *
+     * @param Page<Group> $page
+     *
+     * @return Page<Group>|null
+     *
+     * @throws KongApiException
+     */
+    #[Operation(Transport::METHOD_GET, '/groups', 'list-group', OperationScope::GlobalOnly)]
+    public function nextPage(Page $page, ?ListOptions $options = null): ?Page
+    {
+        return $page->offset === null ? null : $this->list(($options ?? new ListOptions())->withOffset($page->offset));
+    }
+
+    /**
      * Get a Group by ID (operationId `get-group`).
      *
      * @throws KongApiException

@@ -49,6 +49,24 @@ final readonly class RbacRoleEntities extends AbstractResource
     }
 
     /**
+     * The page after $page, or null when $page is the last (operationId `list-rbac_role_entitie`).
+     *
+     * Repeats list() with the page's `offset`, keeping the same filters and workspace. Kong's own `next`
+     * link is not followed (it drops filters on nested lists; spec-notes Q6).
+     *
+     * @param Page<RbacRoleEntity> $page
+     *
+     * @return Page<RbacRoleEntity>|null
+     *
+     * @throws KongApiException
+     */
+    #[Operation(Transport::METHOD_GET, '/rbac_role_entities', 'list-rbac_role_entitie', OperationScope::GlobalOnly)]
+    public function nextPage(Page $page, ?ListOptions $options = null): ?Page
+    {
+        return $page->offset === null ? null : $this->list(($options ?? new ListOptions())->withOffset($page->offset));
+    }
+
+    /**
      * Get an RBAC role entity by ID (operationId `get-rbac_role_entitie`).
      *
      * @throws KongApiException

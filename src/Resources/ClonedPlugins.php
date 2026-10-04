@@ -49,6 +49,24 @@ final readonly class ClonedPlugins extends AbstractResource
     }
 
     /**
+     * The page after $page, or null when $page is the last (operationId `list-cloned-plugin`).
+     *
+     * Repeats list() with the page's `offset`, keeping the same filters and workspace. Kong's own `next`
+     * link is not followed (it drops filters on nested lists; spec-notes Q6).
+     *
+     * @param Page<ClonedPlugin> $page
+     *
+     * @return Page<ClonedPlugin>|null
+     *
+     * @throws KongApiException
+     */
+    #[Operation(Transport::METHOD_GET, '/cloned-plugins', 'list-cloned-plugin', OperationScope::GlobalOnly)]
+    public function nextPage(Page $page, ?ListOptions $options = null): ?Page
+    {
+        return $page->offset === null ? null : $this->list(($options ?? new ListOptions())->withOffset($page->offset));
+    }
+
+    /**
      * Get a Cloned Plugin by ID or name (operationId `get-cloned-plugin`).
      *
      * @throws KongApiException

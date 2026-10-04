@@ -51,4 +51,22 @@ final readonly class PartialLinks extends AbstractResource
     {
         return $this->walk($this->path(OperationScope::Both, self::SEGMENT), PartialLink::fromArray(...), $options);
     }
+
+    /**
+     * The page after $page, or null when $page is the last (operationId `list-partial-link`).
+     *
+     * Repeats list() with the page's `offset`, keeping the same filters and workspace. Kong's own `next`
+     * link is not followed (it drops filters on nested lists; spec-notes Q6).
+     *
+     * @param CountedPage<PartialLink> $page
+     *
+     * @return CountedPage<PartialLink>|null
+     *
+     * @throws KongApiException
+     */
+    #[Operation(Transport::METHOD_GET, '/partials/{PartialId}/links', 'list-partial-link', OperationScope::Both)]
+    public function nextPage(CountedPage $page, ?ListOptions $options = null): ?CountedPage
+    {
+        return $page->offset === null ? null : $this->list(($options ?? new ListOptions())->withOffset($page->offset));
+    }
 }

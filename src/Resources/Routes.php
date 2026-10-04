@@ -54,6 +54,24 @@ final readonly class Routes extends AbstractResource
     }
 
     /**
+     * The page after $page, or null when $page is the last (operationId `list-route`).
+     *
+     * Repeats list() with the page's `offset`, keeping the same filters and workspace. Kong's own `next`
+     * link is not followed (it drops filters on nested lists; spec-notes Q6).
+     *
+     * @param Page<Route> $page
+     *
+     * @return Page<Route>|null
+     *
+     * @throws KongApiException
+     */
+    #[Operation(Transport::METHOD_GET, '/routes', 'list-route', OperationScope::Both)]
+    public function nextPage(Page $page, ?ListOptions $options = null): ?Page
+    {
+        return $page->offset === null ? null : $this->list(($options ?? new ListOptions())->withOffset($page->offset));
+    }
+
+    /**
      * Get a Route by ID or name (operationId `get-route`).
      *
      * @throws KongApiException

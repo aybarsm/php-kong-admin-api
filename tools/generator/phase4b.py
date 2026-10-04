@@ -23,6 +23,9 @@ from resources import resource  # noqa: E402
 # --- Models ------------------------------------------------------------------------------------
 models.REFS.update({'Consumer': 'Consumer', 'ConsumerGroup': 'ConsumerGroup'})
 
+# Secrets the spec doesn't mark x-encrypted (spec-notes Q18).
+models.SENSITIVE.update({('KeyAuth', 'key'), ('Jwt', 'secret')})
+
 ENUMS = {
     ('Jwt', 'algorithm'): 'JwtAlgorithm',
     ('RateLimitingAdvancedOverride', 'config.window_type'): 'RateLimitWindowType',

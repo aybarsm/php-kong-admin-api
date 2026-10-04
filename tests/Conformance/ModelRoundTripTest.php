@@ -104,7 +104,34 @@ it('serialises every input exactly like its output DTO', function (): void {
     expect($checked)->toBeGreaterThan(10);
 });
 
-it('redacts every x-encrypted property in __debugInfo', function (): void {
+/**
+ * Secrets the spec doesn't mark `x-encrypted`, redacted anyway (spec-notes Q18). Pinned here so the
+ * generator's SENSITIVE tables can't drift silently.
+ *
+ * @return array<string, list<string>> class short name => camelCase properties
+ */
+function reviewedSecrets(): array
+{
+    return [
+        'KeyAuth' => ['key'],
+        'KeyAuthInput' => ['key'],
+        'Jwt' => ['secret'],
+        'JwtInput' => ['secret'],
+        'RbacUserInput' => ['userToken'],
+        'AdminRegistrationInput' => ['password', 'token'],
+        'AdminPasswordResetInput' => ['password', 'token'],
+        'LicenseReportLicense' => ['licenseKey'],
+        'EventHookConfig' => ['secret'],
+        'WebhookInput' => ['configSecret'],
+        'Keyring' => ['key'],
+        'KeyringInput' => ['key'],
+        'KeyringImportInput' => ['key'],
+        'KeyringVaultSyncInput' => ['token'],
+        'KeyringImportResult' => ['password'],
+    ];
+}
+
+it('redacts every x-encrypted property and every reviewed secret in __debugInfo', function (): void {
     $checked = 0;
     foreach (SourceClasses::in('Models') as $class) {
         $attributes = $class->getAttributes(Schema::class);
@@ -114,7 +141,7 @@ it('redacts every x-encrypted property in __debugInfo', function (): void {
         $properties = Spec::schema($attributes[0]->newInstance()->name)['properties'] ?? [];
         expect($properties)->toBeArray();
         /** @var array<string, array<string, mixed>> $properties */
-        $encrypted = [];
+        $encrypted = reviewedSecrets()[$class->getShortName()] ?? [];
         foreach ($properties as $wire => $definition) {
             if (($definition['x-encrypted'] ?? false) === true) {
                 $encrypted[] = lcfirst(str_replace('_', '', ucwords($wire, '_')));
@@ -145,4 +172,17 @@ it('redacts every x-encrypted property in __debugInfo', function (): void {
     }
 
     expect($checked)->toBeGreaterThan(0);
+});
+
+it('lists only existing properties as reviewed secrets', function (): void {
+    foreach (reviewedSecrets() as $short => $properties) {
+        $fqcn = 'Aybarsm\\Kong\\AdminApi\\Models\\' . $short;
+        expect(class_exists($fqcn))->toBeTrue($fqcn);
+        /** @var class-string $fqcn */
+        $class = new ReflectionClass($fqcn);
+
+        foreach ($properties as $property) {
+            expect($class->hasProperty($property))->toBeTrue("$short::\\$$property");
+        }
+    }
 });

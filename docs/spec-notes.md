@@ -1,8 +1,8 @@
 # Spec notes: Kong Admin API v3.16 (`resources/kong-admin-api/v3.16.json`)
 
 This is a register of anomalies, open questions and blocked operations in the spec.
-Every entry here comes from the spec. None comes from web docs or memory of Kong.
-Status is **open** until the maintainer decides. "Default" is how the code behaves meanwhile.
+Entries come from the spec. Where a decision used an approved secondary source (Kong's open-source code, Q4–Q6), it says so.
+Every question below was reviewed and decided with the maintainer on 2026-10-04. New anomalies are added as **open** until decided.
 
 ## JSON vs YAML (accepted 2026-10-04)
 
@@ -10,30 +10,42 @@ Status is **open** until the maintainer decides. "Default" is how the code behav
 All values are numerically identical to `v3.16.json`, and none of the differences touch paths, methods, parameters, property names, types or enums.
 This is accepted as a converter artifact, and `v3.16.json` is canonical. Any other difference means stop and ask.
 
-## Open questions
+## Sources consulted beyond the spec (approved 2026-10-04)
 
-| # | Issue | Default | Status |
-|---|---|---|---|
-| Q1 | `Route` is `oneOf [RouteJson, RouteExpression]` with no discriminator. | Two DTOs share a `Route` interface. A route is a `RouteExpression` iff `expression` is present and non-null (`Models\RouteFactory`). | **decided** 2026-10-04: default applied |
-| Q2 | `/{workspace}/rbac/roles/{RBACRoleIdForNestedEntities}/endpoints/{workspace}{RBACRoleEndpointId}` has two adjacent parameters with no separator. | **Blocked** (see list below). | **deferred** to the very end of package development (decided 2026-10-04) |
-| Q3 | `/workspace_/groups…` uses the literal segment `workspace_`. | Implement it literally. | open |
-| Q4 | 400/409 error bodies for entity validation and uniqueness are undefined. Only `{message, status}` (`BaseError`) exists. | The exception carries the status and `message` when present. The raw decoded body is in `details` and is not spec-defined. | open |
-| Q5 | The spec doesn't say whether `offset` is omitted or null on the last page. | `all()` stops when `offset` is absent or null, and throws if an offset repeats. | open |
-| Q6 | The `next` URI format (absolute or relative) is unspecified. | Exposed on `Page`, never followed. | open |
-| Q7 | `/tags`, `/tags/{tag}` and `/admins` return `next` but declare no `size`/`offset`/`tags` parameters. | `list()` takes no options. No `all()`. | open |
-| Q8 | `GET /licenses` (a list) returns a single `LicenseResponse`. `POST /event-hooks` returns the list envelope. `GET /admins/{id}/workspaces` returns a single `Workspace`. | Implement the literal return types and flag them in PHPDoc. | open |
-| Q9 | `GET /consumer_groups/{id}?list_consumers=true`: the wrapper only has `consumer_group`. | `ConsumerGroups::get($id, $listConsumers)` returns `ConsumerGroupInsideWrapper` (`consumerGroup` only) and sends the flag. No extra field is modeled. | open |
-| Q10 | *(Corrected 2026-10-04: the first inventory missed this `requestBodies` `$ref` and wrongly said there was no body.)* `PUT /consumer_groups/{id}/overrides/plugins/rate-limiting-advanced` takes `requestBodies.consumerGroupsConfigResponse`, whose properties are literal dotted keys (`config.limit`, `config.window_size`, `config.retry_after_jitter_max`, `config.window_type`) typed as `string`. The 201 response nests the same values under `config` as integers (`limit: int[]`, `window_size: int[]`). | `RateLimitingAdvancedOverrideInput` sends the dotted keys exactly as the spec names them. Callers can pass an array for any other shape. The response maps to `RateLimitingAdvancedOverride`. | open |
-| Q11 | `UpstreamIdForTarget`'s description says "ID or target of the Target to lookup". | Follow the parameter name: `$upstreamId`. | open |
-| Q12 | 403 is never defined in the spec. | Maps to the base `KongApiException`. | open |
-| Q13 | `Partial*.config` is fully specified and deeply nested. | Kept as a plain array (`array<array-key, mixed>`) in v1. Top-level fields are typed. | **accepted for now** (2026-10-04) |
-| Q14 | `Target.created_at`/`updated_at` are `number`; everything else uses `integer`. | Follow the spec: `?float`. | open |
-| Q15 | `POST /admins` (200), `register`, `password_resets`, `PATCH /workspace_/groups/{groups}`, and several Keyring/Debug operations have no response schema. `GET /admins/{adminNameOrId}/roles` declares only `{"description":"OK"}`. | Action methods return `void`. `Admins::roles()` returns the decoded JSON object untyped (`array<string, mixed>`), since a `void` getter would be useless. | open |
-| Q16 | Neither php-pro source gives a mutation threshold. | `--min=80`. | open |
-| Q17 | `ListSourcesResponse.data` and `ListSourceEventsResponse.data` (event-hook sources) spell out an example (`balancer.health`, `crud.acls`, `create/update/delete`) as if it were a fixed object, but they describe dynamic maps. | `data` is kept as a plain array (`array<array-key, mixed>`) on `EventHookSources` and `EventHookSourceEvents`, as with Partial `config` (Q13). | open |
-| Q18 | `RBACUser.user_token` is `writeOnly` and evidently a secret, but the spec does not mark it `x-encrypted` (nor `AdminRegistrationInput.password`/`token`, `AdminPasswordResetInput.password`/`token`, `LicenseReport.license.license_key`, the keyring `key` material in `Keyring`/`KeyringInput`/`KeyringImportInput`, `KeyringVaultSyncInput.token`, or `KeyringImportResult.password`). `Keyring::recover()` marks its PEM argument `#[SensitiveParameter]` because it is a method argument, not a DTO field. | Spec-only rule: not redacted in `__debugInfo()` and no `#[SensitiveParameter]`. | open |
-| Q20 | `POST /keyring/recover` accepts only `multipart/form-data` (`recovery_private_key`, binary). `POST /config` accepts JSON, YAML or multipart. | `Keyring::recover()` sends multipart, the only spec option. `DeclarativeConfig::apply()` sends JSON only. | open |
-| Q19 | RBAC users and roles exist twice: global `/rbac_users`, `/rbac_roles` and workspace-only `/{workspace}/rbac/users`, `/{workspace}/rbac/roles` (with their nested groups, roles, entities and endpoints). | Two explicit resource families instead of a runtime switch: `rbacUsers()`/`rbacRoles()` (global) and `workspaceRbacUsers()`/`workspaceRbacRoles()` (always `/{workspace}`-prefixed, default `default`). | open |
+During the open-question review, the maintainer approved two secondary sources. Any further use needs approval again.
+
+- **developer.konghq.com Admin API EE 3.16 reference.** It renders `Kong/developer.konghq.com: api-specs/gateway/admin-ee/3.16/openapi.yaml` (commit `3e1fb79`, "Release: Gateway 3.16", 2026-09-15). A deep comparison found it **identical** to `resources/kong-admin-api/v3.16.json`, so it adds no information.
+- **Kong open-source code (`github.com/Kong/kong`)**, used for runtime behaviour in Q4–Q6. There is no open-source 3.16 tag; tag `3.9.3` and `master` (3.10.0) were read and agree on everything used here:
+  - `kong/api/endpoints.lua`: pagination and `handle_error`;
+  - `kong/db/errors.lua`: error codes and the error table;
+  - `kong/tools/http.lua`: default error bodies.
+
+  Enterprise-only resources (RBAC, workspace groups, licenses, event hooks, consumer groups, keyring) are not in that tree and remain spec-only.
+
+## Decisions (reviewed with the maintainer, 2026-10-04)
+
+| # | Issue | Decision |
+|---|---|---|
+| Q1 | `Route` is `oneOf [RouteJson, RouteExpression]` without a discriminator. | Two DTOs behind a `Route` interface. `RouteFactory` picks `RouteExpression` when `expression` is present and non-null. |
+| Q2 | `/{workspace}/rbac/roles/{RBACRoleIdForNestedEntities}/endpoints/{workspace}{RBACRoleEndpointId}` has two adjacent parameters, and `RBACRoleEndpoint` has no `id` property (it is identified by `workspace` + `endpoint`). The template is malformed. | **Kept blocked** (list below): a path shown to be wrong is not sent. Supported routes are the global `rbacRoleEndpoints()` for single items, and `workspaceRbacRoles()->endpoints($role)->list()/create()`. Follow the spec once Kong fixes it. |
+| Q3 | `/workspace_/groups…` uses a literal `workspace_` segment. | **Literal path, flagged.** `WorkspaceGroups::PATH = '/workspace_/groups'` drives both requests and attributes. The `$groups` parameter keeps the spec's name. There is an `@warning` on the class (not `@experimental`) and a README note. It is never workspace-prefixed. A future spec revision is a one-line change. |
+| Q4 | Validation/conflict bodies beyond `{message, status}` are undefined in the spec. | From Kong core: database errors return `{code, name, message, fields}` (`options` for invalid options). `KongApiException` adds `errorCode`, `errorName` and `errorFields` (read leniently) and keeps the raw `details`. |
+| Q5 | The end of pagination is unspecified. | Confirmed in Kong core: the last page omits `offset` and has `next: null`. `all()` stops when `offset` is absent or null, and keeps the repeated-offset guard. |
+| Q6 | The `next` URI format is unspecified. | Kong core builds a root-relative path. Nested lists drop `tags` and `size`, and the open-source build adds no workspace prefix. `next` stays exposed but isn't followed. New `nextPage($page, $options)` on every paginated resource repeats `list()` with the page's `offset`. |
+| Q7 | `/tags`, `/tags/{tag}`, `/admins` and `/event-hooks` return `next` but declare no paging parameters. | Spec-literal: `list()` takes no options, with no `all()` and no `nextPage()`. |
+| Q8 | `GET /licenses` returns one license; `POST`/ping/test on event hooks return the list envelope; `GET /admins/{id}/workspaces` returns one `Workspace`. | Literal types, flagged in PHPDoc and in the README "Spec quirks" section. |
+| Q9 | `list_consumers` on `GET /consumer_groups/{id}` has no modelled result. | Kept: send the flag and return `ConsumerGroupInsideWrapper`. Members come from `consumerGroups()->consumers($group)`. |
+| Q10 | The rate-limiting override body uses literal dotted keys typed as strings, while the response nests integers. | Spec-literal input with the dotted keys, listed in README "Spec quirks". Arrays allow any other shape. |
+| Q11 | `UpstreamIdForTarget` description copy slip. | Kept `$upstreamId`, following the parameter name. |
+| Q12 | 403 isn't defined in the spec. | New `ForbiddenException` (extends `KongApiException`) for 403. |
+| Q13 | Partial `config` is deeply specified. | Final for v1: a plain `array<array-key, mixed>`; top-level fields are typed. |
+| Q14 | `Target` timestamps are `number`. | Kept `?float` per spec. |
+| Q15 | Operations without a response schema. | Kept: actions return `void`; `Admins::roles()` returns the decoded object. |
+| Q16 | Mutation threshold. | Kept at 80% (runs on `main` and weekly). |
+| Q17 | Event-hook sources `data` is a dynamic map described by example. | Kept as a plain array. |
+| Q18 | Secrets the spec doesn't mark `x-encrypted`. | A reviewed list in the generator (`models.SENSITIVE`) gives them `ENCRYPTED`/`__debugInfo()` redaction and `#[SensitiveParameter]`, pinned by `ModelRoundTripTest::reviewedSecrets()`. The list: KeyAuth `key`, Jwt `secret`, RbacUser `user_token`, admin registration and password-reset `password`/`token`, keyring `key` material, Vault-sync `token`, KeyringImportResult `password`, license report `license_key`, event-hook and webhook `secret`. |
+| Q19 | RBAC users and roles exist globally and under `/{workspace}`. | Kept as two explicit families: `rbacUsers()`/`rbacRoles()` and `workspaceRbacUsers()`/`workspaceRbacRoles()`. |
+| Q20 | `/keyring/recover` is multipart-only; `/config` accepts JSON, YAML or multipart. | `recover()` sends multipart. `/config` gets `apply(array)` (JSON) plus `applyYaml(string)` (`application/yaml`). |
 
 ## Blocked operations
 

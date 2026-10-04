@@ -49,6 +49,24 @@ final readonly class RbacUserGroups extends AbstractResource
     }
 
     /**
+     * The page after $page, or null when $page is the last (operationId `list-rbac_user_group`).
+     *
+     * Repeats list() with the page's `offset`, keeping the same filters and workspace. Kong's own `next`
+     * link is not followed (it drops filters on nested lists; spec-notes Q6).
+     *
+     * @param Page<RbacUserGroup> $page
+     *
+     * @return Page<RbacUserGroup>|null
+     *
+     * @throws KongApiException
+     */
+    #[Operation(Transport::METHOD_GET, '/rbac_user_groups', 'list-rbac_user_group', OperationScope::GlobalOnly)]
+    public function nextPage(Page $page, ?ListOptions $options = null): ?Page
+    {
+        return $page->offset === null ? null : $this->list(($options ?? new ListOptions())->withOffset($page->offset));
+    }
+
+    /**
      * Get an RBAC user group by ID (operationId `get-rbac_user_group`).
      *
      * @throws KongApiException

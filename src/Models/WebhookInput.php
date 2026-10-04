@@ -8,6 +8,7 @@ use Aybarsm\Kong\AdminApi\Attributes\Schema;
 use Aybarsm\Kong\AdminApi\Contracts\Input;
 use Aybarsm\Kong\AdminApi\Internal\Data;
 use Override;
+use SensitiveParameter;
 
 /**
  * Request body for `POST /event-hooks` (spec request body `AddWebhook`).
@@ -17,6 +18,9 @@ use Override;
 #[Schema('#/components/requestBodies/AddWebhook/content/application~1json/schema')]
 final readonly class WebhookInput implements Input
 {
+    /** Properties the spec marks `x-encrypted` (plus reviewed secrets, spec-notes Q18); redacted in __debugInfo(). */
+    private const array ENCRYPTED = ['configSecret'];
+
     /**
      * @param string|null         $configUrl       The URL the JSON POST request is made to with the event data as the payload. Required by the spec on create.
      * @param string|null         $handler         A string describing one of four handler options: webhook, webhook-custom, log, or lambda. Required by the spec on create.
@@ -33,6 +37,7 @@ final readonly class WebhookInput implements Input
         public ?string $handler = null,
         public ?string $source = null,
         public ?WebhookHeaders $configHeaders = null,
+        #[SensitiveParameter]
         public ?string $configSecret = null,
         public ?string $configSslVerify = null,
         public ?string $event = null,
@@ -58,5 +63,22 @@ final readonly class WebhookInput implements Input
             'on_change' => $this->onChange,
             'snooze' => $this->snooze,
         ]);
+    }
+
+    /**
+     * Redacts `x-encrypted` values.
+     *
+     * @return array<string, mixed>
+     */
+    public function __debugInfo(): array
+    {
+        $values = get_object_vars($this);
+        foreach (self::ENCRYPTED as $property) {
+            if ($values[$property] !== null) {
+                $values[$property] = '***';
+            }
+        }
+
+        return $values;
     }
 }

@@ -97,6 +97,18 @@ def resource(cfg):
         out += [f'     * @return Generator<int, {ret}>', '     *', '     * @throws KongApiException', '     */', opattr('GET', coll),
                 f'    public function all(?ListOptions $options = null{lq_sig}): Generator', '    {',
                 f'        return $this->walk({path_expr(sc, False)}, {mapper}, $options{lq_query});', '    }', '']
+    if 'list' in methods:
+        lq_pass = ''.join(f', ${a}' for a, w, t, d in lq)
+        out += ['    /**', f'     * The page after $page, or null when $page is the last (operationId `{spec_op("GET", coll)}`).', '     *',
+                '     * Repeats list() with the page\'s `offset`, keeping the same filters and workspace. Kong\'s own `next`',
+                '     * link is not followed (it drops filters on nested lists; spec-notes Q6).', '     *',
+                f'     * @param Page<{ret}> $page']
+        if lq_doc:
+            out += lq_doc
+        out += ['     *', f'     * @return Page<{ret}>|null', '     *', '     * @throws KongApiException', '     */', opattr('GET', coll),
+                f'    public function nextPage(Page $page, ?ListOptions $options = null{lq_sig}): ?Page', '    {',
+                f'        return $page->offset === null ? null : $this->list(($options ?? new ListOptions())->withOffset($page->offset){lq_pass});',
+                '    }', '']
     item_throw = f'     * @throws InvalidArgumentException when ${item_arg} is empty'
     if 'get' in methods:
         sc = scope('GET', item)

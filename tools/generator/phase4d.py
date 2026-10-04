@@ -23,6 +23,11 @@ JSON = '/content/application~1json/schema'
 
 ENUMS = {}
 
+# Secrets the spec doesn't mark x-encrypted (spec-notes Q18).
+models.SENSITIVE.update({
+    ('Keyring', 'key'), ('KeyringImport', 'key'), ('KeyringVaultSync', 'token'), ('KeyringImportResult', 'password'),
+})
+
 NESTED = {
     ('KongInfo', 'pids'): 'KongInfoPids',
     ('KongInfo', 'plugins'): 'KongInfoPlugins',

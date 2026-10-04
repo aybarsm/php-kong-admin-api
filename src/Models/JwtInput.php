@@ -10,6 +10,7 @@ use Aybarsm\Kong\AdminApi\Enums\JwtAlgorithm;
 use Aybarsm\Kong\AdminApi\Internal\Data;
 use Aybarsm\Kong\AdminApi\Models\Shared\ForeignKey;
 use Override;
+use SensitiveParameter;
 
 /**
  * Request body for creating, updating or upserting a JWT credential
@@ -21,6 +22,9 @@ use Override;
 #[Schema('JWT')]
 final readonly class JwtInput implements Input
 {
+    /** Properties the spec marks `x-encrypted` (plus reviewed secrets, spec-notes Q18); redacted in __debugInfo(). */
+    private const array ENCRYPTED = ['secret'];
+
     /**
      * @param JwtAlgorithm|null      $algorithm
      * @param ForeignKey|string|null $consumer
@@ -38,6 +42,7 @@ final readonly class JwtInput implements Input
         public ?string $id = null,
         public ?string $key = null,
         public ?string $rsaPublicKey = null,
+        #[SensitiveParameter]
         public ?string $secret = null,
         public ?array $tags = null,
     ) {
@@ -59,5 +64,22 @@ final readonly class JwtInput implements Input
             'secret' => $this->secret,
             'tags' => $this->tags,
         ]);
+    }
+
+    /**
+     * Redacts `x-encrypted` values.
+     *
+     * @return array<string, mixed>
+     */
+    public function __debugInfo(): array
+    {
+        $values = get_object_vars($this);
+        foreach (self::ENCRYPTED as $property) {
+            if ($values[$property] !== null) {
+                $values[$property] = '***';
+            }
+        }
+
+        return $values;
     }
 }

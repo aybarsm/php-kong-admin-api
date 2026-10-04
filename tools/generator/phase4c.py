@@ -25,6 +25,15 @@ from resources import resource  # noqa: E402
 PARTIALS = [('PartialRedisCe', 'redis-ce'), ('PartialRedisEe', 'redis-ee'), ('PartialVectordb', 'vectordb'),
             ('PartialEmbeddings', 'embeddings'), ('PartialModel', 'model')]
 
+# Secrets the spec doesn't mark x-encrypted (spec-notes Q18).
+models.SENSITIVE.update({
+    ('RbacUser', 'user_token'),
+    ('AdminRegistration', 'password'), ('AdminRegistration', 'token'),
+    ('AdminPasswordReset', 'password'), ('AdminPasswordReset', 'token'),
+    ('LicenseReport', 'license.license_key'),
+    ('EventHook', 'config.secret'), ('Webhook', 'config.secret'),
+})
+
 # Partial `config` stays a plain array in v1 (spec-notes Q13).
 models.FREEFORM.update((cls, 'config') for cls, _ in PARTIALS)
 

@@ -16,6 +16,9 @@ use Override;
 #[Schema('KeyAuth')]
 final readonly class KeyAuth implements Model
 {
+    /** Properties the spec marks `x-encrypted` (plus reviewed secrets, spec-notes Q18); redacted in __debugInfo(). */
+    private const array ENCRYPTED = ['key'];
+
     /**
      * @param ForeignKey|null   $consumer
      * @param int|null          $createdAt Unix epoch when the resource was created.
@@ -66,5 +69,22 @@ final readonly class KeyAuth implements Model
             'tags' => $this->tags,
             'ttl' => $this->ttl,
         ]);
+    }
+
+    /**
+     * Redacts `x-encrypted` values.
+     *
+     * @return array<string, mixed>
+     */
+    public function __debugInfo(): array
+    {
+        $values = get_object_vars($this);
+        foreach (self::ENCRYPTED as $property) {
+            if ($values[$property] !== null) {
+                $values[$property] = '***';
+            }
+        }
+
+        return $values;
     }
 }

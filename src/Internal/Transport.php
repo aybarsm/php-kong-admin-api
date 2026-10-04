@@ -7,6 +7,7 @@ namespace Aybarsm\Kong\AdminApi\Internal;
 use Aybarsm\Kong\AdminApi\Config\ClientConfig;
 use Aybarsm\Kong\AdminApi\Enums\OperationScope;
 use Aybarsm\Kong\AdminApi\Exceptions\ConflictException;
+use Aybarsm\Kong\AdminApi\Exceptions\ForbiddenException;
 use Aybarsm\Kong\AdminApi\Exceptions\InvalidArgumentException;
 use Aybarsm\Kong\AdminApi\Exceptions\KongApiException;
 use Aybarsm\Kong\AdminApi\Exceptions\NotFoundException;
@@ -184,6 +185,23 @@ final readonly class Transport
     }
 
     /**
+     * Sends a request with a raw, pre-serialised body of the given content type (e.g. `application/yaml`) and
+     * returns the decoded JSON payload of a 2xx response.
+     *
+     * @return array<array-key, mixed>
+     *
+     * @throws KongApiException
+     */
+    public function raw(string $method, string $path, string $body, string $contentType): array
+    {
+        $request = $this->request($method, $path, [], null)
+            ->withHeader('Content-Type', $contentType)
+            ->withBody($this->factory->createStream($body));
+
+        return $this->decode($this->dispatch($request, $method, $path), $method, $path);
+    }
+
+    /**
      * Sends a `multipart/form-data` request (for operations whose spec body is multipart only) and returns
      * the decoded JSON payload of a 2xx response.
      *
@@ -325,13 +343,22 @@ final readonly class Transport
         $message = sprintf('%s %s failed with HTTP %d', $method, $path, $status)
             . ($kongMessage !== null ? ': ' . $kongMessage : '.');
 
+        // Kong's core error table: {code, name, message, fields|options} (spec-notes Q4).
+        $code = isset($details['code']) && is_int($details['code']) ? $details['code'] : null;
+        $name = isset($details['name']) && is_string($details['name']) ? $details['name'] : null;
+        $fields = $details['fields'] ?? $details['options'] ?? [];
+        $fields = is_array($fields) ? $fields : [];
+
+        $args = [$message, $status, $kongMessage, $details, $method, $path, null, $code, $name, $fields];
+
         return match (true) {
-            $status === 400 => new ValidationException($message, $status, $kongMessage, $details, $method, $path),
-            $status === 401 => new UnauthorizedException($message, $status, $kongMessage, $details, $method, $path),
-            $status === 404 => new NotFoundException($message, $status, $kongMessage, $details, $method, $path),
-            $status === 409 => new ConflictException($message, $status, $kongMessage, $details, $method, $path),
-            $status >= 500 => new ServerException($message, $status, $kongMessage, $details, $method, $path),
-            default => new KongApiException($message, $status, $kongMessage, $details, $method, $path),
+            $status === 400 => new ValidationException(...$args),
+            $status === 401 => new UnauthorizedException(...$args),
+            $status === 403 => new ForbiddenException(...$args),
+            $status === 404 => new NotFoundException(...$args),
+            $status === 409 => new ConflictException(...$args),
+            $status >= 500 => new ServerException(...$args),
+            default => new KongApiException(...$args),
         };
     }
 

@@ -53,6 +53,24 @@ final readonly class ConsumerGroupConsumers extends AbstractResource
     }
 
     /**
+     * The page after $page, or null when $page is the last (operationId `list-consumers-for-consumer-group`).
+     *
+     * Repeats list() with the page's `offset`, keeping the same filters and workspace. Kong's own `next`
+     * link is not followed (it drops filters on nested lists; spec-notes Q6).
+     *
+     * @param Page<Consumer> $page
+     *
+     * @return Page<Consumer>|null
+     *
+     * @throws KongApiException
+     */
+    #[Operation(Transport::METHOD_GET, '/consumer_groups/{ConsumerGroupId}/consumers', 'list-consumers-for-consumer-group', OperationScope::Both)]
+    public function nextPage(Page $page, ?ListOptions $options = null): ?Page
+    {
+        return $page->offset === null ? null : $this->list(($options ?? new ListOptions())->withOffset($page->offset));
+    }
+
+    /**
      * Add a membership (operationId `add-consumer-to-group`).
      *
      * @param ConsumerGroupMemberInput|array<string, mixed> $membership

@@ -11,7 +11,7 @@ use Aybarsm\Kong\AdminApi\Internal\Data;
  * A page whose envelope also reports a total: the spec's `{count, data, next, offset}`
  * (e.g. `GET /partials/{PartialId}/links`).
  *
- * @template T
+ * @template-covariant T
  */
 final readonly class CountedPage
 {

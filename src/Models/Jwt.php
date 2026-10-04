@@ -17,6 +17,9 @@ use Override;
 #[Schema('JWT')]
 final readonly class Jwt implements Model
 {
+    /** Properties the spec marks `x-encrypted` (plus reviewed secrets, spec-notes Q18); redacted in __debugInfo(). */
+    private const array ENCRYPTED = ['secret'];
+
     /**
      * @param JwtAlgorithm|null $algorithm
      * @param ForeignKey|null   $consumer
@@ -75,5 +78,22 @@ final readonly class Jwt implements Model
             'secret' => $this->secret,
             'tags' => $this->tags,
         ]);
+    }
+
+    /**
+     * Redacts `x-encrypted` values.
+     *
+     * @return array<string, mixed>
+     */
+    public function __debugInfo(): array
+    {
+        $values = get_object_vars($this);
+        foreach (self::ENCRYPTED as $property) {
+            if ($values[$property] !== null) {
+                $values[$property] = '***';
+            }
+        }
+
+        return $values;
     }
 }

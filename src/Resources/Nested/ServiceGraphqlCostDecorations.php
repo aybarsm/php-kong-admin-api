@@ -50,6 +50,24 @@ final readonly class ServiceGraphqlCostDecorations extends AbstractResource
     }
 
     /**
+     * The page after $page, or null when $page is the last (operationId `list-graphql-rate-limiting-advanced-cost-with-service`).
+     *
+     * Repeats list() with the page's `offset`, keeping the same filters and workspace. Kong's own `next`
+     * link is not followed (it drops filters on nested lists; spec-notes Q6).
+     *
+     * @param Page<GraphqlCostDecoration> $page
+     *
+     * @return Page<GraphqlCostDecoration>|null
+     *
+     * @throws KongApiException
+     */
+    #[Operation(Transport::METHOD_GET, '/services/{ServiceIdOrName}/graphql-rate-limiting-advanced/costs', 'list-graphql-rate-limiting-advanced-cost-with-service', OperationScope::Both)]
+    public function nextPage(Page $page, ?ListOptions $options = null): ?Page
+    {
+        return $page->offset === null ? null : $this->list(($options ?? new ListOptions())->withOffset($page->offset));
+    }
+
+    /**
      * Get a GraphQL cost decoration by ID (operationId `get-graphql-rate-limiting-advanced-cost-with-service`).
      *
      * @throws KongApiException

@@ -16,14 +16,23 @@ use Aybarsm\Kong\AdminApi\Models\WorkspaceGroupRole;
 
 /**
  * Workspace groups (spec tag "Workspaces"): `/workspace_/groups`, `/workspace_/groups/{groups}` and
- * `/workspace_/groups/{groups}/roles`.
+ * `/workspace_/groups/{groups}/roles`. These are separate from RBAC Groups (`/groups`) and from Consumer Groups
+ * (`/consumer_groups`), and are never `/{workspace}`-prefixed.
  *
- * The literal path segment `workspace_` is implemented exactly as the spec names it (spec-notes Q3).
+ * Enterprise-only. Paths are taken verbatim from the Gateway Admin EE 3.16 spec, including the literal prefix
+ * `/workspace_/groups` (not `/workspaces/{workspace}/groups` and not `/groups`). The rendered spec and its curl
+ * examples use that string. It is not in Kong open-source and has not been verified against a running Kong
+ * Enterprise node. If a future spec revision changes the path, follow the spec; do not keep a local rewrite.
+ * (spec-notes Q3)
+ *
  * List responses are bare JSON arrays, not the `{data, next, offset}` envelope.
+ *
+ * @warning The `/workspace_/groups` path is taken verbatim from the spec and is unverified against a running node.
  */
 final readonly class WorkspaceGroups extends AbstractResource
 {
-    private const string SEGMENT = 'workspace_';
+    /** The spec's path prefix for this resource; a spec revision that changes it is a one-line change here. */
+    public const string PATH = '/workspace_/groups';
 
     /**
      * List the groups (operationId `list-groups`).
@@ -32,10 +41,10 @@ final readonly class WorkspaceGroups extends AbstractResource
      *
      * @throws KongApiException
      */
-    #[Operation(Transport::METHOD_GET, '/workspace_/groups', 'list-groups', OperationScope::GlobalOnly)]
+    #[Operation(Transport::METHOD_GET, self::PATH, 'list-groups', OperationScope::GlobalOnly)]
     public function list(): array
     {
-        return array_map(WorkspaceGroup::fromArray(...), $this->items(Transport::METHOD_GET, $this->path(OperationScope::GlobalOnly, self::SEGMENT, 'groups')));
+        return array_map(WorkspaceGroup::fromArray(...), $this->items(Transport::METHOD_GET, $this->path(OperationScope::GlobalOnly, ...self::segments())));
     }
 
     /**
@@ -45,12 +54,12 @@ final readonly class WorkspaceGroups extends AbstractResource
      *
      * @throws KongApiException
      */
-    #[Operation(Transport::METHOD_POST, '/workspace_/groups', 'create-group-in-workspace', OperationScope::GlobalOnly)]
+    #[Operation(Transport::METHOD_POST, self::PATH, 'create-group-in-workspace', OperationScope::GlobalOnly)]
     public function create(WorkspaceGroupInput|array $group): WorkspaceGroup
     {
         return WorkspaceGroup::fromArray($this->object(
             Transport::METHOD_POST,
-            $this->path(OperationScope::GlobalOnly, self::SEGMENT, 'groups'),
+            $this->path(OperationScope::GlobalOnly, ...self::segments()),
             body: $group,
         ));
     }
@@ -62,12 +71,12 @@ final readonly class WorkspaceGroups extends AbstractResource
      * @param WorkspaceGroupInput|array<string, mixed> $group
      *
      * @throws KongApiException
-     * @throws InvalidArgumentException when $groupIdOrName is empty
+     * @throws InvalidArgumentException when $groups is empty
      */
-    #[Operation(Transport::METHOD_PATCH, '/workspace_/groups/{groups}', 'update-workspace-group', OperationScope::GlobalOnly)]
-    public function update(string $groupIdOrName, WorkspaceGroupInput|array $group): void
+    #[Operation(Transport::METHOD_PATCH, self::PATH . '/{groups}', 'update-workspace-group', OperationScope::GlobalOnly)]
+    public function update(string $groups, WorkspaceGroupInput|array $group): void
     {
-        $this->none(Transport::METHOD_PATCH, $this->path(OperationScope::GlobalOnly, self::SEGMENT, 'groups', $groupIdOrName), body: $group);
+        $this->none(Transport::METHOD_PATCH, $this->path(OperationScope::GlobalOnly, ...[...self::segments(), $groups]), body: $group);
     }
 
     /**
@@ -76,14 +85,14 @@ final readonly class WorkspaceGroups extends AbstractResource
      * @return list<WorkspaceGroupRole>
      *
      * @throws KongApiException
-     * @throws InvalidArgumentException when $groupIdOrName is empty
+     * @throws InvalidArgumentException when $groups is empty
      */
-    #[Operation(Transport::METHOD_GET, '/workspace_/groups/{groups}/roles', 'list-group-roles', OperationScope::GlobalOnly)]
-    public function roles(string $groupIdOrName): array
+    #[Operation(Transport::METHOD_GET, self::PATH . '/{groups}/roles', 'list-group-roles', OperationScope::GlobalOnly)]
+    public function roles(string $groups): array
     {
         return array_map(
             WorkspaceGroupRole::fromArray(...),
-            $this->items(Transport::METHOD_GET, $this->path(OperationScope::GlobalOnly, self::SEGMENT, 'groups', $groupIdOrName, 'roles')),
+            $this->items(Transport::METHOD_GET, $this->path(OperationScope::GlobalOnly, ...[...self::segments(), $groups, 'roles'])),
         );
     }
 
@@ -93,14 +102,14 @@ final readonly class WorkspaceGroups extends AbstractResource
      * @param GroupRoleInput|array<string, mixed> $role
      *
      * @throws KongApiException
-     * @throws InvalidArgumentException when $groupIdOrName is empty
+     * @throws InvalidArgumentException when $groups is empty
      */
-    #[Operation(Transport::METHOD_POST, '/workspace_/groups/{groups}/roles', 'create-role-to-group', OperationScope::GlobalOnly)]
-    public function addRole(string $groupIdOrName, GroupRoleInput|array $role): WorkspaceGroupRole
+    #[Operation(Transport::METHOD_POST, self::PATH . '/{groups}/roles', 'create-role-to-group', OperationScope::GlobalOnly)]
+    public function addRole(string $groups, GroupRoleInput|array $role): WorkspaceGroupRole
     {
         return WorkspaceGroupRole::fromArray($this->object(
             Transport::METHOD_POST,
-            $this->path(OperationScope::GlobalOnly, self::SEGMENT, 'groups', $groupIdOrName, 'roles'),
+            $this->path(OperationScope::GlobalOnly, ...[...self::segments(), $groups, 'roles']),
             body: $role,
         ));
     }
@@ -112,12 +121,22 @@ final readonly class WorkspaceGroups extends AbstractResource
      * @throws KongApiException
      * @throws InvalidArgumentException when an argument is empty
      */
-    #[Operation(Transport::METHOD_DELETE, '/workspace_/groups/{groups}/roles', 'delete-role-from-group', OperationScope::GlobalOnly)]
-    public function removeRole(string $groupIdOrName, string $rbacRoleId, string $workspaceId): void
+    #[Operation(Transport::METHOD_DELETE, self::PATH . '/{groups}/roles', 'delete-role-from-group', OperationScope::GlobalOnly)]
+    public function removeRole(string $groups, string $rbacRoleId, string $workspaceId): void
     {
-        $this->none(Transport::METHOD_DELETE, $this->path(OperationScope::GlobalOnly, self::SEGMENT, 'groups', $groupIdOrName, 'roles'), [
+        $this->none(Transport::METHOD_DELETE, $this->path(OperationScope::GlobalOnly, ...[...self::segments(), $groups, 'roles']), [
             'rbac_role_id' => $this->required($rbacRoleId, 'RBAC role ID'),
             'workspace_id' => $this->required($workspaceId, 'Workspace ID'),
         ]);
+    }
+
+    /**
+     * PATH split into raw path segments (`['workspace_', 'groups']`), encoded by path().
+     *
+     * @return list<string>
+     */
+    private static function segments(): array
+    {
+        return explode('/', ltrim(self::PATH, '/'));
     }
 }

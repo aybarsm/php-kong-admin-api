@@ -49,6 +49,24 @@ final readonly class DegraphqlRoutes extends AbstractResource
     }
 
     /**
+     * The page after $page, or null when $page is the last (operationId `list-degraphql_route`).
+     *
+     * Repeats list() with the page's `offset`, keeping the same filters and workspace. Kong's own `next`
+     * link is not followed (it drops filters on nested lists; spec-notes Q6).
+     *
+     * @param Page<DegraphqlRoute> $page
+     *
+     * @return Page<DegraphqlRoute>|null
+     *
+     * @throws KongApiException
+     */
+    #[Operation(Transport::METHOD_GET, '/degraphql_routes', 'list-degraphql_route', OperationScope::Both)]
+    public function nextPage(Page $page, ?ListOptions $options = null): ?Page
+    {
+        return $page->offset === null ? null : $this->list(($options ?? new ListOptions())->withOffset($page->offset));
+    }
+
+    /**
      * Get a DeGraphQL route by ID or name (operationId `get-degraphql_route`).
      *
      * @throws KongApiException

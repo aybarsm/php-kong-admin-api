@@ -16,6 +16,9 @@ use Override;
 #[Schema('#/components/responses/CreateKeyringImportResponse/content/application~1json/schema')]
 final readonly class KeyringImportResult implements Model
 {
+    /** Properties the spec marks `x-encrypted` (plus reviewed secrets, spec-notes Q18); redacted in __debugInfo(). */
+    private const array ENCRYPTED = ['password'];
+
     /**
      * @param ForeignKey|null $consumer  The consumer object.
      * @param int|null        $createdAt Datetime representation of the keyring creation date.
@@ -62,5 +65,22 @@ final readonly class KeyringImportResult implements Model
             'password' => $this->password,
             'username' => $this->username,
         ]);
+    }
+
+    /**
+     * Redacts `x-encrypted` values.
+     *
+     * @return array<string, mixed>
+     */
+    public function __debugInfo(): array
+    {
+        $values = get_object_vars($this);
+        foreach (self::ENCRYPTED as $property) {
+            if ($values[$property] !== null) {
+                $values[$property] = '***';
+            }
+        }
+
+        return $values;
     }
 }

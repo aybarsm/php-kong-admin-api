@@ -51,6 +51,24 @@ final readonly class WorkspaceRbacUsers extends AbstractResource
     }
 
     /**
+     * The page after $page, or null when $page is the last (operationId `list-rbac_user-in-workspace`).
+     *
+     * Repeats list() with the page's `offset`, keeping the same filters and workspace. Kong's own `next`
+     * link is not followed (it drops filters on nested lists; spec-notes Q6).
+     *
+     * @param Page<RbacUser> $page
+     *
+     * @return Page<RbacUser>|null
+     *
+     * @throws KongApiException
+     */
+    #[Operation(Transport::METHOD_GET, '/{workspace}/rbac/users', 'list-rbac_user-in-workspace', OperationScope::WorkspaceOnly)]
+    public function nextPage(Page $page, ?ListOptions $options = null): ?Page
+    {
+        return $page->offset === null ? null : $this->list(($options ?? new ListOptions())->withOffset($page->offset));
+    }
+
+    /**
      * Get an RBAC user by ID (operationId `get-rbac_user-in-workspace`).
      *
      * @throws KongApiException

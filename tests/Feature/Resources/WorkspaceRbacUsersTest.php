@@ -70,6 +70,22 @@ it('lists one page with options and walks every page', function (): void {
         ->and($kong->requestAt(2)->getUri()->getPath())->toBe('/default/rbac/users');
 });
 
+it('fetches the next page with the same filters, and stops after the last', function (): void {
+    $kong = MockKong::queue(
+        MockKong::json(200, ['data' => [Fixture::get('rbac_user')], 'offset' => 'p2']),
+        MockKong::json(200, ['data' => [Fixture::get('rbac_user')]]),
+    );
+    $resource = workspaceRbacUsersUnderTest($kong->client);
+    $options = new ListOptions(size: 1, tags: TagFilter::allOf('a'));
+
+    $next = $resource->nextPage($resource->list($options), $options);
+
+    expect($next?->data)->toHaveCount(1)
+        ->and($kong->queryAt(1))->toBe(['size' => '1', 'offset' => 'p2', 'tags' => 'a'])
+        ->and($next === null ? 'none' : $resource->nextPage($next, $options))->toBeNull()
+        ->and($kong->requestCount())->toBe(2);
+});
+
 it('maps the response to RbacUser', function (): void {
     $kong = MockKong::queue(MockKong::json(200, Fixture::get('rbac_user')));
 

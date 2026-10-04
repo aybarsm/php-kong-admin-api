@@ -52,7 +52,20 @@ abstract readonly class AbstractResource
      */
     protected function object(string $method, string $path, array $query = [], Input|array|null $body = null): array
     {
-        $payload = $this->transport->json($method, $path, $query, $this->body($body));
+        return $this->asObject($this->transport->json($method, $path, $query, $this->body($body)), $method, $path);
+    }
+
+    /**
+     * Ensures a decoded payload is a JSON object (an empty `{}` decodes to `[]` and is accepted).
+     *
+     * @param array<array-key, mixed> $payload
+     *
+     * @return array<string, mixed>
+     *
+     * @throws UnexpectedResponseException
+     */
+    protected function asObject(array $payload, string $method, string $path): array
+    {
         if ($payload !== [] && array_is_list($payload)) {
             throw new UnexpectedResponseException(
                 sprintf('%s %s returned a JSON array where an object was expected.', $method, $path),

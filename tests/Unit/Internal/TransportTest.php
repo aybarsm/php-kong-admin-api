@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Aybarsm\Kong\AdminApi\Config\ClientConfig;
 use Aybarsm\Kong\AdminApi\Enums\OperationScope;
 use Aybarsm\Kong\AdminApi\Exceptions\ConflictException;
+use Aybarsm\Kong\AdminApi\Exceptions\ForbiddenException;
 use Aybarsm\Kong\AdminApi\Exceptions\InvalidArgumentException;
 use Aybarsm\Kong\AdminApi\Exceptions\KongApiException;
 use Aybarsm\Kong\AdminApi\Exceptions\NotFoundException;
@@ -61,7 +62,8 @@ it('maps HTTP error statuses to exception classes', function (int $status, strin
 })->with([
     'validation 400' => [400, ValidationException::class],
     'unauthorized 401' => [401, UnauthorizedException::class],
-    'forbidden 403 (not in spec)' => [403, KongApiException::class],
+    'forbidden 403 (spec-notes Q12)' => [403, ForbiddenException::class],
+    'payload too large 413' => [413, KongApiException::class],
     'not found 404' => [404, NotFoundException::class],
     'method not allowed 405' => [405, KongApiException::class],
     'conflict 409' => [409, ConflictException::class],
@@ -233,3 +235,52 @@ it('encodes query values: booleans as true/false and nulls omitted', function ()
     expect($transport->json('GET', '/x', ['list_consumers' => true, 'flag' => false, 'skip' => null, 'size' => 5, 'tags' => 'a,b']))
         ->toBe([]);
 });
+
+it('exposes the Kong core error table: code, name and nested fields (spec-notes Q4)', function (): void {
+    $body = [
+        'code' => 2,
+        'name' => 'schema violation',
+        'message' => 'schema violation (host: required field missing)',
+        'fields' => ['host' => 'required field missing', 'tls_sans' => ['dnsnames' => 'expected an array']],
+    ];
+    $kong = MockKong::queue(MockKong::json(400, $body));
+
+    $e = expectKongError($kong, ValidationException::class, 400, 'schema violation (host: required field missing)');
+
+    expect($e->errorCode)->toBe(2)
+        ->and($e->errorName)->toBe('schema violation')
+        ->and($e->errorFields)->toBe(['host' => 'required field missing', 'tls_sans' => ['dnsnames' => 'expected an array']])
+        ->and($e->details)->toBe($body);
+});
+
+it('reads `options` as the fields of an invalid-options error', function (): void {
+    $kong = MockKong::queue(MockKong::json(400, ['code' => 11, 'name' => 'invalid options', 'options' => ['tags' => 'invalid filter']]));
+
+    $e = expectKongError($kong, ValidationException::class, 400, null);
+
+    expect($e->errorCode)->toBe(11)
+        ->and($e->errorFields)->toBe(['tags' => 'invalid filter']);
+});
+
+it('maps a unique violation to ConflictException with its Kong code', function (): void {
+    $kong = MockKong::queue(MockKong::json(409, ['code' => 5, 'name' => 'unique constraint violation', 'message' => 'UNIQUE violation detected on \'{name="billing"}\'', 'fields' => ['name' => 'billing']]));
+
+    $e = expectKongError($kong, ConflictException::class, 409, 'UNIQUE violation detected on \'{name="billing"}\'');
+
+    expect($e->errorCode)->toBe(5)
+        ->and($e->errorName)->toBe('unique constraint violation')
+        ->and($e->errorFields)->toBe(['name' => 'billing']);
+});
+
+it('leaves the Kong error fields empty for plain {message} bodies and wrong types', function (array $body): void {
+    $kong = MockKong::queue(MockKong::json(500, $body));
+
+    $e = expectKongError($kong, ServerException::class, 500, null);
+
+    expect($e->errorCode)->toBeNull()
+        ->and($e->errorName)->toBeNull()
+        ->and($e->errorFields)->toBe([]);
+})->with([
+    'no table' => [['status' => 500]],
+    'wrong types' => [['code' => '2', 'name' => 2, 'fields' => 'x']],
+]);

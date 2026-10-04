@@ -38,6 +38,10 @@ REFS = {}
 # arrays (`array<array-key, mixed>`), e.g. Partial `config` (spec-notes Q13).
 FREEFORM = set()
 
+# (owner class, location) pairs that are secrets although the spec doesn't mark them `x-encrypted`. They get the
+# same treatment: listed in ENCRYPTED, redacted in __debugInfo(), #[SensitiveParameter] on inputs (spec-notes Q18).
+SENSITIVE = set()
+
 
 def ref_class(ref):
     name = ref.rsplit('/', 1)[-1]
@@ -90,7 +94,7 @@ class Prop:
         self.php = camel(wire)
         self.node = node
         self.required = required
-        self.encrypted = bool(node.get('x-encrypted'))
+        self.encrypted = bool(node.get('x-encrypted')) or (cls, location + '.' + wire if location else wire) in SENSITIVE
         self.write_only = bool(node.get('writeOnly'))
         self.desc = first_sentence(node.get('description', ''))
         loc = location + '.' + wire if location else wire
@@ -304,7 +308,7 @@ def render(cls, schema_name, doc, props, input_mode, extra_uses=(), sibling_ns=N
 
     enc = [p.php for p in props if p.encrypted]
     if enc:
-        lines += ['    /** Properties the spec marks `x-encrypted`; redacted in __debugInfo(). */',
+        lines += ['    /** Properties the spec marks `x-encrypted` (plus reviewed secrets, spec-notes Q18); redacted in __debugInfo(). */',
                   '    private const array ENCRYPTED = [' + ', '.join(f"'{e}'" for e in enc) + '];', '']
 
     # constructor docblock

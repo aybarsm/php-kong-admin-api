@@ -49,6 +49,24 @@ final readonly class OidcJwks extends AbstractResource
     }
 
     /**
+     * The page after $page, or null when $page is the last (operationId `list-oic_jwk`).
+     *
+     * Repeats list() with the page's `offset`, keeping the same filters and workspace. Kong's own `next`
+     * link is not followed (it drops filters on nested lists; spec-notes Q6).
+     *
+     * @param Page<OidcJwk> $page
+     *
+     * @return Page<OidcJwk>|null
+     *
+     * @throws KongApiException
+     */
+    #[Operation(Transport::METHOD_GET, '/oic_jwks', 'list-oic_jwk', OperationScope::Both)]
+    public function nextPage(Page $page, ?ListOptions $options = null): ?Page
+    {
+        return $page->offset === null ? null : $this->list(($options ?? new ListOptions())->withOffset($page->offset));
+    }
+
+    /**
      * Get an OIDC JWK set by ID (operationId `get-oic_jwk`).
      *
      * @throws KongApiException

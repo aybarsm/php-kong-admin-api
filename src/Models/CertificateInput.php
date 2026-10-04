@@ -20,7 +20,7 @@ use SensitiveParameter;
 #[Schema('Certificate')]
 final readonly class CertificateInput implements Input
 {
-    /** Properties the spec marks `x-encrypted`; redacted in __debugInfo(). */
+    /** Properties the spec marks `x-encrypted` (plus reviewed secrets, spec-notes Q18); redacted in __debugInfo(). */
     private const array ENCRYPTED = ['key', 'keyAlt'];
 
     /**

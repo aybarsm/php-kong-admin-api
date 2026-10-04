@@ -49,6 +49,24 @@ final readonly class CaCertificates extends AbstractResource
     }
 
     /**
+     * The page after $page, or null when $page is the last (operationId `list-ca_certificate`).
+     *
+     * Repeats list() with the page's `offset`, keeping the same filters and workspace. Kong's own `next`
+     * link is not followed (it drops filters on nested lists; spec-notes Q6).
+     *
+     * @param Page<CaCertificate> $page
+     *
+     * @return Page<CaCertificate>|null
+     *
+     * @throws KongApiException
+     */
+    #[Operation(Transport::METHOD_GET, '/ca_certificates', 'list-ca_certificate', OperationScope::Both)]
+    public function nextPage(Page $page, ?ListOptions $options = null): ?Page
+    {
+        return $page->offset === null ? null : $this->list(($options ?? new ListOptions())->withOffset($page->offset));
+    }
+
+    /**
      * Get a CA Certificate by ID (operationId `get-ca_certificate`).
      *
      * @throws KongApiException

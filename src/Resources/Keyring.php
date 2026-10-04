@@ -7,7 +7,6 @@ namespace Aybarsm\Kong\AdminApi\Resources;
 use Aybarsm\Kong\AdminApi\Attributes\Operation;
 use Aybarsm\Kong\AdminApi\Enums\OperationScope;
 use Aybarsm\Kong\AdminApi\Exceptions\KongApiException;
-use Aybarsm\Kong\AdminApi\Exceptions\UnexpectedResponseException;
 use Aybarsm\Kong\AdminApi\Internal\Data;
 use Aybarsm\Kong\AdminApi\Internal\Transport;
 use Aybarsm\Kong\AdminApi\Models\KeyringImportInput;
@@ -105,15 +104,8 @@ final readonly class Keyring extends AbstractResource
     {
         $path = $this->path(OperationScope::GlobalOnly, self::SEGMENT, 'recover');
         $payload = $this->transport->multipart(Transport::METHOD_POST, $path, ['recovery_private_key' => $recoveryPrivateKey]);
-        if ($payload !== [] && array_is_list($payload)) {
-            throw new UnexpectedResponseException(
-                sprintf('POST %s returned a JSON array where an object was expected.', $path),
-                method: Transport::METHOD_POST,
-                path: $path,
-            );
-        }
 
-        return \Aybarsm\Kong\AdminApi\Models\Keyring::fromArray(Data::asMap($payload, 'POST ' . $path));
+        return \Aybarsm\Kong\AdminApi\Models\Keyring::fromArray($this->asObject($payload, Transport::METHOD_POST, $path));
     }
 
     /**

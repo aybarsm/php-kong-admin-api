@@ -169,6 +169,7 @@ it('README: nested resources follow the spec paths', function (): void {
 it('README: pagination and tag filters', function (): void {
     $mock = MockKong::queue(
         MockKong::json(200, ['data' => [Fixture::get('service')], 'offset' => 'b2Zm']),
+        MockKong::json(200, ['data' => []]),
         MockKong::json(200, ['data' => [Fixture::get('service')], 'offset' => 'p2']),
         MockKong::json(200, ['data' => [Fixture::get('service')]]),
     );
@@ -176,11 +177,14 @@ it('README: pagination and tag filters', function (): void {
     $seen = [];
 
     // --- README ---
-    $page = $kong->services()->list(new ListOptions(size: 100, tags: TagFilter::allOf('production', 'billing')));
+    $options = new ListOptions(size: 100, tags: TagFilter::allOf('production', 'billing'));
+
+    $page = $kong->services()->list($options);
     foreach ($page->data as $service) {
         $seen[] = $service->name;
     }
-    $more = $page->hasMore();   // true when Kong returned an `offset`
+    $more = $page->hasMore();                               // true when Kong returned an `offset`
+    $next = $kong->services()->nextPage($page, $options);   // same filters; null after the last page
 
     foreach ($kong->services()->all(new ListOptions(tags: TagFilter::anyOf('team-a', 'team-b'))) as $service) {
         $seen[] = $service->name;   // fetched page by page, lazily
@@ -189,9 +193,11 @@ it('README: pagination and tag filters', function (): void {
 
     expect($seen)->toHaveCount(3)
         ->and($more)->toBeTrue()
+        ->and($next?->data)->toBe([])
+        ->and($mock->queryAt(1))->toBe(['size' => '100', 'offset' => 'b2Zm', 'tags' => 'production,billing'])
         ->and($page->offset)->toBe('b2Zm')
         ->and($mock->queryAt(0))->toBe(['size' => '100', 'tags' => 'production,billing'])
-        ->and($mock->queryAt(2))->toBe(['offset' => 'p2', 'tags' => 'team-a/team-b']);
+        ->and($mock->queryAt(3))->toBe(['offset' => 'p2', 'tags' => 'team-a/team-b']);
 });
 
 it('README: input DTOs and arrays', function (): void {
@@ -243,7 +249,7 @@ it('README: route variants', function (): void {
 it('README: error handling', function (): void {
     $mock = MockKong::queue(
         MockKong::raw(404),
-        MockKong::json(400, ['message' => 'schema violation (host: required field missing)', 'status' => 400]),
+        MockKong::json(400, ['code' => 2, 'name' => 'schema violation', 'message' => 'schema violation (host: required field missing)', 'fields' => ['host' => 'required field missing']]),
         new ConnectException('Connection refused', new Request('GET', 'http://kong.test/services')),
     );
     $kong = $mock->client;
@@ -260,7 +266,8 @@ it('README: error handling', function (): void {
         $kong->services()->create(['name' => 'no-host']);
     } catch (ValidationException $e) {
         $log[] = $e->kongMessage;                   // "schema violation (host: required field missing)"
-        $log[] = $e->details;                       // decoded error body
+        $log[] = $e->errorName;                     // "schema violation" (Kong error code 2)
+        $log[] = $e->errorFields;                   // ['host' => 'required field missing']
     }
 
     try {
@@ -275,7 +282,8 @@ it('README: error handling', function (): void {
     expect($log)->toBe([
         404,
         'schema violation (host: required field missing)',
-        ['message' => 'schema violation (host: required field missing)', 'status' => 400],
+        'schema violation',
+        ['host' => 'required field missing'],
         'Connection refused',
     ])->and(new ValidationException('x'))->toBeInstanceOf(KongExceptionInterface::class);
 });

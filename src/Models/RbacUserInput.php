@@ -8,6 +8,7 @@ use Aybarsm\Kong\AdminApi\Attributes\Schema;
 use Aybarsm\Kong\AdminApi\Contracts\Input;
 use Aybarsm\Kong\AdminApi\Internal\Data;
 use Override;
+use SensitiveParameter;
 
 /**
  * Request body for creating, updating or upserting an RBAC User
@@ -19,6 +20,9 @@ use Override;
 #[Schema('RBACUser')]
 final readonly class RbacUserInput implements Input
 {
+    /** Properties the spec marks `x-encrypted` (plus reviewed secrets, spec-notes Q18); redacted in __debugInfo(). */
+    private const array ENCRYPTED = ['userToken'];
+
     /**
      * @param string|null $name           The name of the user. Required by the spec on create.
      * @param string|null $userToken      Required by the spec on create.
@@ -31,6 +35,7 @@ final readonly class RbacUserInput implements Input
      */
     public function __construct(
         public ?string $name = null,
+        #[SensitiveParameter]
         public ?string $userToken = null,
         public ?string $comment = null,
         public ?int $createdAt = null,
@@ -57,5 +62,22 @@ final readonly class RbacUserInput implements Input
             'updated_at' => $this->updatedAt,
             'user_token_ident' => $this->userTokenIdent,
         ]);
+    }
+
+    /**
+     * Redacts `x-encrypted` values.
+     *
+     * @return array<string, mixed>
+     */
+    public function __debugInfo(): array
+    {
+        $values = get_object_vars($this);
+        foreach (self::ENCRYPTED as $property) {
+            if ($values[$property] !== null) {
+                $values[$property] = '***';
+            }
+        }
+
+        return $values;
     }
 }

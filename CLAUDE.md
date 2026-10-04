@@ -34,6 +34,10 @@ Project specifics (decided 2026-10-04):
   encoding artifact. Any **other** JSON/YAML difference means stop and ask.
 - Spec anomalies, open questions and blocked operations live in `docs/spec-notes.md`. Never resolve
   one from memory; ask.
+- Approved secondary sources (2026-10-04, recorded in spec-notes):
+  - developer.konghq.com renders a spec identical to ours, so it adds nothing.
+  - Kong's open-source code (`Kong/kong`, 3.9.3/master) was consulted only for runtime behaviour in Q4–Q6.
+  - Any other use of outside sources needs explicit approval first.
 
 ## Code generation
 - Uniform CRUD entities (DTOs, resources, fixtures, feature tests) come from `tools/generator/`, which reads
