@@ -1,0 +1,11 @@
+{
+  "fields": [
+    {
+      "enabled": true,
+      "nested": {
+        "limit": 5
+      },
+      "option": "value"
+    }
+  ]
+}

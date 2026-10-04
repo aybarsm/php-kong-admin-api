@@ -19,6 +19,7 @@ Run from the repo root:
 python3 tools/generator/phase4a.py   # Phase 4a: core gateway entities
 python3 tools/generator/phase4b.py   # Phase 4b: consumer credentials and consumer groups
 python3 tools/generator/phase4c.py   # Phase 4c: Enterprise entities (RBAC, plugins, partials, admins, …)
+python3 tools/generator/phase4d.py   # Phase 4d: DTOs of the operational endpoints (info, keyring, schemas, …)
 composer ci && composer test:mutate  # then run every gate
 ```
 
@@ -34,6 +35,7 @@ rerun produces no diff, and `git status` must stay clean.
 | `feature_tests.py` | One Pest feature test per resource config |
 | `phase4a.py` | Phase 4a tables (enum locations, inline-object names, resource configs) and the entry point. Its `top()`/`nested()`/`acc()` row helpers are reused by later phases |
 | `phase4b.py` | Phase 4b tables: credentials, Consumer Groups, membership/override response DTOs (`OUTPUTS`) and inline request-body inputs (`INPUTS`) |
+| `phase4d.py` | Phase 4d tables: DTOs and fixtures of the operational endpoints. Their resources are hand-written (no CRUD shape) |
 | `phase4c.py` | Phase 4c tables: Enterprise CRUD entities, global and workspace-only RBAC, Partial variants, and the DTOs of the hand-written Admins/Licenses/Event-hooks/workspace-group resources |
 
 ## What comes from where
@@ -59,6 +61,9 @@ rerun produces no diff, and `git status` must stay clean.
   event-hook sources `data`, Q17).
 - `const` properties get the constant as the input default (`PartialRedisCeInput::$type = 'redis-ce'`).
 - `generate_entity(..., contract='Partial')` makes a DTO implement a hand-written interface instead of `Model`.
+- Maps whose values are spec objects (`additionalProperties` with `properties`, e.g. timers by name) become
+  `array<array-key, X>` (`NESTED` key `(class, 'loc{}')`). Lists of free-form objects become
+  `list<array<string, mixed>>`.
 - Required lists and required free-form objects use the required readers (`Data::stringList`,
   `Data::listOfMaps`, `Data::freeForm`).
 - Resource configs may override `get` (`get_returns`, `get_mapone`, `get_query`, `get_doc`), add
@@ -74,7 +79,9 @@ rerun produces no diff, and `git status` must stay clean.
   `Nested\ConsumerGroupRateLimitingAdvancedOverride`, `Models\Partial`, `Models\PartialFactory`,
   `Resources\Partials`, `Nested\PartialLinks`, `Resources\Admins`, `Resources\Licenses`,
   `Resources\EventHooks`, `Resources\WorkspaceGroups`, `Nested\GroupRoles`,
-  `Nested\WorkspaceRbacUserRoles`, `Nested\WorkspaceRbacRoleEndpoints`, and the enums.
+  `Nested\WorkspaceRbacUserRoles`, `Nested\WorkspaceRbacRoleEndpoints`, the Phase 4d resources
+  (`Information`, `Debug`, `Clustering`, `DeclarativeConfig`, `Cache`, `Keyring`, `AuditLogs`, `Schemas`),
+  and the enums.
 - Anything the spec leaves ambiguous goes to `docs/spec-notes.md` as an open question before it goes
   into a table.
 - Every gate still applies to generated code: the conformance tests check it against the spec

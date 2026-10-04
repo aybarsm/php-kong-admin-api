@@ -8,14 +8,6 @@ use Aybarsm\Kong\AdminApi\Tests\Support\SourceClasses;
 use Aybarsm\Kong\AdminApi\Tests\Support\Spec;
 
 /**
- * Flip to true at the end of Phase 4: from then on every spec operation must be implemented or blocked.
- */
-function specCoverageEnforced(): bool
-{
-    return false;
-}
-
-/**
  * @return array<string, true> "METHOD path" claimed by #[Operation] attributes, workspace twins included
  */
 function claimedOperations(): array
@@ -63,4 +55,4 @@ it('implements every spec operation or lists it as blocked', function (): void {
     $remaining = array_diff(array_keys(Spec::operations()), array_keys(claimedOperations()), blockedOperations());
 
     expect(array_values($remaining))->toBe([]);
-})->skip(!specCoverageEnforced(), 'Spec coverage is enforced from the end of Phase 4.');
+});

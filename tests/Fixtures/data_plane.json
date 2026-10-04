@@ -1,0 +1,18 @@
+{
+  "cert_details": {
+    "expiry_timestamp": 1
+  },
+  "config_hash": "config_hash-value",
+  "hostname": "hostname-value",
+  "id": "e4225a6f-a936-5875-8d2c-1a77469d23aa",
+  "ip": "ip-value",
+  "labels": {
+    "deployment": "deployment-value",
+    "region": "region-value"
+  },
+  "last_seen": 1,
+  "sync_status": "sync_status-value",
+  "ttl": 1,
+  "updated_at": 1706598432,
+  "version": "version-value"
+}

@@ -16,6 +16,7 @@ use Aybarsm\Kong\AdminApi\Exceptions\UnauthorizedException;
 use Aybarsm\Kong\AdminApi\Exceptions\UnexpectedResponseException;
 use Aybarsm\Kong\AdminApi\Exceptions\ValidationException;
 use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Psr7\MultipartStream;
 use JsonException;
 use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Client\ClientInterface;
@@ -95,7 +96,16 @@ final readonly class Transport
      */
     public function json(string $method, string $path, array $query = [], ?array $body = null): array
     {
-        $response = $this->send($method, $path, $query, $body);
+        return $this->decode($this->send($method, $path, $query, $body), $method, $path);
+    }
+
+    /**
+     * @return array<array-key, mixed>
+     *
+     * @throws UnexpectedResponseException
+     */
+    private function decode(ResponseInterface $response, string $method, string $path): array
+    {
         $raw = (string) $response->getBody();
 
         try {
@@ -136,6 +146,69 @@ final readonly class Transport
     }
 
     /**
+     * Sends a request expecting a 2xx or 404 without a body (e.g. HEAD): true for 2xx, false for 404.
+     *
+     * @throws KongApiException for any other error status or a transport failure
+     */
+    public function exists(string $method, string $path): bool
+    {
+        try {
+            $this->send($method, $path, [], null);
+        } catch (NotFoundException) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Sends a request and returns the comma-separated values of one response header (e.g. `Allow`).
+     *
+     * @return list<string>
+     *
+     * @throws KongApiException
+     */
+    public function headerValues(string $method, string $path, string $header): array
+    {
+        $values = [];
+        foreach ($this->send($method, $path, [], null)->getHeader($header) as $line) {
+            foreach (explode(',', $line) as $value) {
+                $value = trim($value);
+                if ($value !== '') {
+                    $values[] = $value;
+                }
+            }
+        }
+
+        return $values;
+    }
+
+    /**
+     * Sends a `multipart/form-data` request (for operations whose spec body is multipart only) and returns
+     * the decoded JSON payload of a 2xx response.
+     *
+     * @param array<string, string> $fields form field name => contents
+     *
+     * @return array<array-key, mixed>
+     *
+     * @throws KongApiException
+     */
+    public function multipart(string $method, string $path, array $fields): array
+    {
+        $parts = [];
+        foreach ($fields as $name => $contents) {
+            $parts[] = ['name' => $name, 'contents' => $contents, 'filename' => $name];
+        }
+        $stream = new MultipartStream($parts);
+
+        $request = $this->request($method, $path, [], null)
+            ->withHeader('Content-Type', 'multipart/form-data; boundary=' . $stream->getBoundary())
+            ->withBody($stream);
+
+        return $this->decode($this->dispatch($request, $method, $path), $method, $path);
+    }
+
+    /**
      * @param array<string, string|int|bool|null> $query
      * @param array<string, mixed>|null           $body
      *
@@ -143,8 +216,16 @@ final readonly class Transport
      */
     private function send(string $method, string $path, array $query, ?array $body): ResponseInterface
     {
-        $request = $this->request($method, $path, $query, $body);
+        return $this->dispatch($this->request($method, $path, $query, $body), $method, $path);
+    }
 
+    /**
+     * Sends a built request and maps transport failures and error statuses to package exceptions.
+     *
+     * @throws KongApiException
+     */
+    private function dispatch(RequestInterface $request, string $method, string $path): ResponseInterface
+    {
         try {
             $response = $this->client->sendRequest($request);
         } catch (RequestException $e) {

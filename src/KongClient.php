@@ -9,21 +9,28 @@ use Aybarsm\Kong\AdminApi\Exceptions\InvalidArgumentException;
 use Aybarsm\Kong\AdminApi\Internal\Transport;
 use Aybarsm\Kong\AdminApi\Resources\Acls;
 use Aybarsm\Kong\AdminApi\Resources\Admins;
+use Aybarsm\Kong\AdminApi\Resources\AuditLogs;
 use Aybarsm\Kong\AdminApi\Resources\BasicAuths;
 use Aybarsm\Kong\AdminApi\Resources\CaCertificates;
+use Aybarsm\Kong\AdminApi\Resources\Cache;
 use Aybarsm\Kong\AdminApi\Resources\Certificates;
 use Aybarsm\Kong\AdminApi\Resources\ClonedPlugins;
+use Aybarsm\Kong\AdminApi\Resources\Clustering;
 use Aybarsm\Kong\AdminApi\Resources\ConsumerGroups;
 use Aybarsm\Kong\AdminApi\Resources\Consumers;
 use Aybarsm\Kong\AdminApi\Resources\CustomPlugins;
+use Aybarsm\Kong\AdminApi\Resources\Debug;
+use Aybarsm\Kong\AdminApi\Resources\DeclarativeConfig;
 use Aybarsm\Kong\AdminApi\Resources\DegraphqlRoutes;
 use Aybarsm\Kong\AdminApi\Resources\EventHooks;
 use Aybarsm\Kong\AdminApi\Resources\GraphqlCostDecorations;
 use Aybarsm\Kong\AdminApi\Resources\GroupRbacRoles;
 use Aybarsm\Kong\AdminApi\Resources\Groups;
 use Aybarsm\Kong\AdminApi\Resources\HmacAuths;
+use Aybarsm\Kong\AdminApi\Resources\Information;
 use Aybarsm\Kong\AdminApi\Resources\Jwts;
 use Aybarsm\Kong\AdminApi\Resources\KeyAuths;
+use Aybarsm\Kong\AdminApi\Resources\Keyring;
 use Aybarsm\Kong\AdminApi\Resources\Keys;
 use Aybarsm\Kong\AdminApi\Resources\KeySets;
 use Aybarsm\Kong\AdminApi\Resources\Licenses;
@@ -38,6 +45,7 @@ use Aybarsm\Kong\AdminApi\Resources\RbacUserGroups;
 use Aybarsm\Kong\AdminApi\Resources\RbacUserRoles;
 use Aybarsm\Kong\AdminApi\Resources\RbacUsers;
 use Aybarsm\Kong\AdminApi\Resources\Routes;
+use Aybarsm\Kong\AdminApi\Resources\Schemas;
 use Aybarsm\Kong\AdminApi\Resources\Services;
 use Aybarsm\Kong\AdminApi\Resources\Snis;
 use Aybarsm\Kong\AdminApi\Resources\Tags;
@@ -414,6 +422,70 @@ final readonly class KongClient
     public function workspaceRbacUsers(): WorkspaceRbacUsers
     {
         return new WorkspaceRbacUsers($this->transport);
+    }
+
+    /**
+     * Audit logs: `/audit/{objects,requests}`.
+     */
+    public function auditLogs(): AuditLogs
+    {
+        return new AuditLogs($this->transport);
+    }
+
+    /**
+     * The node cache: `/cache`.
+     */
+    public function cache(): Cache
+    {
+        return new Cache($this->transport);
+    }
+
+    /**
+     * Hybrid-mode clustering: `/clustering/{data-planes,status}`.
+     */
+    public function clustering(): Clustering
+    {
+        return new Clustering($this->transport);
+    }
+
+    /**
+     * Log levels: `/debug/…/log-level`.
+     */
+    public function debug(): Debug
+    {
+        return new Debug($this->transport);
+    }
+
+    /**
+     * Declarative configuration: `/config`.
+     */
+    public function declarativeConfig(): DeclarativeConfig
+    {
+        return new DeclarativeConfig($this->transport);
+    }
+
+    /**
+     * Node information: `/, /status, /endpoints, …`.
+     */
+    public function information(): Information
+    {
+        return new Information($this->transport);
+    }
+
+    /**
+     * The keyring: `/keyring`.
+     */
+    public function keyring(): Keyring
+    {
+        return new Keyring($this->transport);
+    }
+
+    /**
+     * Entity, Partial and plugin schemas: `/schemas`.
+     */
+    public function schemas(): Schemas
+    {
+        return new Schemas($this->transport);
     }
 
     /**

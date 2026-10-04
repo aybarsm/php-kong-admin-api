@@ -1,0 +1,17 @@
+{
+  "memory": {
+    "lua_shared_dicts": {
+      "enabled": true,
+      "nested": {
+        "limit": 5
+      },
+      "option": "value"
+    },
+    "workers_lua_vms": [
+      {
+        "http_allocated_gc": "http_allocated_gc-value",
+        "pid": 1
+      }
+    ]
+  }
+}

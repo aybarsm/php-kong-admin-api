@@ -32,6 +32,8 @@ def value(node, path):
         if 'properties' in node:
             return obj(node, path)
         ap = node.get('additionalProperties')
+        if isinstance(ap, dict) and 'properties' in ap:
+            return {'key-1': obj(ap, path + '{}')}
         if isinstance(ap, dict) and ap.get('type') == 'array':
             return {'x-header': ['value-1', 'value-2']}
         if isinstance(ap, dict) and ap.get('type') == 'string':

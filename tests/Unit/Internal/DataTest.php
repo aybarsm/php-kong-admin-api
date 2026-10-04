@@ -71,6 +71,9 @@ it('throws on values of the wrong type', function (callable $read, string $messa
     'string map is list' => [fn (): ?array => Data::stringMapOrNull(['k' => ['a']], 'k'), 'Field "k" is not a valid object.'],
     'string map is scalar' => [fn (): ?array => Data::stringMapOrNull(['k' => 'a'], 'k'), 'Field "k" is not a valid object.'],
     'string map value' => [fn (): ?array => Data::stringMapOrNull(['k' => ['a' => 1]], 'k'), 'Field "k.a" is not a valid string.'],
+    'map of maps is list' => [fn (): ?array => Data::mapOfMapsOrNull(['k' => [['a' => 1]]], 'k'), 'Field "k" is not a valid object.'],
+    'map of maps is scalar' => [fn (): ?array => Data::mapOfMapsOrNull(['k' => 'a'], 'k'), 'Field "k" is not a valid object.'],
+    'map of maps value' => [fn (): ?array => Data::mapOfMapsOrNull(['k' => ['n' => 1]], 'k'), 'Field "k.n" is not a valid object.'],
     'list of maps item' => [fn (): ?array => Data::listOfMapsOrNull(['k' => [['a' => 1], 'x']], 'k'), 'Field "k[1]" is not a valid object.'],
     'enum type' => [fn (): ?Protocol => Data::enumOrNull(['k' => 1.5], 'k', Protocol::class), 'Field "k" is not a valid enum value.'],
     'enum case' => [fn (): ?Protocol => Data::enumOrNull(['k' => 'gopher'], 'k', Protocol::class), 'Unexpected value for "k"'],
@@ -128,4 +131,12 @@ it('reads string maps', function (): void {
     expect(Data::stringMapOrNull(['m' => ['a' => 'b']], 'm'))->toBe(['a' => 'b'])
         ->and(Data::stringMapOrNull(['m' => []], 'm'))->toBe([])
         ->and(Data::stringMapOrNull([], 'm'))->toBeNull();
+});
+
+it('reads maps of objects and serialises keyed DTO maps', function (): void {
+    expect(Data::mapOfMapsOrNull(['m' => ['a' => ['x' => 1], 'b' => []]], 'm'))->toBe(['a' => ['x' => 1], 'b' => []])
+        ->and(Data::mapOfMapsOrNull(['m' => []], 'm'))->toBe([])
+        ->and(Data::mapOfMapsOrNull([], 'm'))->toBeNull()
+        ->and(Data::toArrayMap(['n1' => new Aybarsm\Kong\AdminApi\Models\Shared\IpPort('1.2.3.4')]))->toBe(['n1' => ['ip' => '1.2.3.4']])
+        ->and(Data::toArrayMap(null))->toBeNull();
 });

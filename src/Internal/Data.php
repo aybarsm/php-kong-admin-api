@@ -321,6 +321,37 @@ final class Data
     }
 
     /**
+     * A spec object whose `additionalProperties` are spec-defined objects (e.g. timers keyed by name).
+     * Keys are preserved as `array-key` because numeric-looking JSON keys become integers in PHP.
+     *
+     * @param array<string, mixed> $data
+     *
+     * @return array<array-key, array<string, mixed>>|null
+     *
+     * @throws UnexpectedResponseException
+     */
+    public static function mapOfMapsOrNull(array $data, string $key): ?array
+    {
+        $value = $data[$key] ?? null;
+        if ($value === null) {
+            return null;
+        }
+        if (!is_array($value) || ($value !== [] && array_is_list($value))) {
+            throw self::invalid($key, 'object');
+        }
+
+        $out = [];
+        foreach ($value as $name => $item) {
+            if (!is_array($item)) {
+                throw self::invalid($key . '.' . $name, 'object');
+            }
+            $out[$name] = self::asMap($item, $key . '.' . $name);
+        }
+
+        return $out;
+    }
+
+    /**
      * A list of spec-defined objects.
      *
      * @param array<string, mixed> $data
@@ -454,6 +485,18 @@ final class Data
      * @return list<array<string, mixed>>|null
      */
     public static function toArrays(?array $models): ?array
+    {
+        return $models === null ? null : array_map(static fn (Model $model): array => $model->toArray(), $models);
+    }
+
+    /**
+     * A keyed map of DTOs to JSON-ready arrays, keys preserved (used by `toArray()` implementations).
+     *
+     * @param array<array-key, Model>|null $models
+     *
+     * @return array<array-key, array<string, mixed>>|null
+     */
+    public static function toArrayMap(?array $models): ?array
     {
         return $models === null ? null : array_map(static fn (Model $model): array => $model->toArray(), $models);
     }

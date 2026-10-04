@@ -1,0 +1,41 @@
+{
+  "stats": {
+    "flamegraph": {
+      "elapsed_time": "@./kong/init.lua:706:init_worker();@./kong/runloop/handler.lua:1086:before() 17\n",
+      "pending": "@./kong/init.lua:706:init_worker();@./kong/runloop/handler.lua:1086:before() 0\n",
+      "running": "@./kong/init.lua:706:init_worker();@./kong/runloop/handler.lua:1086:before() 0\n"
+    },
+    "sys": {
+      "pending": 0,
+      "running": 0,
+      "runs": 7,
+      "total": 7,
+      "waiting": 7
+    },
+    "timers": {
+      "key-1": {
+        "is_running": true,
+        "meta": {
+          "callstack": "callstack-value",
+          "name": "name-value"
+        },
+        "name": "name-value",
+        "stats": {
+          "elapsed_time": {
+            "avg": 1.5,
+            "max": 1.5,
+            "min": 1.5,
+            "variance": 1.5
+          },
+          "finish": 1,
+          "last_err_msg": "last_err_msg-value",
+          "runs": 1
+        }
+      }
+    }
+  },
+  "worker": {
+    "count": 1,
+    "id": 1
+  }
+}

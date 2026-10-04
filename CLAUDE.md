@@ -16,7 +16,7 @@ Root namespace `Aybarsm\Kong\AdminApi\` → `src/`. Built against Kong Gateway *
 - Everything CI runs: `composer ci && composer test:mutate` (mutation runs in `.github/workflows/mutation.yml`
   on pushes to `main`, weekly and on demand, not on pull requests; run it locally before pushing)
 - One file: `vendor/bin/pest tests/Feature/Resources/ServicesTest.php`
-- Regenerate generated code: `python3 tools/generator/phase4a.py`, `… phase4b.py`, `… phase4c.py` (one script per phase,
+- Regenerate generated code: `python3 tools/generator/phase4a.py`, `… phase4b.py`, `… phase4c.py`, `… phase4d.py` (one script per phase,
   run in order; see `tools/generator/README.md`). A rerun on an unchanged spec must leave `git status` clean.
 
 ## Kong API source of truth (strict)

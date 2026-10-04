@@ -128,6 +128,8 @@ class Prop:
             elif 'properties' in items and it in ('object', None):  # some spec items omit `type: object`
                 self.kind = 'objlist'
                 self.cls = nested_names[(cls, loc + '[]')]
+            elif it == 'object':
+                self.kind = 'maplist'  # free-form objects, e.g. schema `fields`
             else:
                 raise ValueError(f'unsupported array {cls}.{loc}: {items}')
         elif t == 'object':
@@ -139,6 +141,9 @@ class Prop:
                 self.kind = 'stringlistmap'
             elif isinstance(ap, dict) and ap.get('type') == 'string':
                 self.kind = 'stringmap'
+            elif isinstance(ap, dict) and 'properties' in ap:
+                self.kind = 'objmap'  # keyed map of spec-defined objects, e.g. timers by name
+                self.cls = nested_names[(cls, loc + '{}')]
             else:
                 self.kind = 'freeform'
         elif t == 'string':
@@ -184,6 +189,10 @@ class Prop:
             return 'array<array-key, list<string>>' + null
         if k == 'stringmap':
             return 'array<array-key, string>' + null
+        if k == 'objmap':
+            return f'array<array-key, {self.cls}>' + null
+        if k == 'maplist':
+            return 'list<array<string, mixed>>' + null
         if k == 'fk' and input_mode:
             return 'ForeignKey|string|null'
         return None
@@ -198,6 +207,10 @@ class Prop:
             if req:
                 return None, f"{cls}::fromArray(Data::map($data, '{w}'))"
             return f"{v} = Data::mapOrNull($data, '{w}');", f"{v} === null ? null : {cls}::fromArray({v})"
+        if k == 'objmap':
+            return f"{v} = Data::mapOfMapsOrNull($data, '{w}');", f"{v} === null ? null : array_map({self.cls}::fromArray(...), {v})"
+        if k == 'maplist':
+            return None, f"Data::listOfMaps($data, '{w}')" if req else f"Data::listOfMapsOrNull($data, '{w}')"
         if k == 'objlist':
             if req:
                 return None, f"array_map({self.cls}::fromArray(...), Data::listOfMaps($data, '{w}'))"
@@ -242,6 +255,8 @@ class Prop:
             return f'Data::enumValues({p})'
         if k == 'objlist':
             return f'Data::toArrays({p})'
+        if k == 'objmap':
+            return f'Data::toArrayMap({p})'
         return p
 
     def uses(self):
@@ -266,7 +281,7 @@ def render(cls, schema_name, doc, props, input_mode, extra_uses=(), sibling_ns=N
         uses.add(NS + ('\\Contracts\\Input' if input_mode else '\\Contracts\\Model'))
     for p in props:
         uses |= p.uses()
-        if p.kind in ('obj', 'objlist') and sibling_ns:
+        if p.kind in ('obj', 'objlist', 'objmap') and sibling_ns:
             uses.add(sibling_ns + '\\' + p.cls)
     if any(p.encrypted for p in props) and input_mode:
         uses.add('SensitiveParameter')
@@ -382,12 +397,15 @@ def generate_entity(cls, schema, doc, nested_names, enum_names, input_doc=None, 
     # nested objects reachable from this schema's properties (inline objects named in nested_names)
     def walk(owner_props, pointer):
         for p in owner_props:
-            key = (cls, p.loc + '[]') if p.kind == 'objlist' else (cls, p.loc)
-            if p.kind not in ('obj', 'objlist') or key not in nested_names:
+            suffix = {'objlist': '[]', 'objmap': '{}'}.get(p.kind, '')
+            key = (cls, p.loc + suffix)
+            if p.kind not in ('obj', 'objlist', 'objmap') or key not in nested_names:
                 continue
             ncls = nested_names[key]
             base = pointer + ('/items' if raw_node(pointer).get('type') == 'array' else '')
             npointer = base + '/properties/' + p.wire.replace('~', '~0').replace('/', '~1')
+            if p.kind == 'objmap':
+                npointer += '/additionalProperties'
             nprops = build_props(cls, npointer, nested_names, enum_names, p.loc)
             ndoc = [f'The `{key[1]}` object of {cls} (spec `{schema}.{key[1]}`).']
             write(f'src/Models/{ncls}.php', render(ncls, npointer, ndoc, nprops, False))
