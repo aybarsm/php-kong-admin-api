@@ -1,0 +1,312 @@
+# Kong Admin API client for PHP
+
+[![CI](https://github.com/aybarsm/php-kong-admin-api/actions/workflows/ci.yml/badge.svg)](https://github.com/aybarsm/php-kong-admin-api/actions/workflows/ci.yml)
+[![Mutation](https://github.com/aybarsm/php-kong-admin-api/actions/workflows/mutation.yml/badge.svg)](https://github.com/aybarsm/php-kong-admin-api/actions/workflows/mutation.yml)
+
+A framework-agnostic, strictly typed PHP client for the [Kong Gateway](https://github.com/Kong/kong) Admin API.
+
+- **Generated from the spec.** Every endpoint and model comes from Kong's own OpenAPI spec (Kong Gateway **3.16.0**). Tests check every public method and every model against that spec.
+- **Typed throughout.** Responses come back as `readonly` DTOs and enums, never raw arrays or PSR-7 responses. Write methods accept a typed input DTO or a plain array.
+- **Bring your own HTTP client.** It works with any PSR-18 client and PSR-17 factories, with Guzzle as the default.
+- **Complete.** It covers all 657 operations in the spec, including Enterprise features (RBAC, workspaces, partials, keyring, licenses, …). The [exceptions](#spec-coverage) are listed below.
+
+Requires PHP 8.3 or newer.
+
+## Contents
+
+- [Installation](#installation)
+- [Quick start](#quick-start)
+- [Configuration](#configuration)
+- [Workspaces](#workspaces)
+- [Resources](#resources)
+- [Pagination and tag filters](#pagination-and-tag-filters)
+- [Input DTOs and arrays](#input-dtos-and-arrays)
+- [Consumers and credentials](#consumers-and-credentials)
+- [Polymorphic entities](#polymorphic-entities)
+- [Error handling](#error-handling)
+- [Operational endpoints](#operational-endpoints)
+- [Spec coverage](#spec-coverage)
+- [Kong version support](#kong-version-support)
+- [Development](#development)
+- [License](#license)
+
+## Installation
+
+```bash
+composer require aybarsm/kong-admin-api
+```
+
+## Quick start
+
+```php
+use Aybarsm\Kong\AdminApi\Config\ClientConfig;
+use Aybarsm\Kong\AdminApi\Enums\Protocol;
+use Aybarsm\Kong\AdminApi\KongClient;
+use Aybarsm\Kong\AdminApi\Models\PluginInput;
+use Aybarsm\Kong\AdminApi\Models\RouteJsonInput;
+use Aybarsm\Kong\AdminApi\Models\ServiceInput;
+
+$kong = new KongClient(new ClientConfig('http://localhost:8001/'));
+
+$service = $kong->services()->create(new ServiceInput(
+    name: 'billing',
+    url: 'http://billing.internal:8080',
+));
+
+$route = $kong->services()->routes('billing')->create(new RouteJsonInput(
+    name: 'billing-api',
+    paths: ['/billing'],
+    protocols: [Protocol::Https],
+));
+
+$kong->services()->plugins('billing')->create(new PluginInput(
+    name: 'rate-limiting',
+    config: ['minute' => 100, 'policy' => 'local'],
+));
+```
+
+`KongClient` only hands out resources. It never calls the API itself, and every resource method maps to exactly one spec operation.
+
+## Configuration
+
+```php
+$token = getenv('KONG_ADMIN_TOKEN');
+
+$kong = new KongClient(new ClientConfig(
+    baseUri: 'https://kong-admin.internal:8444/',
+    adminToken: $token === false ? null : $token,
+    workspace: null,
+    timeout: 10.0,
+    connectTimeout: 2.0,
+    headers: ['X-Request-Source' => 'deploy-bot'],
+));
+```
+
+| Option | Default | Notes |
+|---|---|---|
+| `baseUri` | `http://localhost:8001/` | Absolute `http`/`https` URI. A base path such as `https://host/kong/` is kept. |
+| `adminToken` | `null` | Sent as the `Kong-Admin-Token` header. Never included in exception messages or debug output. |
+| `workspace` | `null` | See [Workspaces](#workspaces). |
+| `timeout`, `connectTimeout` | `null` | Seconds. These apply to the default Guzzle client only. |
+| `headers` | `[]` | Extra headers sent with every request. |
+
+### Bring your own PSR-18 client
+
+```php
+use GuzzleHttp\Client;
+use GuzzleHttp\Psr7\HttpFactory;
+
+$http = new Client([
+    'handler' => $handler,   // e.g. HandlerStack::create() with your own middleware
+    'timeout' => 5,
+    'verify' => '/etc/ssl/kong-ca.pem',
+]);
+
+$kong = new KongClient(
+    new ClientConfig('https://kong-admin.internal:8444/'),
+    $http,              // any Psr\Http\Client\ClientInterface
+    new HttpFactory(),  // any PSR-17 request + stream factory
+);
+```
+
+When you inject a client, configure its timeouts, TLS and retries on that client yourself.
+
+## Workspaces
+
+```php
+$payments = $kong->inWorkspace('team-payments');
+$payments->services()->list();      // GET /team-payments/services
+$payments->workspaces()->list();    // GET /workspaces (global-only path, never prefixed)
+```
+
+`inWorkspace()` returns a new client and leaves the original unchanged; `withoutWorkspace()` removes the prefix again. The prefix is added only to operations that the spec defines under `/{workspace}`; global-only paths such as `/workspaces`, `/admins` or `/licenses` are never prefixed.
+
+RBAC users and roles exist twice in the spec, so the client exposes both families:
+
+- `rbacUsers()` and `rbacRoles()` address the global `/rbac_users` and `/rbac_roles` paths.
+- `workspaceRbacUsers()` and `workspaceRbacRoles()` address `/{workspace}/rbac/users` and `/{workspace}/rbac/roles`. These exist only under a workspace; without one, the spec default `default` is used.
+
+## Resources
+
+Every Kong entity is a resource on `KongClient`. Most have `list()`, `all()`, `get()`, `create()`, `update()` (PATCH), `upsert()` (PUT) and `delete()`. A resource only has the methods its spec paths define. Lookups take whatever the spec allows: an ID, an ID or name, an ID or username, and so on.
+
+| Area | Accessors |
+|---|---|
+| Core gateway | `services()`, `routes()`, `consumers()`, `plugins()`, `upstreams()`, `certificates()`, `snis()`, `caCertificates()`, `vaults()`, `keys()`, `keySets()`, `workspaces()`, `tags()` |
+| Credentials | `acls()`, `keyAuths()`, `basicAuths()`, `hmacAuths()`, `jwts()`, `mtlsAuths()` |
+| Consumer groups | `consumerGroups()` |
+| Enterprise | `admins()`, `groups()`, `groupRbacRoles()`, `rbacUsers()`, `rbacRoles()`, `rbacRoleEndpoints()`, `rbacRoleEntities()`, `rbacUserGroups()`, `rbacUserRoles()`, `workspaceRbacUsers()`, `workspaceRbacRoles()`, `workspaceGroups()`, `licenses()`, `eventHooks()`, `partials()`, `clonedPlugins()`, `customPlugins()`, `degraphqlRoutes()`, `graphqlCostDecorations()`, `oidcJwks()` |
+| Operations | `information()`, `debug()`, `clustering()`, `declarativeConfig()`, `cache()`, `keyring()`, `auditLogs()`, `schemas()` |
+
+Nested endpoints follow the spec paths:
+
+```php
+$resources = [
+    $kong->services()->routes('billing'),              // /services/{ServiceIdOrName}/routes
+    $kong->services()->plugins('billing'),             // /services/{ServiceIdOrName}/plugins
+    $kong->routes()->plugins('billing-api'),           // /routes/{RouteIdOrName}/plugins
+    $kong->consumers()->plugins($consumerId),          // /consumers/{ConsumerIdForNestedEntities}/plugins
+    $kong->consumerGroups()->consumers('gold'),        // /consumer_groups/{ConsumerGroupId}/consumers
+    $kong->upstreams()->targets($upstreamId),          // /upstreams/{UpstreamIdForTarget}/targets
+    $kong->certificates()->snis($certificateId),       // /certificates/{CertificateId}/snis
+    $kong->keySets()->keys('jwks'),                    // /key-sets/{KeySetIdOrName}/keys
+    $kong->partials()->links($partialId),              // /partials/{PartialId}/links
+];
+```
+
+## Pagination and tag filters
+
+```php
+use Aybarsm\Kong\AdminApi\Pagination\ListOptions;
+use Aybarsm\Kong\AdminApi\Pagination\TagFilter;
+
+$page = $kong->services()->list(new ListOptions(size: 100, tags: TagFilter::allOf('production', 'billing')));
+foreach ($page->data as $service) {
+    $seen[] = $service->name;
+}
+$more = $page->hasMore();   // true when Kong returned an `offset`
+
+foreach ($kong->services()->all(new ListOptions(tags: TagFilter::anyOf('team-a', 'team-b'))) as $service) {
+    $seen[] = $service->name;   // fetched page by page, lazily
+}
+```
+
+- `list()` returns one `Page`, with `data`, `offset` and `next`.
+- `all()` returns a lazy generator. It follows `offset` until Kong stops returning one, and stops with an exception if Kong repeats an offset.
+- `size` must be between 1 and 1000, the spec's bounds.
+- `TagFilter::allOf()` joins tags with `,` to mean AND; `TagFilter::anyOf()` joins them with `/` to mean OR.
+
+## Input DTOs and arrays
+
+```php
+// Typed input: null fields are not sent.
+$kong->services()->update('billing', new ServiceInput(retries: 3));          // {"retries":3}
+
+// Arrays are sent as given, including explicit nulls.
+$kong->services()->update('billing', ['ca_certificates' => null]);          // {"ca_certificates":null}
+```
+
+- **Every write method accepts either form.** Input DTOs make every field optional, because PATCH reuses the same schema. Fields the spec requires on create are marked in each DTO's docblock.
+- **Response DTOs round-trip.** Each one has `fromArray()` and `toArray()`, using the spec's snake_case property names.
+- **Secrets stay hidden.** Properties the spec marks `x-encrypted` (certificate keys, credential secrets, key material) are redacted from `var_dump()`/`print_r()`.
+
+## Consumers and credentials
+
+```php
+$consumer = $kong->consumers()->create(new ConsumerInput(username: 'alice', customId: 'crm-42'));
+$kong->consumers()->keyAuths((string) $consumer->id)->create(new KeyAuthInput(ttl: 3600));
+```
+
+Every credential type is available both top-level (`$kong->keyAuths()`) and per consumer (`$kong->consumers()->keyAuths($consumerId)`). Group memberships are managed from both sides:
+
+- `$kong->consumerGroups()->consumers($group)` covers the consumers in a group.
+- `$kong->consumers()->consumerGroups($consumer)` covers the groups a consumer belongs to.
+
+## Polymorphic entities
+
+Some spec schemas are a `oneOf`. Responses are mapped to the matching class:
+
+```php
+$route = $kong->routes()->get('billing-api');
+
+$match = match (true) {
+    $route instanceof RouteExpression => (string) $route->expression,
+    $route instanceof RouteJson => implode(', ', $route->paths ?? []),
+    default => '',
+};
+```
+
+- **Routes:** a payload with a non-null `expression` becomes a `RouteExpression`; any other payload becomes a `RouteJson`.
+- **Partials:** `PartialFactory` chooses the variant from the `type` discriminator (`PartialRedisCe`, `PartialRedisEe`, `PartialVectordb`, `PartialEmbeddings`, `PartialModel`). Each variant's input DTO sends its own `type` by default.
+
+## Error handling
+
+```php
+try {
+    $kong->services()->get('missing');
+} catch (NotFoundException $e) {
+    $log[] = $e->statusCode;                    // 404
+}
+
+try {
+    $kong->services()->create(['name' => 'no-host']);
+} catch (ValidationException $e) {
+    $log[] = $e->kongMessage;                   // "schema violation (host: required field missing)"
+    $log[] = $e->details;                       // decoded error body
+}
+
+try {
+    $kong->services()->list();
+} catch (TransportException $e) {
+    $log[] = $e->getPrevious()?->getMessage();  // the PSR-18 client's exception
+} catch (KongApiException $e) {
+    // any other Admin API failure
+}
+```
+
+| Exception | When |
+|---|---|
+| `ValidationException` | HTTP 400 |
+| `UnauthorizedException` | HTTP 401 |
+| `NotFoundException` | HTTP 404. Deletes return 204 even when the entity doesn't exist, as the spec defines. |
+| `ConflictException` | HTTP 409 |
+| `ServerException` | HTTP 5xx |
+| `KongApiException` | Any other HTTP error (e.g. 403, 405), and the base class of all of the above |
+| `TransportException` | No response at all: network, DNS or TLS failures, wrapping the PSR-18 exception |
+| `UnexpectedResponseException` | A response that isn't valid JSON or doesn't match the spec schema |
+| `InvalidArgumentException` | Caller errors caught before sending (empty ID, page size out of range, invalid base URI) |
+
+- **Common interface:** every exception implements `KongExceptionInterface`.
+- **HTTP errors:** `KongApiException` exposes `statusCode`, `kongMessage` (the spec's `message` field), `details` (the decoded error body), `method` and `path`.
+- **Guzzle compatibility:** Guzzle's `RequestException`s are mapped by their response status too, so a client configured with `http_errors` behaves the same.
+
+## Operational endpoints
+
+```php
+$version = $kong->information()->info()->version;
+$hasVaults = $kong->information()->endpointExists('vaults');
+$check = $kong->schemas()->validate('services', ['host' => 'billing.internal']);
+```
+
+- `information()` covers `/`, `/status`, `/status/dns`, `/endpoints`, `/timers` and `/fips-status`, plus `HEAD`/`OPTIONS /{endpoint}`.
+- `debug()` gets and sets log levels.
+- `clustering()` covers hybrid-mode data planes.
+- `declarativeConfig()` reads and applies `/config`.
+- `cache()`, `keyring()`, `auditLogs()` and `schemas()` complete the operational set.
+
+## Spec coverage
+
+The client implements all **657** operations in `resources/kong-admin-api/v3.16.json` except four. Those four live under `/{workspace}/rbac/roles/{id}/endpoints/{workspace}{RBACRoleEndpointId}`, a path template the spec gets wrong. Use `rbacRoleEndpoints()` for those items instead.
+
+Where the spec is ambiguous or inconsistent, the client follows the spec literally and documents the choice in [`docs/spec-notes.md`](docs/spec-notes.md). Examples:
+
+- `GET /licenses` returns a single license object.
+- Some request bodies use dotted keys.
+- Some response objects are documented by example only.
+
+These notes are under review, and some behaviour may change before 1.0.
+
+## Kong version support
+
+`KongSpec::VERSION` (`3.16.0`) records the Kong Gateway version this release was built from. The client only implements what that spec defines. Upgrading to a newer Kong spec is a deliberate, reviewed change: the new spec is diffed against the current one, breaking changes are reported, and the version constant is bumped.
+
+## Development
+
+```bash
+composer install
+composer ci            # code style, PHPStan level 9 + 100% type coverage, tests with ≥ 90% line coverage
+composer test:mutate   # mutation testing (≥ 80%)
+```
+
+- **Tests:**
+  - Pest, using Guzzle's `MockHandler`; no network access.
+  - Conformance tests check every resource method, DTO and enum against the spec.
+  - Every example in this README is mirrored in `tests/Feature/ReadmeExamplesTest.php`.
+- **Generated code:** the uniform CRUD resources and most DTOs are generated from the spec by `tools/generator/` and committed; see its README.
+- **Continuous integration:**
+  - CI runs PHP 8.3, 8.4 and 8.5 with lowest and highest dependencies.
+  - Mutation testing runs on pushes to `main` and weekly.
+
+## License
+
+MIT. See [LICENSE](LICENSE).

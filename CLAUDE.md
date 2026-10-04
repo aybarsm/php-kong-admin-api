@@ -82,7 +82,8 @@ Project specifics (decided 2026-10-04):
 - `composer ci` and `composer test:mutate` pass. There is no baseline and no new ignores.
 - The DTO, enum and model conformance tests match the spec. New anomalies are recorded in `docs/spec-notes.md`.
 - Public classes and methods have docblocks, including `@throws` and the spec operationId.
-- README is updated if public API changed.
+- README is updated if public API changed, and every README code example is mirrored in
+  `tests/Feature/ReadmeExamplesTest.php`.
 - Generated code changed only through `tools/generator/` (generator or phase tables), regenerated and
   committed together with the generator change.
 
