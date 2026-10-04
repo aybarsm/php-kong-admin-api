@@ -1,15 +1,16 @@
 ---
 name: kong-php-client
-description: Use when implementing, changing, extending or upgrading any Kong Admin API resource, endpoint, DTO, enum or test in aybarsm/kong-admin-api — e.g. "add the Upstreams resource", "support PUT on /vaults", "fix the Plugin model", "add a field to Service", "upgrade to Kong 3.17", "diff the new Kong spec". Also use when running or changing the code generator in tools/generator/. Covers the spec-first workflow, the merged php-pro coding rules, and the add-resource and upgrade-version procedures.
+description: Use when implementing, changing, extending or upgrading any Kong Admin API resource, endpoint, DTO, enum or test in aybarsm/kong-admin-api — e.g. "add the Upstreams resource", "support PUT on /vaults", "fix the Plugin model", "add a field to Service", "upgrade to Kong 3.17", "diff the new Kong spec". Also use when adding, regenerating or fixing a typed plugin configuration from resources/kong-admin-api/plugins/ (e.g. "add the rate-limiting plugin", "a new plugin doc was added", "fix the AiProxy config"), and when running or changing the code generator in tools/generator/. Covers the spec-first workflow, the merged php-pro coding rules, and the add-resource, add-plugin and upgrade-version procedures.
 ---
 
 # Kong PHP client: implementation and upgrade skill
 
-The spec at `resources/kong-admin-api/{version}.json` (canonical) is the only authority. Read CLAUDE.md
-first: its source-of-truth rules override anything here.
+The spec at `resources/kong-admin-api/{version}.json` (canonical) is the only authority for endpoints and
+entities; the plugin docs at `resources/kong-admin-api/plugins/{Category}/{plugin}.md` are the only authority
+for plugin configuration. Read CLAUDE.md first: its source-of-truth rules override anything here.
 References: `references/spec-reading.md` (jq recipes), `references/resource-template.md`,
-`references/dto-template.md`, `references/test-template.md`, and the code generator's
-`tools/generator/README.md`.
+`references/dto-template.md`, `references/test-template.md`, `references/plugin-docs.md` (plugin docs and
+classes), and the code generator's `tools/generator/README.md`.
 
 ## Merged PHP rules (VoltAgent php-pro + Jeffallan php-pro, framework parts removed; stricter rule wins)
 
@@ -139,7 +140,40 @@ d. **Apply**:
    3. Update `docs/spec-notes.md`: re-check every open question against the new spec.
    4. Bump `KongSpec::VERSION` (from `info.version`).
    5. Update CLAUDE.md, README and composer.json description references.
-   6. Run all gates.
+   6. Plugins: the docs are unversioned. Ask for refreshed docs for the new version (never fetch them),
+      then follow Workflow C, diffing each doc's schema against the previous one to report breaking
+      changes (removed fields, new `required`, removed enum values).
+   7. Run all gates.
 
    Conformance tests now read the new spec and must pass with no blocked operations beyond those you
    approve.
+
+## Workflow C: adding (or refreshing) plugins from their docs
+
+Plugins are always generated; there is no hand-written plugin class. Recipes and class shapes:
+`references/plugin-docs.md`.
+
+a. **Validate every doc before generating** (the generator and `PluginConformanceTest` check the same):
+   - The file is `resources/kong-admin-api/plugins/{Category}/{plugin}.md` with front matter and exactly one
+     fenced `json` block. If the directory or the file is missing, stop and name the expected path.
+   - Front-matter `title`, the `# … Plugin Configuration Reference` heading and the `url` slug describe the same
+     plugin as the filename, and no other doc has an identical schema. A doc that describes another plugin
+     (copy error) is **blocked**: add it to the `blocked-plugins` list in `docs/plugin-notes.md` with the
+     evidence. Never implement it from the doc it duplicates, from the web, or from memory.
+   - The wire `name` is the `url` slug. Where it differs from the filename, that is fine, but keep it
+     listed in plugin-notes (P2).
+   - Anything the doc leaves ambiguous (unknown keyword, odd types, a `required` field that can't be
+     typed) goes to `docs/plugin-notes.md` as an open question with the default you applied.
+
+b. **Generate**: `python3 tools/generator/plugins.py`. It writes `src/Plugins/{Category}/{Plugin}/…`,
+   `src/Plugins/PluginRegistry.php` and `tests/Fixtures/Plugins/{Category}/{plugin}.json`. The JSON Schema
+   keywords it understands are listed in `references/plugin-docs.md`. A new keyword makes it fail with the
+   doc and location; extend `plugins.py` (and `models.py` if a new reader is needed) rather than
+   hand-editing output. Class names come from the config path; shorten one only through the `NAMES` table.
+
+c. **Review the diff**, then run every gate: `composer ci && composer test:mutate`. `PluginConformanceTest`
+   covers every plugin generically, so a new plugin needs no new test file. Hand-written tests are only for
+   behaviour outside the DTOs (`PluginRegistry`, the resources accepting `TypedPluginInput`).
+
+d. **Docs**: the generator rewrites the README plugin table between the `plugins:start`/`plugins:end`
+   markers (a conformance test checks it). Record new anomalies and decisions in `docs/plugin-notes.md`.

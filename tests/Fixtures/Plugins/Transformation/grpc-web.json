@@ -1,0 +1,5 @@
+{
+  "allow_origin_header": "allow_origin_header-value",
+  "pass_stripped_path": true,
+  "proto": "proto-value"
+}

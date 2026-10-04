@@ -16,6 +16,8 @@ it('reads present values of every scalar type', function (): void {
         ->and(Data::int($data, 'i'))->toBe(7)
         ->and(Data::floatOrNull($data, 'f'))->toBe(1.5)
         ->and(Data::floatOrNull($data, 'fi'))->toBe(2.0)
+        ->and(Data::float($data, 'f'))->toBe(1.5)
+        ->and(Data::float($data, 'fi'))->toBe(2.0)
         ->and(Data::bool($data, 'b'))->toBeFalse();
 });
 
@@ -45,6 +47,8 @@ it('throws on missing required values', function (callable $read, string $key): 
     'free-form' => [fn (): array => Data::freeForm(['f' => null], 'f'), 'f'],
     'string list' => [fn (): array => Data::stringList([], 'l'), 'l'],
     'list of maps' => [fn (): array => Data::listOfMaps([], 'e'), 'e'],
+    'float' => [fn (): float => Data::float(['g' => null], 'g'), 'g'],
+    'enum' => [fn (): Protocol => Data::enum([], 'h', Protocol::class), 'h'],
 ]);
 
 it('throws on values of the wrong type', function (callable $read, string $message): void {
@@ -103,6 +107,8 @@ it('reads lists, maps, free-form objects and enums', function (): void {
         ->and(Data::freeFormOrNull($data, 'free'))->toBe([200 => 'ok', 'name' => 'x'])
         ->and(Data::listOfMaps($data, 'rows'))->toBe([['a' => 1], ['b' => 2]])
         ->and(Data::enumOrNull($data, 'protocol', Protocol::class))->toBe(Protocol::Https)
+        ->and(Data::enum($data, 'protocol', Protocol::class))->toBe(Protocol::Https)
+        ->and(Data::enum($data, 'code', HttpsRedirectStatusCode::class))->toBe(HttpsRedirectStatusCode::UpgradeRequired)
         ->and(Data::enumListOrNull($data, 'protocols', Protocol::class))->toBe([Protocol::Grpc, Protocol::TlsPassthrough])
         ->and(Data::enumOrNull($data, 'code', HttpsRedirectStatusCode::class))->toBe(HttpsRedirectStatusCode::UpgradeRequired);
 });

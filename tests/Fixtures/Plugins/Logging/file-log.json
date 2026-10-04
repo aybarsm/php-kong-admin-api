@@ -1,0 +1,7 @@
+{
+  "custom_fields_by_lua": {
+    "key": "value"
+  },
+  "path": "path-value",
+  "reopen": true
+}

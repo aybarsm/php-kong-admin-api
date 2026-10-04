@@ -1,0 +1,22 @@
+{
+  "accept_http_if_already_terminated": true,
+  "anonymous": "anonymous-value",
+  "auth_header_name": "auth_header_name-value",
+  "enable_authorization_code": true,
+  "enable_client_credentials": true,
+  "enable_implicit_grant": true,
+  "enable_password_grant": true,
+  "global_credentials": true,
+  "hide_credentials": true,
+  "mandatory_scope": true,
+  "persistent_refresh_token": true,
+  "pkce": "lax",
+  "provision_key": "provision_key-value",
+  "realm": "realm-value",
+  "refresh_token_ttl": 1.5,
+  "reuse_refresh_token": true,
+  "scopes": [
+    "scopes-value"
+  ],
+  "token_expiration": 1.5
+}

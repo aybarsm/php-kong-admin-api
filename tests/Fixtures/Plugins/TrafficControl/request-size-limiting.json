@@ -1,0 +1,5 @@
+{
+  "allowed_payload_size": 1,
+  "require_content_length": true,
+  "size_unit": "bytes"
+}

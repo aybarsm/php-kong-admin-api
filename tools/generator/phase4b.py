@@ -17,7 +17,7 @@ import models  # noqa: E402
 from feature_tests import feature_test, snake  # noqa: E402
 from fixtures import fixture  # noqa: E402
 from models import NS, finalize, generate_entity  # noqa: E402
-from phase4a import EMPTY_PARENT, M, N, acc, nested, top  # noqa: E402
+from phase4a import EMPTY_PARENT, M, N, PLUGIN_BODY, acc, nested, top  # noqa: E402
 from resources import resource  # noqa: E402
 
 # --- Models ------------------------------------------------------------------------------------
@@ -124,7 +124,7 @@ CONFIGS += [
         ]),
     nested('ConsumerGroupPlugins', 'Plugin', 'a', 'Plugin', 'Plugin', '/consumer_groups/{ConsumerGroupId}/plugins',
            '/consumer_groups/{ConsumerGroupId}/plugins/{PluginId}', 'id', 'ID', 'plugins', 'one Consumer Group',
-           obtain='$client->consumerGroups()->plugins($groupId)'),
+           obtain='$client->consumerGroups()->plugins($groupId)', **PLUGIN_BODY),
 ]
 
 # --- Tests -------------------------------------------------------------------------------------

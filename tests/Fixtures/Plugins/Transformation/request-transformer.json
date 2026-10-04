@@ -1,0 +1,59 @@
+{
+  "add": {
+    "body": [
+      "body-value"
+    ],
+    "headers": [
+      "headers-value"
+    ],
+    "querystring": [
+      "querystring-value"
+    ]
+  },
+  "append": {
+    "body": [
+      "body-value"
+    ],
+    "headers": [
+      "headers-value"
+    ],
+    "querystring": [
+      "querystring-value"
+    ]
+  },
+  "http_method": "http_method-value",
+  "remove": {
+    "body": [
+      "body-value"
+    ],
+    "headers": [
+      "headers-value"
+    ],
+    "querystring": [
+      "querystring-value"
+    ]
+  },
+  "rename": {
+    "body": [
+      "body-value"
+    ],
+    "headers": [
+      "headers-value"
+    ],
+    "querystring": [
+      "querystring-value"
+    ]
+  },
+  "replace": {
+    "body": [
+      "body-value"
+    ],
+    "headers": [
+      "headers-value"
+    ],
+    "querystring": [
+      "querystring-value"
+    ],
+    "uri": "uri-value"
+  }
+}

@@ -13,6 +13,7 @@ use Aybarsm\Kong\AdminApi\Models\Plugin;
 use Aybarsm\Kong\AdminApi\Models\PluginInput;
 use Aybarsm\Kong\AdminApi\Pagination\ListOptions;
 use Aybarsm\Kong\AdminApi\Pagination\Page;
+use Aybarsm\Kong\AdminApi\Plugins\TypedPluginInput;
 use Aybarsm\Kong\AdminApi\Resources\AbstractResource;
 use Generator;
 
@@ -87,12 +88,12 @@ final readonly class ServicePlugins extends AbstractResource
     /**
      * Create a Plugin (operationId `create-plugin-with-service`, body `PluginWithoutParents`).
      *
-     * @param PluginInput|array<string, mixed> $plugin
+     * @param PluginInput|TypedPluginInput|array<string, mixed> $plugin
      *
      * @throws KongApiException
      */
     #[Operation(Transport::METHOD_POST, '/services/{ServiceIdOrName}/plugins', 'create-plugin-with-service', OperationScope::Both)]
-    public function create(PluginInput|array $plugin): Plugin
+    public function create(PluginInput|TypedPluginInput|array $plugin): Plugin
     {
         return Plugin::fromArray($this->object(
             Transport::METHOD_POST,
@@ -104,13 +105,13 @@ final readonly class ServicePlugins extends AbstractResource
     /**
      * Update fields of a Plugin (operationId `update-plugin-with-service`, PATCH, body `Plugin`).
      *
-     * @param PluginInput|array<string, mixed> $plugin only the fields to change
+     * @param PluginInput|TypedPluginInput|array<string, mixed> $plugin only the fields to change
      *
      * @throws KongApiException
      * @throws InvalidArgumentException when $id is empty
      */
     #[Operation(Transport::METHOD_PATCH, '/services/{ServiceIdOrName}/plugins/{PluginId}', 'update-plugin-with-service', OperationScope::Both)]
-    public function update(string $id, PluginInput|array $plugin): Plugin
+    public function update(string $id, PluginInput|TypedPluginInput|array $plugin): Plugin
     {
         return Plugin::fromArray($this->object(
             Transport::METHOD_PATCH,
@@ -122,13 +123,13 @@ final readonly class ServicePlugins extends AbstractResource
     /**
      * Create or replace a Plugin by ID (operationId `upsert-plugin-with-service`, PUT, body `PluginWithoutParents`).
      *
-     * @param PluginInput|array<string, mixed> $plugin
+     * @param PluginInput|TypedPluginInput|array<string, mixed> $plugin
      *
      * @throws KongApiException
      * @throws InvalidArgumentException when $id is empty
      */
     #[Operation(Transport::METHOD_PUT, '/services/{ServiceIdOrName}/plugins/{PluginId}', 'upsert-plugin-with-service', OperationScope::Both)]
-    public function upsert(string $id, PluginInput|array $plugin): Plugin
+    public function upsert(string $id, PluginInput|TypedPluginInput|array $plugin): Plugin
     {
         return Plugin::fromArray($this->object(
             Transport::METHOD_PUT,

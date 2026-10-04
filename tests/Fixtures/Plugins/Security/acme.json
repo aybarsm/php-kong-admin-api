@@ -1,0 +1,108 @@
+{
+  "account_email": "account_email-value",
+  "account_key": {
+    "key_id": "key_id-value",
+    "key_set": "key_set-value"
+  },
+  "allow_any_domain": true,
+  "api_uri": "api_uri-value",
+  "cert_type": "ecc",
+  "domains": [
+    "domains-value"
+  ],
+  "eab_hmac_key": "eab_hmac_key-value",
+  "eab_kid": "eab_kid-value",
+  "enable_ipv4_common_name": true,
+  "fail_backoff_minutes": 1.5,
+  "preferred_chain": "preferred_chain-value",
+  "renew_threshold_days": 1.5,
+  "rsa_key_size": 2048,
+  "storage": "consul",
+  "storage_config": {
+    "consul": {
+      "host": "host-value",
+      "https": true,
+      "kv_path": "kv_path-value",
+      "port": 1,
+      "timeout": 1.5,
+      "token": "token-value"
+    },
+    "kong": {
+      "enabled": true,
+      "nested": {
+        "limit": 5
+      },
+      "option": "value"
+    },
+    "redis": {
+      "cloud_authentication": {
+        "auth_provider": "aws",
+        "aws_access_key_id": "aws_access_key_id-value",
+        "aws_assume_role_arn": "aws_assume_role_arn-value",
+        "aws_cache_name": "aws_cache_name-value",
+        "aws_is_serverless": true,
+        "aws_region": "aws_region-value",
+        "aws_role_session_name": "aws_role_session_name-value",
+        "aws_secret_access_key": "aws_secret_access_key-value",
+        "azure_client_id": "azure_client_id-value",
+        "azure_client_secret": "azure_client_secret-value",
+        "azure_tenant_id": "azure_tenant_id-value",
+        "gcp_service_account_json": "gcp_service_account_json-value",
+        "oauth": {
+          "auth_method": "client_secret_basic",
+          "client_id": "client_id-value",
+          "client_secret": "client_secret-value",
+          "client_secret_jwt_alg": "HS256",
+          "grant_type": "client_credentials",
+          "password": "password-value",
+          "redis_username": "redis_username-value",
+          "redis_username_claim": "redis_username_claim-value",
+          "scopes": [
+            "scopes-value"
+          ],
+          "ssl_verify": true,
+          "timeout": 1.5,
+          "token_endpoint": "token_endpoint-value",
+          "token_headers": {
+            "key": "value"
+          },
+          "token_post_args": {
+            "key": "value"
+          },
+          "username": "username-value"
+        }
+      },
+      "database": 1,
+      "extra_options": {
+        "namespace": "namespace-value",
+        "scan_count": 1.5
+      },
+      "host": "host-value",
+      "password": "password-value",
+      "port": 1,
+      "server_name": "server_name-value",
+      "ssl": true,
+      "ssl_verify": true,
+      "timeout": 1,
+      "username": "username-value"
+    },
+    "shm": {
+      "shm_name": "shm_name-value"
+    },
+    "vault": {
+      "auth_method": "kubernetes",
+      "auth_path": "auth_path-value",
+      "auth_role": "auth_role-value",
+      "host": "host-value",
+      "https": true,
+      "jwt_path": "jwt_path-value",
+      "kv_path": "kv_path-value",
+      "port": 1,
+      "timeout": 1.5,
+      "tls_server_name": "tls_server_name-value",
+      "tls_verify": true,
+      "token": "token-value"
+    }
+  },
+  "tos_accepted": true
+}

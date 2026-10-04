@@ -1,0 +1,16 @@
+{
+  "client_errors_severity": "alert",
+  "custom_fields_by_lua": {
+    "key": "value"
+  },
+  "host": "host-value",
+  "key": "key-value",
+  "log_level": "alert",
+  "port": 1,
+  "server_errors_severity": "alert",
+  "successful_severity": "alert",
+  "tags": [
+    "tags-value"
+  ],
+  "timeout": 1.5
+}

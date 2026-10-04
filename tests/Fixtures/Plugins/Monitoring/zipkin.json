@@ -1,0 +1,47 @@
+{
+  "connect_timeout": 1,
+  "default_header_type": "aws",
+  "default_service_name": "default_service_name-value",
+  "header_type": "aws",
+  "http_endpoint": "http_endpoint-value",
+  "http_response_header_for_traceid": "http_response_header_for_traceid-value",
+  "http_span_name": "method",
+  "include_credential": true,
+  "local_service_name": "local_service_name-value",
+  "phase_duration_flavor": "annotations",
+  "propagation": {
+    "clear": [
+      "clear-value"
+    ],
+    "default_format": "aws",
+    "extract": [
+      "aws"
+    ],
+    "inject": [
+      "aws"
+    ]
+  },
+  "queue": {
+    "breaker_cooldown": 1.5,
+    "concurrency_limit": -1,
+    "failure_threshold": 1,
+    "initial_retry_delay": 1.5,
+    "max_batch_size": 1,
+    "max_bytes": 1,
+    "max_coalescing_delay": 1.5,
+    "max_entries": 1,
+    "max_retry_delay": 1.5,
+    "max_retry_time": 1.5
+  },
+  "read_timeout": 1,
+  "sample_ratio": 1.5,
+  "send_timeout": 1,
+  "static_tags": [
+    {
+      "name": "name-value",
+      "value": "value-value"
+    }
+  ],
+  "tags_header": "tags_header-value",
+  "traceid_byte_count": 8
+}

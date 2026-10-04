@@ -1,0 +1,126 @@
+---
+title: Correlation ID Plugin Configuration Reference
+description: Correlate requests and responses using a unique ID
+url: "/plugins/correlation-id/reference/"
+canonical_url: "/plugins/correlation-id/reference/"
+content_type: reference
+min_version:
+  gateway: '1.0'
+products:
+- Kong Gateway
+tools:
+- deck
+- Admin API
+- Konnect API
+- KIC
+- Operator
+- Terraform
+canonical: true
+works_on:
+- on-prem
+- konnect
+
+
+---
+
+# Correlation ID Plugin Configuration Reference
+
+
+
+
+
+
+
+
+
+
+```json
+{
+  "properties": {
+    "config": {
+      "properties": {
+        "echo_downstream": {
+          "default": false,
+          "description": "Whether to echo the header back to downstream (the client).",
+          "type": "boolean"
+        },
+        "generator": {
+          "default": "uuid#counter",
+          "description": "The generator to use for the correlation ID. Accepted values are `uuid`, `uuid#counter`, and `tracker`. See [Generators](#generators).",
+          "enum": [
+            "tracker",
+            "uuid",
+            "uuid#counter"
+          ],
+          "type": "string"
+        },
+        "header_name": {
+          "default": "Kong-Request-ID",
+          "description": "The HTTP header name to use for the correlation ID.",
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "consumer": {
+      "additionalProperties": false,
+      "description": "If set, the plugin will activate only for requests where the specified has been authenticated. (Note that some plugins can not be restricted to consumers this way.). Leave unset for the plugin to activate regardless of the authenticated Consumer.",
+      "properties": {
+        "id": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "expressions": {
+      "additionalProperties": true,
+      "type": "object"
+    },
+    "protocols": {
+      "default": [
+        "grpc",
+        "grpcs",
+        "http",
+        "https"
+      ],
+      "description": "A set of strings representing HTTP protocols.",
+      "items": {
+        "enum": [
+          "grpc",
+          "grpcs",
+          "http",
+          "https"
+        ],
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "route": {
+      "additionalProperties": false,
+      "description": "If set, the plugin will only activate when receiving requests via the specified route. Leave unset for the plugin to activate regardless of the route being used.",
+      "properties": {
+        "id": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "service": {
+      "additionalProperties": false,
+      "description": "If set, the plugin will only activate when receiving requests via one of the routes belonging to the specified Service. Leave unset for the plugin to activate regardless of the Service being matched.",
+      "properties": {
+        "id": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}
+```
+
+
+## Related Resources
+
+- [Add Correlation IDs to Kong Gateway logs](/how-to/add-correlation-ids-to-gateway-logs/)
+

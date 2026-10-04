@@ -1,0 +1,32 @@
+{
+  "client_certificate": {
+    "id": "9adde6bd-b3b3-5bef-9031-f8fc718de475"
+  },
+  "content_type": "application/json",
+  "custom_fields_by_lua": {
+    "key": "value"
+  },
+  "flush_timeout": 1.5,
+  "headers": {
+    "key": "value"
+  },
+  "http_endpoint": "http_endpoint-value",
+  "keepalive": 1.5,
+  "method": "PATCH",
+  "queue": {
+    "breaker_cooldown": 1.5,
+    "concurrency_limit": -1,
+    "failure_threshold": 1,
+    "initial_retry_delay": 1.5,
+    "max_batch_size": 1,
+    "max_bytes": 1,
+    "max_coalescing_delay": 1.5,
+    "max_entries": 1,
+    "max_retry_delay": 1.5,
+    "max_retry_time": 1.5
+  },
+  "queue_size": 1,
+  "retry_count": 1,
+  "ssl_verify": true,
+  "timeout": 1.5
+}

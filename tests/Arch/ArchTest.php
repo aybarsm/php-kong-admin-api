@@ -28,6 +28,11 @@ it('makes DTOs, config, pagination and attributes final readonly classes', funct
         ->classes()->toBeReadonly();
 });
 
+it('makes plugin classes final readonly (enum backing is checked against the docs in PluginConformanceTest)', function (): void {
+    expect('Aybarsm\Kong\AdminApi\Plugins')->classes()->toBeFinal()
+        ->and('Aybarsm\Kong\AdminApi\Plugins')->classes()->toBeReadonly();
+});
+
 it('makes resources final readonly subclasses of the shared base', function (): void {
     expect('Aybarsm\Kong\AdminApi\Resources')->classes()->toBeReadonly();
     expect('Aybarsm\Kong\AdminApi\Resources')->classes()->toBeFinal()->ignoring(AbstractResource::class);
@@ -40,7 +45,7 @@ it('makes exceptions final, except the base', function (): void {
 
 it('keeps HTTP out of resources, models and pagination', function (): void {
     expect('Aybarsm\Kong\AdminApi\Resources')->not->toUse(['Psr\Http\Message', 'Psr\Http\Client', 'GuzzleHttp']);
-    expect(['Aybarsm\Kong\AdminApi\Models', 'Aybarsm\Kong\AdminApi\Pagination'])
+    expect(['Aybarsm\Kong\AdminApi\Models', 'Aybarsm\Kong\AdminApi\Pagination', 'Aybarsm\Kong\AdminApi\Plugins'])
         ->not->toUse(['Psr\Http\Message', 'Psr\Http\Client', 'GuzzleHttp', Transport::class]);
 });
 

@@ -75,6 +75,18 @@ final class Data
     }
 
     /**
+     * Reads a required spec `number`; JSON integers are widened to float.
+     *
+     * @param array<string, mixed> $data
+     *
+     * @throws UnexpectedResponseException
+     */
+    public static function float(array $data, string $key): float
+    {
+        return self::floatOrNull($data, $key) ?? throw self::missing($key);
+    }
+
+    /**
      * Reads a spec `number`; JSON integers are widened to float.
      *
      * @param array<string, mixed> $data
@@ -390,6 +402,21 @@ final class Data
         }
 
         return $out;
+    }
+
+    /**
+     * @template E of BackedEnum
+     *
+     * @param array<string, mixed> $data
+     * @param class-string<E>      $enum
+     *
+     * @return E
+     *
+     * @throws UnexpectedResponseException
+     */
+    public static function enum(array $data, string $key, string $enum): BackedEnum
+    {
+        return self::enumOrNull($data, $key, $enum) ?? throw self::missing($key);
     }
 
     /**

@@ -231,10 +231,10 @@ class Prop:
             'stringmap': 'stringMapOrNull',
         }
         if k == 'float' and req:
-            raise ValueError('required float unsupported')
+            return None, f"Data::float($data, '{w}')"
         if k == 'enum':
             if req:
-                raise ValueError('required enum unsupported')
+                return None, f"Data::enum($data, '{w}', {self.cls}::class)"
             return None, f"Data::enumOrNull($data, '{w}', {self.cls}::class)"
         if k == 'enumlist':
             return None, f"Data::enumListOrNull($data, '{w}', {self.cls}::class)"
@@ -279,13 +279,20 @@ def build_props(cls, schema_name, nested_names, enum_names, location):
     return [p for p in props if p.required] + [p for p in props if not p.required]
 
 
-def render(cls, schema_name, doc, props, input_mode, extra_uses=(), sibling_ns=None, contract=None):
-    uses = {NS + '\\Attributes\\Schema', NS + '\\Internal\\Data', 'Override'}
+def render(cls, schema_name, doc, props, input_mode, extra_uses=(), sibling_ns=None, contract=None, attribute=None,
+           encrypted_note=None, head=(), tail=(), array_head=(),
+           required_note='Required by the spec on create.'):
+    """Renders one DTO. The keyword hooks (used by plugins.py) default to the spec-model output:
+    `attribute` = (import, attribute line) replacing `#[Schema(...)]`, `encrypted_note` replaces the ENCRYPTED
+    comment, `head`/`tail` are class-body lines before the constructor and after the last method, and
+    `array_head` are entries prepended to `toArray()`, and `required_note` marks required fields on inputs. A Prop with `external = True` lives outside
+    `sibling_ns` and imports itself through `uses()`."""
+    uses = {(attribute[0] if attribute else NS + '\\Attributes\\Schema'), NS + '\\Internal\\Data', 'Override'}
     if contract is None:
         uses.add(NS + ('\\Contracts\\Input' if input_mode else '\\Contracts\\Model'))
     for p in props:
         uses |= p.uses()
-        if p.kind in ('obj', 'objlist', 'objmap') and sibling_ns:
+        if p.kind in ('obj', 'objlist', 'objmap') and sibling_ns and not getattr(p, 'external', False):
             uses.add(sibling_ns + '\\' + p.cls)
     if any(p.encrypted for p in props) and input_mode:
         uses.add('SensitiveParameter')
@@ -302,14 +309,16 @@ def render(cls, schema_name, doc, props, input_mode, extra_uses=(), sibling_ns=N
     lines += [f'use {u};' for u in uses] + ['']
     lines += ['/**'] + [(' * ' + l).rstrip() for l in doc] + [' */']
     attr_name = schema_name.replace("'", "\\'")
-    lines += [f"#[Schema('{attr_name}')]"]
+    lines += [attribute[1] if attribute else f"#[Schema('{attr_name}')]"]
     contract = contract or ('Input' if input_mode else 'Model')
     lines += [f'final readonly class {cls} implements {contract}', '{']
 
     enc = [p.php for p in props if p.encrypted]
     if enc:
-        lines += ['    /** Properties the spec marks `x-encrypted` (plus reviewed secrets, spec-notes Q18); redacted in __debugInfo(). */',
+        note = encrypted_note or 'Properties the spec marks `x-encrypted` (plus reviewed secrets, spec-notes Q18); redacted in __debugInfo().'
+        lines += [f'    /** {note} */',
                   '    private const array ENCRYPTED = [' + ', '.join(f"'{e}'" for e in enc) + '];', '']
+    lines += list(head)
 
     # constructor docblock
     doc_params = []
@@ -319,7 +328,7 @@ def render(cls, schema_name, doc, props, input_mode, extra_uses=(), sibling_ns=N
         t = p.phpdoc(input_mode) or (p.native(input_mode).lstrip('?') + ('|null' if p.nullable(input_mode) else ''))
         d = p.desc
         if input_mode and p.required:
-            d = (d + ' ' if d else '') + 'Required by the spec on create.'
+            d = (d + ' ' if d else '') + required_note
         doc_params.append(f'     * @param {t.ljust(width)} ${p.php.ljust(namew - 1)} {d}'.rstrip())
     lines += ['    /**'] + doc_params + ['     */', '    public function __construct(']
     for p in props:
@@ -345,6 +354,7 @@ def render(cls, schema_name, doc, props, input_mode, extra_uses=(), sibling_ns=N
 
     lines += ['    /**', '     * @return array<string, mixed>', '     */', '    #[Override]',
               '    public function toArray(): array', '    {', '        return Data::withoutNulls([']
+    lines += list(array_head)
     for p in props:
         lines.append(f"            '{p.wire}' => {p.writer(input_mode)},")
     lines += ['        ]);', '    }']
@@ -354,6 +364,7 @@ def render(cls, schema_name, doc, props, input_mode, extra_uses=(), sibling_ns=N
                   '    public function __debugInfo(): array', '    {', '        $values = get_object_vars($this);',
                   '        foreach (self::ENCRYPTED as $property) {', '            if ($values[$property] !== null) {',
                   "                $values[$property] = '***';", '            }', '        }', '', '        return $values;', '    }']
+    lines += list(tail)
     lines += ['}', '']
     return '\n'.join(lines)
 

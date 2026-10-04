@@ -1,0 +1,16 @@
+{
+  "anonymous": "anonymous-value",
+  "attribute": "attribute-value",
+  "base_dn": "base_dn-value",
+  "cache_ttl": 1.5,
+  "header_type": "header_type-value",
+  "hide_credentials": true,
+  "keepalive": 1.5,
+  "ldap_host": "ldap_host-value",
+  "ldap_port": 1,
+  "ldaps": true,
+  "realm": "realm-value",
+  "start_tls": true,
+  "timeout": 1.5,
+  "verify_ldap_host": true
+}

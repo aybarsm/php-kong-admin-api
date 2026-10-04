@@ -1,0 +1,151 @@
+---
+title: IP Restriction Plugin Configuration Reference
+description: Allow or deny IPs that can make requests to your services
+url: "/plugins/ip-restriction/reference/"
+canonical_url: "/plugins/ip-restriction/reference/"
+content_type: reference
+min_version:
+  gateway: '1.0'
+products:
+- Kong Gateway
+tools:
+- deck
+- Admin API
+- Konnect API
+- KIC
+- Operator
+- Terraform
+tags:
+- security
+canonical: true
+works_on:
+- on-prem
+- konnect
+
+
+---
+
+# IP Restriction Plugin Configuration Reference
+
+
+
+
+
+
+
+
+
+
+```json
+{
+  "properties": {
+    "config": {
+      "properties": {
+        "allow": {
+          "description": "List of IPs or CIDR ranges to allow. One of `config.allow` or `config.deny` must be specified.",
+          "items": {
+            "description": "A string representing an IP address or CIDR block, such as 192.168.1.1 or 192.168.0.0/16.",
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "deny": {
+          "description": "List of IPs or CIDR ranges to deny. One of `config.allow` or `config.deny` must be specified.",
+          "items": {
+            "description": "A string representing an IP address or CIDR block, such as 192.168.1.1 or 192.168.0.0/16.",
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "message": {
+          "description": "The message to send as a response body to rejected requests.",
+          "type": "string"
+        },
+        "status": {
+          "description": "The HTTP status of the requests that will be rejected by the plugin.",
+          "type": "number"
+        }
+      },
+      "type": "object"
+    },
+    "consumer": {
+      "additionalProperties": false,
+      "description": "If set, the plugin will activate only for requests where the specified has been authenticated. (Note that some plugins can not be restricted to consumers this way.). Leave unset for the plugin to activate regardless of the authenticated Consumer.",
+      "properties": {
+        "id": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "consumer_group": {
+      "additionalProperties": false,
+      "description": "If set, the plugin will activate only for requests where the specified consumer group has been authenticated. (Note that some plugins can not be restricted to consumers groups this way.). Leave unset for the plugin to activate regardless of the authenticated Consumer Groups",
+      "properties": {
+        "id": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "expressions": {
+      "additionalProperties": true,
+      "type": "object"
+    },
+    "protocols": {
+      "default": [
+        "grpc",
+        "grpcs",
+        "http",
+        "https",
+        "tcp",
+        "tls"
+      ],
+      "description": "A set of strings representing protocols.",
+      "items": {
+        "description": "A string representing a protocol, such as HTTP or HTTPS.",
+        "enum": [
+          "grpc",
+          "grpcs",
+          "http",
+          "https",
+          "tcp",
+          "tls",
+          "tls_passthrough",
+          "udp",
+          "ws",
+          "wss"
+        ],
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "route": {
+      "additionalProperties": false,
+      "description": "If set, the plugin will only activate when receiving requests via the specified route. Leave unset for the plugin to activate regardless of the route being used.",
+      "properties": {
+        "id": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "service": {
+      "additionalProperties": false,
+      "description": "If set, the plugin will only activate when receiving requests via one of the routes belonging to the specified Service. Leave unset for the plugin to activate regardless of the Service being matched.",
+      "properties": {
+        "id": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}
+```
+
+
+## Related Resources
+
+- [Restrict access to Kong Gateway resources by allowing specific IPs](/how-to/restrict-access-to-resources-by-allowing-ips/)
+

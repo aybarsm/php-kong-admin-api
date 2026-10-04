@@ -1,0 +1,40 @@
+{
+  "allow_status_codes": [
+    "allow_status_codes-value"
+  ],
+  "consumer_identifier_default": "consumer_id",
+  "flush_timeout": 1.5,
+  "host": "host-value",
+  "hostname_in_prefix": true,
+  "metrics": [
+    {
+      "consumer_identifier": "consumer_id",
+      "name": "cache_datastore_hits_total",
+      "sample_rate": 1.5,
+      "service_identifier": "service_host",
+      "stat_type": "counter",
+      "workspace_identifier": "workspace_id"
+    }
+  ],
+  "port": 1,
+  "prefix": "prefix-value",
+  "queue": {
+    "breaker_cooldown": 1.5,
+    "concurrency_limit": -1,
+    "failure_threshold": 1,
+    "initial_retry_delay": 1.5,
+    "max_batch_size": 1,
+    "max_bytes": 1,
+    "max_coalescing_delay": 1.5,
+    "max_entries": 1,
+    "max_retry_delay": 1.5,
+    "max_retry_time": 1.5
+  },
+  "queue_size": 1,
+  "retry_count": 1,
+  "service_identifier_default": "service_host",
+  "tag_style": "dogstatsd",
+  "udp_packet_size": 1.5,
+  "use_tcp": true,
+  "workspace_identifier_default": "workspace_id"
+}

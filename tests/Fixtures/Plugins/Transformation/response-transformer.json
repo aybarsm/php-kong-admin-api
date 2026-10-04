@@ -1,0 +1,51 @@
+{
+  "add": {
+    "headers": [
+      "headers-value"
+    ],
+    "json": [
+      "json-value"
+    ],
+    "json_types": [
+      "boolean"
+    ]
+  },
+  "append": {
+    "headers": [
+      "headers-value"
+    ],
+    "json": [
+      "json-value"
+    ],
+    "json_types": [
+      "boolean"
+    ]
+  },
+  "remove": {
+    "headers": [
+      "headers-value"
+    ],
+    "json": [
+      "json-value"
+    ]
+  },
+  "rename": {
+    "headers": [
+      "headers-value"
+    ],
+    "json": [
+      "json-value"
+    ]
+  },
+  "replace": {
+    "headers": [
+      "headers-value"
+    ],
+    "json": [
+      "json-value"
+    ],
+    "json_types": [
+      "boolean"
+    ]
+  }
+}

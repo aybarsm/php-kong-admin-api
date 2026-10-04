@@ -1,7 +1,7 @@
 # Code generator
 
 A spec-driven generator for the repetitive parts of this package: entity DTOs, CRUD resources, fixtures
-and feature tests. It reads the canonical spec named by `KongSpec::SPEC_FILE`
+and feature tests, plus the typed plugin classes generated from the plugin docs (`plugins.py`). It reads the canonical spec named by `KongSpec::SPEC_FILE`
 (`resources/kong-admin-api/v3.16.json`), and writes PHP in the same style as the hand-written reference
 classes (`Services`, `Service`, `ServiceInput`, `Routes`).
 
@@ -20,6 +20,7 @@ python3 tools/generator/phase4a.py   # Phase 4a: core gateway entities
 python3 tools/generator/phase4b.py   # Phase 4b: consumer credentials and consumer groups
 python3 tools/generator/phase4c.py   # Phase 4c: Enterprise entities (RBAC, plugins, partials, admins, …)
 python3 tools/generator/phase4d.py   # Phase 4d: DTOs of the operational endpoints (info, keyring, schemas, …)
+python3 tools/generator/plugins.py   # typed plugins from resources/kong-admin-api/plugins/ (after the phases)
 composer ci && composer test:mutate  # then run every gate
 ```
 
@@ -36,6 +37,7 @@ rerun produces no diff, and `git status` must stay clean.
 | `phase4a.py` | Phase 4a tables (enum locations, inline-object names, resource configs) and the entry point. Its `top()`/`nested()`/`acc()` row helpers are reused by later phases |
 | `phase4b.py` | Phase 4b tables: credentials, Consumer Groups, membership/override response DTOs (`OUTPUTS`) and inline request-body inputs (`INPUTS`) |
 | `phase4d.py` | Phase 4d tables: DTOs and fixtures of the operational endpoints. Their resources are hand-written (no CRUD shape) |
+| `plugins.py` | Typed plugins: reads every `resources/kong-admin-api/plugins/{Category}/{plugin}.md`, skips the docs blocked in `docs/plugin-notes.md`, validates the rest (one JSON block, known keywords, heading = title, no duplicate schemas, unique names), and writes `src/Plugins/{Category}/{Plugin}/…`, `src/Plugins/PluginRegistry.php`, `tests/Fixtures/Plugins/…` and the README plugin table |
 | `phase4c.py` | Phase 4c tables: Enterprise CRUD entities, global and workspace-only RBAC, Partial variants, and the DTOs of the hand-written Admins/Licenses/Event-hooks/workspace-group resources |
 
 ## What comes from where
@@ -68,6 +70,22 @@ rerun produces no diff, and `git status` must stay clean.
   `Data::listOfMaps`, `Data::freeForm`).
 - Resource configs may override `get` (`get_returns`, `get_mapone`, `get_query`, `get_doc`), add
   list query parameters (`list_query`) and nested-resource accessors (`accessors`).
+
+## Plugins (`plugins.py`)
+- **From the doc:** the wire `name` (front-matter `url` slug), config properties, types, `required`, `enum`,
+  `default` (docblocks only), `x-encrypted`, `x-supported-partials`, `min_version`, and which scope fields
+  the plugin accepts. **From the spec:** the generic `Plugin` fields of `{Plugin}Input` (`enabled`, `tags`,
+  `ordering`, `partials`, …), so they match `Models\PluginInput`.
+- **Names are derived:** the namespace is `Plugins\{Category}\{Plugin}` (category directory verbatim, plugin =
+  PascalCase filename), and nested DTOs and enums are `{Plugin}` + the PascalCase config path. The `NAMES` table
+  overrides a derived name (keyed `(slug, location)`). A clash stops the generator.
+- **Shared code:** it reuses `models.Prop`/`models.render()` through keyword hooks (attribute, `NAME` constant,
+  `fromPlugin()`, `name` entry in `toArray()`, required note). The hooks default to the spec-model output,
+  so the phase scripts are unaffected.
+- **Tests are generic:** `tests/Conformance/PluginConformanceTest.php` checks every plugin against its doc,
+  so a new doc needs no new test file.
+- **Blocked docs:** a doc that duplicates another plugin's doc is listed in `docs/plugin-notes.md` (between
+  the `blocked-plugins` markers) and skipped. A duplicate that isn't listed stops the generator.
 
 ## Rules
 - **Don't hand-edit generated files.** Change the generator or the phase tables, regenerate, and

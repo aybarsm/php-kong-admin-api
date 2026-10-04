@@ -1,0 +1,13 @@
+{
+  "algorithms": [
+    "hmac-sha1"
+  ],
+  "anonymous": "anonymous-value",
+  "clock_skew": 1.5,
+  "enforce_headers": [
+    "enforce_headers-value"
+  ],
+  "hide_credentials": true,
+  "realm": "realm-value",
+  "validate_request_body": true
+}

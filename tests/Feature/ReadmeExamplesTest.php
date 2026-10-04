@@ -20,6 +20,11 @@ use Aybarsm\Kong\AdminApi\Models\Service;
 use Aybarsm\Kong\AdminApi\Models\ServiceInput;
 use Aybarsm\Kong\AdminApi\Pagination\ListOptions;
 use Aybarsm\Kong\AdminApi\Pagination\TagFilter;
+use Aybarsm\Kong\AdminApi\Plugins\PluginRegistry;
+use Aybarsm\Kong\AdminApi\Plugins\TrafficControl\RateLimiting\RateLimitingConfig;
+use Aybarsm\Kong\AdminApi\Plugins\TrafficControl\RateLimiting\RateLimitingConfigInput;
+use Aybarsm\Kong\AdminApi\Plugins\TrafficControl\RateLimiting\RateLimitingInput;
+use Aybarsm\Kong\AdminApi\Plugins\TrafficControl\RateLimiting\RateLimitingPolicy;
 use Aybarsm\Kong\AdminApi\Tests\Support\Fixture;
 use Aybarsm\Kong\AdminApi\Tests\Support\MockKong;
 use GuzzleHttp\Client;
@@ -305,6 +310,36 @@ it('README: operational endpoints', function (): void {
     expect($version)->toBe(Fixture::get('kong_info')['version'])
         ->and($hasVaults)->toBeTrue()
         ->and($check->message)->toBe('schema validation successful');
+});
+
+it('README: typed plugins', function (): void {
+    $rateLimiting = [...Fixture::get('plugin'), 'name' => 'rate-limiting', 'config' => Fixture::get('Plugins/TrafficControl/rate-limiting')];
+    $mock = MockKong::queue(
+        MockKong::json(201, $rateLimiting),
+        MockKong::json(200, ['data' => [$rateLimiting, [...Fixture::get('plugin'), 'name' => 'my-custom-plugin']]]),
+    );
+    $kong = $mock->client;
+
+    // --- README ---
+    $plugin = $kong->services()->plugins('billing')->create(new RateLimitingInput(
+        config: new RateLimitingConfigInput(minute: 100, policy: RateLimitingPolicy::Local),
+        tags: ['edge'],
+    ));
+
+    $limits = RateLimitingConfig::fromPlugin($plugin);   // typed config of a rate-limiting plugin
+    $minute = $limits->minute;
+
+    // Typed configs of any listed plugins; null for a plugin without a doc.
+    $configs = array_map(PluginRegistry::config(...), $kong->plugins()->list()->data);
+    // --- /README ---
+
+    expect($mock->requestAt(0)->getUri()->getPath())->toBe('/services/billing/plugins')
+        ->and($mock->queryAt(1))->toBe([])
+        ->and($minute)->toBe(1.5)
+        ->and($configs[0])->toBeInstanceOf(RateLimitingConfig::class)
+        ->and($configs[1])->toBeNull();
+    $body = json_decode((string) $mock->requestAt(0)->getBody(), true);
+    expect($body)->toEqual(['name' => 'rate-limiting', 'config' => ['minute' => 100, 'policy' => 'local'], 'tags' => ['edge']]);
 });
 
 it('mirrors every php code block of README.md in this file', function (): void {

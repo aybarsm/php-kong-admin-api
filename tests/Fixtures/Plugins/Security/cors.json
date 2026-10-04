@@ -1,0 +1,19 @@
+{
+  "allow_origin_absent": true,
+  "credentials": true,
+  "exposed_headers": [
+    "exposed_headers-value"
+  ],
+  "headers": [
+    "headers-value"
+  ],
+  "max_age": 1.5,
+  "methods": [
+    "CONNECT"
+  ],
+  "origins": [
+    "origins-value"
+  ],
+  "preflight_continue": true,
+  "private_network": true
+}

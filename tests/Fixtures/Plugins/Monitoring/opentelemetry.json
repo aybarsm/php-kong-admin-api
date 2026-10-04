@@ -1,0 +1,60 @@
+{
+  "access_logs": {
+    "custom_attributes_by_lua": {
+      "key": "value"
+    },
+    "endpoint": "endpoint-value"
+  },
+  "batch_flush_delay": 1,
+  "batch_span_count": 1,
+  "connect_timeout": 1,
+  "header_type": "aws",
+  "headers": {
+    "key": "value"
+  },
+  "http_response_header_for_traceid": "http_response_header_for_traceid-value",
+  "logs_endpoint": "logs_endpoint-value",
+  "metrics": {
+    "enable_ai_metrics": true,
+    "enable_bandwidth_metrics": true,
+    "enable_consumer_attribute": true,
+    "enable_latency_metrics": true,
+    "enable_principal_attribute": true,
+    "enable_request_metrics": true,
+    "enable_upstream_health_metrics": true,
+    "endpoint": "endpoint-value",
+    "push_interval": 1.5
+  },
+  "propagation": {
+    "clear": [
+      "clear-value"
+    ],
+    "default_format": "aws",
+    "extract": [
+      "aws"
+    ],
+    "inject": [
+      "aws"
+    ]
+  },
+  "queue": {
+    "breaker_cooldown": 1.5,
+    "concurrency_limit": -1,
+    "failure_threshold": 1,
+    "initial_retry_delay": 1.5,
+    "max_batch_size": 1,
+    "max_bytes": 1,
+    "max_coalescing_delay": 1.5,
+    "max_entries": 1,
+    "max_retry_delay": 1.5,
+    "max_retry_time": 1.5
+  },
+  "read_timeout": 1,
+  "resource_attributes": {
+    "key": "value"
+  },
+  "sampling_rate": 1.5,
+  "sampling_strategy": "parent_drop_probability_fallback",
+  "send_timeout": 1,
+  "traces_endpoint": "traces_endpoint-value"
+}

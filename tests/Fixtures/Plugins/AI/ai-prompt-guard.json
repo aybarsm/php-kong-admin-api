@@ -1,0 +1,13 @@
+{
+  "allow_all_conversation_history": true,
+  "allow_patterns": [
+    "allow_patterns-value"
+  ],
+  "deny_patterns": [
+    "deny_patterns-value"
+  ],
+  "genai_category": "audio/speech",
+  "llm_format": "anthropic",
+  "match_all_roles": true,
+  "max_request_body_size": 1
+}

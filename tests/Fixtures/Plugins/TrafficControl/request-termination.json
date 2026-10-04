@@ -1,0 +1,8 @@
+{
+  "body": "body-value",
+  "content_type": "content_type-value",
+  "echo": true,
+  "message": "message-value",
+  "status_code": 100,
+  "trigger": "trigger-value"
+}

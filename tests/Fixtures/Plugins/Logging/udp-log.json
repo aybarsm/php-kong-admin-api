@@ -1,0 +1,8 @@
+{
+  "custom_fields_by_lua": {
+    "key": "value"
+  },
+  "host": "host-value",
+  "port": 1,
+  "timeout": 1.5
+}

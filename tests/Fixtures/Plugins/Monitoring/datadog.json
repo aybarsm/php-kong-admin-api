@@ -1,0 +1,35 @@
+{
+  "consumer_tag": "consumer_tag-value",
+  "flush_timeout": 1.5,
+  "host": "host-value",
+  "metrics": [
+    {
+      "consumer_identifier": "consumer_id",
+      "name": "kong_latency",
+      "sample_rate": 1.5,
+      "stat_type": "counter",
+      "tags": [
+        "tags-value"
+      ]
+    }
+  ],
+  "port": 1,
+  "prefix": "prefix-value",
+  "queue": {
+    "breaker_cooldown": 1.5,
+    "concurrency_limit": -1,
+    "failure_threshold": 1,
+    "initial_retry_delay": 1.5,
+    "max_batch_size": 1,
+    "max_bytes": 1,
+    "max_coalescing_delay": 1.5,
+    "max_entries": 1,
+    "max_retry_delay": 1.5,
+    "max_retry_time": 1.5
+  },
+  "queue_size": 1,
+  "retry_count": 1,
+  "route_name_tag": "route_name_tag-value",
+  "service_name_tag": "service_name_tag-value",
+  "status_tag": "status_tag-value"
+}

@@ -1,0 +1,11 @@
+{
+  "allow_untemplated_requests": true,
+  "log_original_request": true,
+  "max_request_body_size": 1,
+  "templates": [
+    {
+      "name": "name-value",
+      "template": "template-value"
+    }
+  ]
+}

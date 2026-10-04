@@ -1,0 +1,18 @@
+{
+  "llm_format": "anthropic",
+  "max_request_body_size": 1,
+  "prompts": {
+    "append": [
+      {
+        "content": "content-value",
+        "role": "assistant"
+      }
+    ],
+    "prepend": [
+      {
+        "content": "content-value",
+        "role": "assistant"
+      }
+    ]
+  }
+}

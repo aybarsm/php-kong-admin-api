@@ -1,0 +1,61 @@
+{
+  "anonymous": "anonymous-value",
+  "brute_force_protection": {
+    "redis": {
+      "cloud_authentication": {
+        "auth_provider": "aws",
+        "aws_access_key_id": "aws_access_key_id-value",
+        "aws_assume_role_arn": "aws_assume_role_arn-value",
+        "aws_cache_name": "aws_cache_name-value",
+        "aws_is_serverless": true,
+        "aws_region": "aws_region-value",
+        "aws_role_session_name": "aws_role_session_name-value",
+        "aws_secret_access_key": "aws_secret_access_key-value",
+        "azure_client_id": "azure_client_id-value",
+        "azure_client_secret": "azure_client_secret-value",
+        "azure_tenant_id": "azure_tenant_id-value",
+        "gcp_service_account_json": "gcp_service_account_json-value",
+        "oauth": {
+          "auth_method": "client_secret_basic",
+          "client_id": "client_id-value",
+          "client_secret": "client_secret-value",
+          "client_secret_jwt_alg": "HS256",
+          "grant_type": "client_credentials",
+          "password": "password-value",
+          "redis_username": "redis_username-value",
+          "redis_username_claim": "redis_username_claim-value",
+          "scopes": [
+            "scopes-value"
+          ],
+          "ssl_verify": true,
+          "timeout": 1.5,
+          "token_endpoint": "token_endpoint-value",
+          "token_headers": {
+            "key": "value"
+          },
+          "token_post_args": {
+            "key": "value"
+          },
+          "username": "username-value"
+        }
+      },
+      "database": 1,
+      "host": "host-value",
+      "password": "password-value",
+      "port": 1,
+      "server_name": "server_name-value",
+      "ssl": true,
+      "ssl_verify": true,
+      "timeout": 1,
+      "username": "username-value"
+    },
+    "strategy": "cluster"
+  },
+  "hide_credentials": true,
+  "principals": {
+    "directory": "directory-value",
+    "enabled": true,
+    "error_on_miss": true
+  },
+  "realm": "realm-value"
+}

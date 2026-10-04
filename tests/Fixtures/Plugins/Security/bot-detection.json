@@ -1,0 +1,8 @@
+{
+  "allow": [
+    "allow-value"
+  ],
+  "deny": [
+    "deny-value"
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "anonymous": "anonymous-value",
+  "claims_to_verify": [
+    "exp"
+  ],
+  "cookie_names": [
+    "cookie_names-value"
+  ],
+  "header_names": [
+    "header_names-value"
+  ],
+  "key_claim_name": "key_claim_name-value",
+  "maximum_expiration": 1.5,
+  "realm": "realm-value",
+  "run_on_preflight": true,
+  "secret_is_base64": true,
+  "uri_param_names": [
+    "uri_param_names-value"
+  ]
+}

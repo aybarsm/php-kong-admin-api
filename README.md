@@ -23,6 +23,7 @@ Requires PHP 8.3 or newer.
 - [Input DTOs and arrays](#input-dtos-and-arrays)
 - [Consumers and credentials](#consumers-and-credentials)
 - [Polymorphic entities](#polymorphic-entities)
+- [Typed plugins](#typed-plugins)
 - [Error handling](#error-handling)
 - [Operational endpoints](#operational-endpoints)
 - [Spec coverage](#spec-coverage)
@@ -227,6 +228,77 @@ $match = match (true) {
 - **Routes:** a payload with a non-null `expression` becomes a `RouteExpression`; any other payload becomes a `RouteJson`.
 - **Partials:** `PartialFactory` chooses the variant from the `type` discriminator (`PartialRedisCe`, `PartialRedisEe`, `PartialVectordb`, `PartialEmbeddings`, `PartialModel`). Each variant's input DTO sends its own `type` by default.
 
+## Typed plugins
+
+Plugins that have a configuration doc in `resources/kong-admin-api/plugins/` get typed classes under `Aybarsm\Kong\AdminApi\Plugins\{Category}\{Plugin}`. Each plugin has a request body that sends its own `name`, a typed `config` for requests and responses, and the config's nested objects and enums.
+
+```php
+use Aybarsm\Kong\AdminApi\Plugins\PluginRegistry;
+use Aybarsm\Kong\AdminApi\Plugins\TrafficControl\RateLimiting\RateLimitingConfig;
+use Aybarsm\Kong\AdminApi\Plugins\TrafficControl\RateLimiting\RateLimitingConfigInput;
+use Aybarsm\Kong\AdminApi\Plugins\TrafficControl\RateLimiting\RateLimitingInput;
+use Aybarsm\Kong\AdminApi\Plugins\TrafficControl\RateLimiting\RateLimitingPolicy;
+
+$plugin = $kong->services()->plugins('billing')->create(new RateLimitingInput(
+    config: new RateLimitingConfigInput(minute: 100, policy: RateLimitingPolicy::Local),
+    tags: ['edge'],
+));
+
+$limits = RateLimitingConfig::fromPlugin($plugin);   // typed config of a rate-limiting plugin
+$minute = $limits->minute;
+
+// Typed configs of any listed plugins; null for a plugin without a doc.
+$configs = array_map(PluginRegistry::config(...), $kong->plugins()->list()->data);
+```
+
+- **Bodies:** `{Plugin}Input` works with `create()`, `update()` and `upsert()` of `plugins()` and of the plugin resources nested under Services, Routes, Consumers and Consumer Groups. Its constructor offers only the scopes the plugin's doc allows; ACME, for example, has no `service` or `route`.
+- **Responses:** responses stay the generic `Plugin`. `{Plugin}Config::fromPlugin()` reads the typed config and throws `InvalidArgumentException` for another plugin. `PluginRegistry::config()` works on any plugin.
+- **Inputs:** like other input DTOs, config inputs omit nulls. Pass `config` as an array to send explicit nulls, or a `{vault://…}` reference for a non-string field.
+- **Docs and gaps:** each class's docblock names its doc, defaults, supported Partials and minimum Kong version. Plugins without a doc, or whose doc is wrong, use the generic `PluginInput` with an array `config`. [`docs/plugin-notes.md`](docs/plugin-notes.md) lists the blocked docs (`session`, `syslog`, `acl` and `proxy-cache` currently contain another plugin's doc) and the open questions.
+
+<!-- plugins:start -->
+| Category | Plugin (`name`) | Namespace `Aybarsm\Kong\AdminApi\Plugins\…` |
+|---|---|---|
+| AI | AI Prompt Decorator (`ai-prompt-decorator`) | `AI\AiPromptDecorator\AiPromptDecoratorInput`, `…Config`, `…ConfigInput` |
+| AI | AI Prompt Guard (`ai-prompt-guard`) | `AI\AiPromptGuard\AiPromptGuardInput`, `…Config`, `…ConfigInput` |
+| AI | AI Prompt Template (`ai-prompt-template`) | `AI\AiPromptTemplate\AiPromptTemplateInput`, `…Config`, `…ConfigInput` |
+| AI | AI Proxy (`ai-proxy`) | `AI\AiProxy\AiProxyInput`, `…Config`, `…ConfigInput` |
+| AI | AI Request Transformer (`ai-request-transformer`) | `AI\AiRequestTransformer\AiRequestTransformerInput`, `…Config`, `…ConfigInput` |
+| AI | AI Response Transformer (`ai-response-transformer`) | `AI\AiResponseTransformer\AiResponseTransformerInput`, `…Config`, `…ConfigInput` |
+| Authentication | Basic Auth (`basic-auth`) | `Authentication\BasicAuth\BasicAuthInput`, `…Config`, `…ConfigInput` |
+| Authentication | HMAC Auth (`hmac-auth`) | `Authentication\HmacAuth\HmacAuthInput`, `…Config`, `…ConfigInput` |
+| Authentication | JWT (`jwt`) | `Authentication\Jwt\JwtInput`, `…Config`, `…ConfigInput` |
+| Authentication | Key Auth (`key-auth`) | `Authentication\KeyAuth\KeyAuthInput`, `…Config`, `…ConfigInput` |
+| Authentication | LDAP Authentication (`ldap-auth`) | `Authentication\LdapAuth\LdapAuthInput`, `…Config`, `…ConfigInput` |
+| Authentication | OAuth 2.0 Authentication (`oauth2`) | `Authentication\Oauth2\Oauth2Input`, `…Config`, `…ConfigInput` |
+| Logging | File Log (`file-log`) | `Logging\FileLog\FileLogInput`, `…Config`, `…ConfigInput` |
+| Logging | HTTP Log (`http-log`) | `Logging\HttpLog\HttpLogInput`, `…Config`, `…ConfigInput` |
+| Logging | Loggly (`loggly`) | `Logging\Loggly\LogglyInput`, `…Config`, `…ConfigInput` |
+| Logging | TCP Log (`tcp-log`) | `Logging\TcpLog\TcpLogInput`, `…Config`, `…ConfigInput` |
+| Logging | UDP Log (`udp-log`) | `Logging\UdpLog\UdpLogInput`, `…Config`, `…ConfigInput` |
+| Monitoring | Datadog (`datadog`) | `Monitoring\Datadog\DatadogInput`, `…Config`, `…ConfigInput` |
+| Monitoring | OpenTelemetry (`opentelemetry`) | `Monitoring\Opentelemetry\OpentelemetryInput`, `…Config`, `…ConfigInput` |
+| Monitoring | Prometheus (`prometheus`) | `Monitoring\Prometheus\PrometheusInput`, `…Config`, `…ConfigInput` |
+| Monitoring | StatsD (`statsd`) | `Monitoring\Statsd\StatsdInput`, `…Config`, `…ConfigInput` |
+| Monitoring | Zipkin (`zipkin`) | `Monitoring\Zipkin\ZipkinInput`, `…Config`, `…ConfigInput` |
+| Security | ACME (`acme`) | `Security\Acme\AcmeInput`, `…Config`, `…ConfigInput` |
+| Security | Bot Detection (`bot-detection`) | `Security\BotDetection\BotDetectionInput`, `…Config`, `…ConfigInput` |
+| Security | CORS (`cors`) | `Security\Cors\CorsInput`, `…Config`, `…ConfigInput` |
+| Security | IP Restriction (`ip-restriction`) | `Security\IpRestriction\IpRestrictionInput`, `…Config`, `…ConfigInput` |
+| TrafficControl | Access Control Enforcement (`ace`) | `TrafficControl\AccessControlEnforcement\AccessControlEnforcementInput`, `…Config`, `…ConfigInput` |
+| TrafficControl | Rate Limiting (`rate-limiting`) | `TrafficControl\RateLimiting\RateLimitingInput`, `…Config`, `…ConfigInput` |
+| TrafficControl | Redirect (`redirect`) | `TrafficControl\Redirect\RedirectInput`, `…Config`, `…ConfigInput` |
+| TrafficControl | Request Size Limiting (`request-size-limiting`) | `TrafficControl\RequestSizeLimiting\RequestSizeLimitingInput`, `…Config`, `…ConfigInput` |
+| TrafficControl | Request Termination (`request-termination`) | `TrafficControl\RequestTermination\RequestTerminationInput`, `…Config`, `…ConfigInput` |
+| TrafficControl | Response Rate Limiting (`response-ratelimiting`) | `TrafficControl\ResponseRateLimiting\ResponseRateLimitingInput`, `…Config`, `…ConfigInput` |
+| TrafficControl | Standard Webhooks (`standard-webhooks`) | `TrafficControl\StandardWebhooks\StandardWebhooksInput`, `…Config`, `…ConfigInput` |
+| Transformation | Correlation ID (`correlation-id`) | `Transformation\CorrelationId\CorrelationIdInput`, `…Config`, `…ConfigInput` |
+| Transformation | gRPC-Gateway (`grpc-gateway`) | `Transformation\GrpcGateway\GrpcGatewayInput`, `…Config`, `…ConfigInput` |
+| Transformation | gRPC-Web (`grpc-web`) | `Transformation\GrpcWeb\GrpcWebInput`, `…Config`, `…ConfigInput` |
+| Transformation | Request Transformer (`request-transformer`) | `Transformation\RequestTransformer\RequestTransformerInput`, `…Config`, `…ConfigInput` |
+| Transformation | Response Transformer (`response-transformer`) | `Transformation\ResponseTransformer\ResponseTransformerInput`, `…Config`, `…ConfigInput` |
+<!-- plugins:end -->
+
 ## Error handling
 
 ```php
@@ -307,11 +379,11 @@ These are implemented exactly as the 3.16 spec defines them. Some may look surpr
 
 ### Sensitive fields
 
-Properties the spec marks `x-encrypted` are redacted from `var_dump()`/`print_r()`. So are a reviewed set of other secrets the spec doesn't mark: key-auth keys, JWT secrets, RBAC user tokens, admin passwords and tokens, keyring material, webhook secrets and the license key. Their input DTO parameters are also `#[SensitiveParameter]`.
+Properties the spec or a plugin doc marks `x-encrypted` are redacted from `var_dump()`/`print_r()`. So are a reviewed set of other secrets the spec doesn't mark: key-auth keys, JWT secrets, RBAC user tokens, admin passwords and tokens, keyring material, webhook secrets and the license key. Their input DTO parameters are also `#[SensitiveParameter]`.
 
 ## Kong version support
 
-`KongSpec::VERSION` (`3.16.0`) records the Kong Gateway version this release was built from. The client only implements what that spec defines. Upgrading to a newer Kong spec is a deliberate, reviewed change: the new spec is diffed against the current one, breaking changes are reported, and the version constant is bumped.
+`KongSpec::VERSION` (`3.16.0`) records the Kong Gateway version this release was built from. The client only implements what that spec defines. Upgrading to a newer Kong spec is a deliberate, reviewed change: the new spec is diffed against the current one, breaking changes are reported, and the version constant is bumped. The plugin docs carry no Kong version. They are treated as matching `KongSpec::VERSION` and are refreshed with each upgrade.
 
 ## Development
 
@@ -325,7 +397,7 @@ composer test:mutate   # mutation testing (≥ 80%)
   - Pest, using Guzzle's `MockHandler`; no network access.
   - Conformance tests check every resource method, DTO and enum against the spec.
   - Every example in this README is mirrored in `tests/Feature/ReadmeExamplesTest.php`.
-- **Generated code:** the uniform CRUD resources and most DTOs are generated from the spec by `tools/generator/` and committed; see its README.
+- **Generated code:** the uniform CRUD resources and most DTOs are generated from the spec by `tools/generator/` and committed; see its README. Every plugin class is generated from its doc by `tools/generator/plugins.py`.
 - **Continuous integration:**
   - CI runs PHP 8.3, 8.4 and 8.5 with lowest and highest dependencies.
   - Mutation testing runs on pushes to `main` and weekly.

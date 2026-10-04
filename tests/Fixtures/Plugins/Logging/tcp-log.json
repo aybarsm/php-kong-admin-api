@@ -1,0 +1,12 @@
+{
+  "custom_fields_by_lua": {
+    "key": "value"
+  },
+  "host": "host-value",
+  "keepalive": 1.5,
+  "port": 1,
+  "ssl_verify": true,
+  "timeout": 1.5,
+  "tls": true,
+  "tls_sni": "tls_sni-value"
+}

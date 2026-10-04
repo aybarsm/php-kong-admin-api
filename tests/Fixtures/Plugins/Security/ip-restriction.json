@@ -1,0 +1,10 @@
+{
+  "allow": [
+    "allow-value"
+  ],
+  "deny": [
+    "deny-value"
+  ],
+  "message": "message-value",
+  "status": 1.5
+}

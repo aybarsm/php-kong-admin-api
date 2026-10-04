@@ -1,0 +1,99 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Aybarsm\Kong\AdminApi\Plugins\Logging\TcpLog;
+
+use Aybarsm\Kong\AdminApi\Attributes\PluginSchema;
+use Aybarsm\Kong\AdminApi\Exceptions\InvalidArgumentException;
+use Aybarsm\Kong\AdminApi\Exceptions\UnexpectedResponseException;
+use Aybarsm\Kong\AdminApi\Internal\Data;
+use Aybarsm\Kong\AdminApi\Models\Plugin;
+use Aybarsm\Kong\AdminApi\Plugins\PluginConfig;
+use Override;
+
+/**
+ * Typed `config` of a `tcp-log` plugin (TCP Log; doc `Logging/tcp-log.md`).
+ *
+ * Read it from a returned Plugin with `TcpLogConfig::fromPlugin($plugin)` or `PluginRegistry::config($plugin)`.
+ */
+#[PluginSchema('Logging/tcp-log.md', '#/properties/config')]
+final readonly class TcpLogConfig implements PluginConfig
+{
+    /** The plugin's wire name (the doc's front-matter `url`). */
+    public const string NAME = 'tcp-log';
+
+    /**
+     * @param string                        $host              The IP address or host name to send data to.
+     * @param int                           $port              The port to send data to on the upstream server.
+     * @param array<array-key, string>|null $customFieldsByLua A list of key-value pairs, where the key is the name of a log field and the value is a chunk of Lua code, who…
+     * @param float|null                    $keepalive         An optional value in milliseconds that defines how long an idle connection lives before being closed. Default: `60000`.
+     * @param bool|null                     $sslVerify         When using TLS, this option enables verification of the certificate presented by the server. Default: `true`.
+     * @param float|null                    $timeout           An optional timeout in milliseconds when sending data to the upstream server. Default: `10000`.
+     * @param bool|null                     $tls               Indicates whether to perform a TLS handshake against the remote server. Default: `false`.
+     * @param string|null                   $tlsSni            An optional string that defines the SNI (Server Name Indication) hostname to send in the TLS handshake.
+     */
+    public function __construct(
+        public string $host,
+        public int $port,
+        public ?array $customFieldsByLua = null,
+        public ?float $keepalive = null,
+        public ?bool $sslVerify = null,
+        public ?float $timeout = null,
+        public ?bool $tls = null,
+        public ?string $tlsSni = null,
+    ) {
+    }
+
+    /**
+     * @param array<string, mixed> $data
+     */
+    #[Override]
+    public static function fromArray(array $data): static
+    {
+        return new self(
+            host: Data::string($data, 'host'),
+            port: Data::int($data, 'port'),
+            customFieldsByLua: Data::stringMapOrNull($data, 'custom_fields_by_lua'),
+            keepalive: Data::floatOrNull($data, 'keepalive'),
+            sslVerify: Data::boolOrNull($data, 'ssl_verify'),
+            timeout: Data::floatOrNull($data, 'timeout'),
+            tls: Data::boolOrNull($data, 'tls'),
+            tlsSni: Data::stringOrNull($data, 'tls_sni'),
+        );
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    #[Override]
+    public function toArray(): array
+    {
+        return Data::withoutNulls([
+            'host' => $this->host,
+            'port' => $this->port,
+            'custom_fields_by_lua' => $this->customFieldsByLua,
+            'keepalive' => $this->keepalive,
+            'ssl_verify' => $this->sslVerify,
+            'timeout' => $this->timeout,
+            'tls' => $this->tls,
+            'tls_sni' => $this->tlsSni,
+        ]);
+    }
+
+    /**
+     * Reads the typed configuration of a `tcp-log` Plugin returned by the Admin API.
+     *
+     * @throws InvalidArgumentException     when $plugin is not a `tcp-log` plugin
+     * @throws UnexpectedResponseException when its `config` does not match the plugin doc
+     */
+    #[Override]
+    public static function fromPlugin(Plugin $plugin): static
+    {
+        if ($plugin->name !== self::NAME) {
+            throw new InvalidArgumentException(sprintf('Expected a "%s" plugin, got "%s".', self::NAME, $plugin->name));
+        }
+
+        return self::fromArray(Data::asMap($plugin->config ?? [], 'config'));
+    }
+}
