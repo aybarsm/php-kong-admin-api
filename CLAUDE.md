@@ -14,6 +14,8 @@ Root namespace `Aybarsm\Kong\AdminApi\` → `src/`. Built against Kong Gateway *
 - Code style: `composer cs` (check) · `composer cs:fix` (apply)
 - Everything CI runs: `composer ci && composer test:mutate`
 - One file: `vendor/bin/pest tests/Feature/Resources/ServicesTest.php`
+- Regenerate generated code: `python3 tools/generator/phase4a.py` (one script per phase; see
+  `tools/generator/README.md`). A rerun on an unchanged spec must leave `git status` clean.
 
 ## Kong API source of truth (strict)
 - The Kong Admin API specification lives only in `resources/kong-admin-api/{version}.yaml` or `resources/kong-admin-api/{version}.json`, where `{version}` is the Kong Gateway version. Both formats may be present for the same version; use whichever is more convenient to read and query. If both exist and disagree, stop and tell me.
@@ -30,6 +32,11 @@ Project specifics (decided 2026-10-04):
   encoding artifact. Any **other** JSON/YAML difference means stop and ask.
 - Spec anomalies, open questions and blocked operations live in `docs/spec-notes.md`. Never resolve
   one from memory; ask.
+
+## Code generation
+- Uniform CRUD entities (DTOs, resources, fixtures, feature tests) come from `tools/generator/`, which reads
+  the spec named by `KongSpec::SPEC_FILE`. Hand-written: `Service*`, `Route*`, `Services`, `Routes`,
+  `Tags`, `KongClient`, and any non-CRUD endpoint. Generated code passes the same gates as hand-written code.
 
 ## Architecture rules
 - `KongClient` is only a factory: `$client->services()->get($id)`, `$client->inWorkspace('x')->plugins()`.
@@ -63,7 +70,8 @@ Project specifics (decided 2026-10-04):
   nested objects named for their role (`UpstreamHealthchecks`); shared objects in `Models\Shared`.
 - Enums: `Enums\{Concept}`, with case names in PascalCase and values exactly as in the spec.
 - Path-parameter arguments: `$idOrName`, `$id`, `$idOrUsername` and so on, following the spec parameter's semantics.
-- Tests: `tests/Feature/Resources/{Resource}Test.php`, fixtures `tests/Fixtures/{schema}.json`.
+- Tests: `tests/Feature/Resources/{Resource}Test.php` (nested: `…/Nested/`), fixtures
+  `tests/Fixtures/{snake_case_class}.json` (`CaCertificate` → `ca_certificate.json`) with every spec property.
 
 ## Definition of done
 - Every public method traces to a spec path (conformance tests green) and has a Pest test asserting
@@ -72,10 +80,13 @@ Project specifics (decided 2026-10-04):
 - The DTO, enum and model conformance tests match the spec. New anomalies are recorded in `docs/spec-notes.md`.
 - Public classes and methods have docblocks, including `@throws` and the spec operationId.
 - README is updated if public API changed.
+- Generated code changed only through `tools/generator/` (generator or phase tables), regenerated and
+  committed together with the generator change.
 
 ## Never
 - Never use web docs, other spec versions or memory of Kong. Never guess a missing spec; stop and name the path.
 - Never edit files under `resources/`.
+- Never hand-edit a generated file (listed by the phase scripts in `tools/generator/`); change the generator.
 - Never return `ResponseInterface`, never leak Guzzle types, and never make HTTP calls from a resource or from `KongClient`.
 - Never add a PHPStan baseline, `@phpstan-ignore` or `ignoreErrors` without explicit approval.
 - Never use dynamic properties, `mixed` native types, `var_dump`/`dd`/`print_r`/`echo`, or static mutable state.

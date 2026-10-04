@@ -58,3 +58,4 @@ Temporary Items
 /build
 /coverage
 /composer.lock
+__pycache__/

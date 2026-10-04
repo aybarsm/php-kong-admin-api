@@ -1,6 +1,6 @@
 ---
 name: kong-php-client
-description: Use when implementing, changing, extending or upgrading any Kong Admin API resource, endpoint, DTO, enum or test in aybarsm/kong-admin-api — e.g. "add the Upstreams resource", "support PUT on /vaults", "fix the Plugin model", "add a field to Service", "upgrade to Kong 3.17", "diff the new Kong spec". Covers the spec-first workflow, the merged php-pro coding rules, and the add-resource and upgrade-version procedures.
+description: Use when implementing, changing, extending or upgrading any Kong Admin API resource, endpoint, DTO, enum or test in aybarsm/kong-admin-api — e.g. "add the Upstreams resource", "support PUT on /vaults", "fix the Plugin model", "add a field to Service", "upgrade to Kong 3.17", "diff the new Kong spec". Also use when running or changing the code generator in tools/generator/. Covers the spec-first workflow, the merged php-pro coding rules, and the add-resource and upgrade-version procedures.
 ---
 
 # Kong PHP client: implementation and upgrade skill
@@ -8,7 +8,8 @@ description: Use when implementing, changing, extending or upgrading any Kong Ad
 The spec at `resources/kong-admin-api/{version}.json` (canonical) is the only authority. Read CLAUDE.md
 first: its source-of-truth rules override anything here.
 References: `references/spec-reading.md` (jq recipes), `references/resource-template.md`,
-`references/dto-template.md`, `references/test-template.md`.
+`references/dto-template.md`, `references/test-template.md`, and the code generator's
+`tools/generator/README.md`.
 
 ## Merged PHP rules (VoltAgent php-pro + Jeffallan php-pro, framework parts removed; stricter rule wins)
 
@@ -68,6 +69,18 @@ a. **Find the paths and schemas in the spec** (recipes in `references/spec-readi
      id-or-name), query parameters, enums, `required`, `nullable`, `writeOnly`, `x-foreign` and `x-encrypted`.
    - Anything ambiguous goes into `docs/spec-notes.md` as an open question. Ask before guessing.
 
+a2. **Generate or hand-write?** If the entity has the uniform shape (`list`/`all`/`get`/`create`/
+   `update`/`upsert`/`delete` over a collection and item path), **use the generator**:
+   1. Add rows to the current phase script in `tools/generator/` (or a new `phaseNx.py` copied from
+      `phase4a.py`): the `ENTITIES` row, `NESTED` names for inline objects, `ENUMS` locations, a `CONFIGS`
+      row, plus `FIXTURES` and `ACCESSORS`.
+   2. Run it and review the diff.
+   3. Add the `KongClient` (or parent) accessor by hand.
+   4. Skip to step f.
+
+   Irregular operations (no CRUD shape, odd bodies, non-JSON responses) follow steps b–e by hand.
+   Never hand-edit a generated file; change the generator or its tables instead.
+
 b. **Create the endpoint class** `Aybarsm\Kong\AdminApi\Resources\{Plural}` (or
    `Resources\Nested\{Parent}{Child}`) from `references/resource-template.md`, and add the accessor to
    `KongClient` (or to the parent resource for nested ones).
@@ -117,11 +130,14 @@ c. **Report before editing anything**. Produce added, changed and removed tables
    approval.
 
 d. **Apply**:
-   1. Update resources, DTOs, enums and tests.
-   2. Update `docs/spec-notes.md`: re-check every open question against the new spec.
-   3. Bump `KongSpec::VERSION` (from `info.version`) and `KongSpec::SPEC_FILE`.
-   4. Update CLAUDE.md, README and composer.json description references.
-   5. Run all gates.
+   1. Bump `KongSpec::SPEC_FILE`, then rerun every `tools/generator/phase*.py` and review the diff. A
+      `KeyError` naming `(class, location)` means a new inline object or enum location needs a table
+      entry.
+   2. Update the hand-written resources, DTOs, enums and tests.
+   3. Update `docs/spec-notes.md`: re-check every open question against the new spec.
+   4. Bump `KongSpec::VERSION` (from `info.version`).
+   5. Update CLAUDE.md, README and composer.json description references.
+   6. Run all gates.
 
    Conformance tests now read the new spec and must pass with no blocked operations beyond those you
    approve.
