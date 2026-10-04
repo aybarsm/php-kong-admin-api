@@ -14,7 +14,7 @@ This is accepted as a converter artifact, and `v3.16.json` is canonical. Any oth
 
 | # | Issue | Default | Status |
 |---|---|---|---|
-| Q1 | `Route` is `oneOf [RouteJson, RouteExpression]` with no discriminator. | Two DTOs share a `Route` interface. A route is a `RouteExpression` iff `expression` is present and non-null. | open |
+| Q1 | `Route` is `oneOf [RouteJson, RouteExpression]` with no discriminator. | Two DTOs share a `Route` interface. A route is a `RouteExpression` iff `expression` is present and non-null (`Models\RouteFactory`). | **decided** 2026-10-04: default applied |
 | Q2 | `/{workspace}/rbac/roles/{RBACRoleIdForNestedEntities}/endpoints/{workspace}{RBACRoleEndpointId}` has two adjacent parameters with no separator. | **Blocked** (see list below). | **deferred** to the very end of package development (decided 2026-10-04) |
 | Q3 | `/workspace_/groups…` uses the literal segment `workspace_`. | Implement it literally. | open |
 | Q4 | 400/409 error bodies for entity validation and uniqueness are undefined. Only `{message, status}` (`BaseError`) exists. | The exception carries the status and `message` when present. The raw decoded body is in `details` and is not spec-defined. | open |

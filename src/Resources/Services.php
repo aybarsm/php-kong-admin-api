@@ -13,6 +13,7 @@ use Aybarsm\Kong\AdminApi\Models\Service;
 use Aybarsm\Kong\AdminApi\Models\ServiceInput;
 use Aybarsm\Kong\AdminApi\Pagination\ListOptions;
 use Aybarsm\Kong\AdminApi\Pagination\Page;
+use Aybarsm\Kong\AdminApi\Resources\Nested\ServiceRoutes;
 use Generator;
 
 /**
@@ -126,5 +127,19 @@ final readonly class Services extends AbstractResource
     public function delete(string $idOrName): void
     {
         $this->none(Transport::METHOD_DELETE, $this->path(OperationScope::Both, self::SEGMENT, $idOrName));
+    }
+
+    /**
+     * Routes nested under one Service: `/services/{ServiceIdOrName}/routes`.
+     *
+     * @throws InvalidArgumentException when $serviceIdOrName is empty
+     */
+    public function routes(string $serviceIdOrName): ServiceRoutes
+    {
+        if ($serviceIdOrName === '') {
+            throw new InvalidArgumentException('Service ID or name must not be empty.');
+        }
+
+        return new ServiceRoutes($this->transport, [...$this->parent, self::SEGMENT, $serviceIdOrName]);
     }
 }

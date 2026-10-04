@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Aybarsm\Kong\AdminApi\Config\ClientConfig;
 use Aybarsm\Kong\AdminApi\Exceptions\InvalidArgumentException;
 use Aybarsm\Kong\AdminApi\KongClient;
+use Aybarsm\Kong\AdminApi\Resources\Routes;
 use Aybarsm\Kong\AdminApi\Resources\Services;
 
 covers(KongClient::class);
@@ -14,7 +15,8 @@ it('builds a default Guzzle client and exposes its configuration', function (): 
     $client = new KongClient($config);
 
     expect($client->config())->toBe($config)
-        ->and($client->services())->toBeInstanceOf(Services::class);
+        ->and($client->services())->toBeInstanceOf(Services::class)
+        ->and($client->routes())->toBeInstanceOf(Routes::class);
 });
 
 it('works with no arguments using the spec defaults', function (): void {

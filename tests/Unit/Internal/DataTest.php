@@ -61,6 +61,11 @@ it('throws on values of the wrong type', function (callable $read, string $messa
     'map is scalar' => [fn (): ?array => Data::mapOrNull(['k' => 'x'], 'k'), 'Field "k" is not a valid object.'],
     'map has int keys' => [fn (): ?array => Data::mapOrNull(['k' => [5 => 'x']], 'k'), 'Field "k" is not a valid object with string keys.'],
     'free-form is scalar' => [fn (): ?array => Data::freeFormOrNull(['k' => true], 'k'), 'Field "k" is not a valid object.'],
+    'header map is list' => [fn (): ?array => Data::stringListMapOrNull(['k' => [['a']]], 'k'), 'Field "k" is not a valid object.'],
+    'header map is scalar' => [fn (): ?array => Data::stringListMapOrNull(['k' => 'a'], 'k'), 'Field "k" is not a valid object.'],
+    'header values not a list' => [fn (): ?array => Data::stringListMapOrNull(['k' => ['h' => 'a']], 'k'), 'Field "k.h" is not a valid list of strings.'],
+    'header values object' => [fn (): ?array => Data::stringListMapOrNull(['k' => ['h' => ['x' => 'a']]], 'k'), 'Field "k.h" is not a valid list of strings.'],
+    'header value not string' => [fn (): ?array => Data::stringListMapOrNull(['k' => ['h' => [1]]], 'k'), 'Field "k.h" is not a valid list of strings.'],
     'list of maps item' => [fn (): ?array => Data::listOfMapsOrNull(['k' => [['a' => 1], 'x']], 'k'), 'Field "k[1]" is not a valid object.'],
     'enum type' => [fn (): ?Protocol => Data::enumOrNull(['k' => 1.5], 'k', Protocol::class), 'Field "k" is not a valid enum value.'],
     'enum case' => [fn (): ?Protocol => Data::enumOrNull(['k' => 'gopher'], 'k', Protocol::class), 'Unexpected value for "k"'],
@@ -97,4 +102,17 @@ it('checks for string keys and drops only nulls', function (): void {
         ->and(fn (): array => Data::asMap([1, 2], 'ctx'))->toThrow(UnexpectedResponseException::class, 'Field "ctx"')
         ->and(Data::withoutNulls(['a' => null, 'b' => 0, 'c' => false, 'd' => '', 'e' => []]))
         ->toBe(['b' => 0, 'c' => false, 'd' => '', 'e' => []]);
+});
+
+it('reads header-style maps of string lists', function (): void {
+    expect(Data::stringListMapOrNull(['h' => ['x-a' => ['1', '2'], 'x-b' => []]], 'h'))->toBe(['x-a' => ['1', '2'], 'x-b' => []])
+        ->and(Data::stringListMapOrNull(['h' => []], 'h'))->toBe([])
+        ->and(Data::stringListMapOrNull([], 'h'))->toBeNull();
+});
+
+it('converts enum and model lists for toArray()', function (): void {
+    expect(Data::enumValues([Protocol::Http, Protocol::Wss]))->toBe(['http', 'wss'])
+        ->and(Data::enumValues(null))->toBeNull()
+        ->and(Data::toArrays([new Aybarsm\Kong\AdminApi\Models\Shared\IpPort('1.2.3.4', 1)]))->toBe([['ip' => '1.2.3.4', 'port' => 1]])
+        ->and(Data::toArrays(null))->toBeNull();
 });

@@ -1,0 +1,17 @@
+{
+  "created_at": 1706598432,
+  "expression": "http.path ^= \"/v1\" && http.method == \"GET\"",
+  "https_redirect_status_code": 308,
+  "id": "0a9d1e3c-6b4f-4b6a-9f15-5c2a3f9a1d77",
+  "name": "expression-route",
+  "path_handling": "v1",
+  "preserve_host": true,
+  "priority": 100,
+  "protocols": ["grpc", "grpcs"],
+  "request_buffering": false,
+  "response_buffering": false,
+  "service": {"id": "bd380f99-659d-415e-b0e7-72ea05df3218"},
+  "strip_path": false,
+  "tags": ["expr"],
+  "updated_at": 1706684832
+}

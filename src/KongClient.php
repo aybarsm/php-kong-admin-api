@@ -7,6 +7,7 @@ namespace Aybarsm\Kong\AdminApi;
 use Aybarsm\Kong\AdminApi\Config\ClientConfig;
 use Aybarsm\Kong\AdminApi\Exceptions\InvalidArgumentException;
 use Aybarsm\Kong\AdminApi\Internal\Transport;
+use Aybarsm\Kong\AdminApi\Resources\Routes;
 use Aybarsm\Kong\AdminApi\Resources\Services;
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Psr7\HttpFactory;
@@ -79,6 +80,14 @@ final readonly class KongClient
     public function services(): Services
     {
         return new Services($this->transport);
+    }
+
+    /**
+     * Routes: `/routes`.
+     */
+    public function routes(): Routes
+    {
+        return new Routes($this->transport);
     }
 
     private static function defaultHttpClient(ClientConfig $config): ClientInterface

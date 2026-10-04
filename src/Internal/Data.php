@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Aybarsm\Kong\AdminApi\Internal;
 
+use Aybarsm\Kong\AdminApi\Contracts\Model;
 use Aybarsm\Kong\AdminApi\Exceptions\UnexpectedResponseException;
 use BackedEnum;
 
@@ -225,6 +226,44 @@ final class Data
     }
 
     /**
+     * A spec object whose `additionalProperties` are lists of strings (e.g. `RouteJson.headers`).
+     * Keys are `array-key` because numeric-looking JSON keys become integers in PHP.
+     *
+     * @param array<string, mixed> $data
+     *
+     * @return array<array-key, list<string>>|null
+     *
+     * @throws UnexpectedResponseException
+     */
+    public static function stringListMapOrNull(array $data, string $key): ?array
+    {
+        $value = $data[$key] ?? null;
+        if ($value === null) {
+            return null;
+        }
+        if (!is_array($value) || ($value !== [] && array_is_list($value))) {
+            throw self::invalid($key, 'object');
+        }
+
+        $out = [];
+        foreach ($value as $name => $items) {
+            if (!is_array($items) || !array_is_list($items)) {
+                throw self::invalid($key . '.' . $name, 'list of strings');
+            }
+            $list = [];
+            foreach ($items as $item) {
+                if (!is_string($item)) {
+                    throw self::invalid($key . '.' . $name, 'list of strings');
+                }
+                $list[] = $item;
+            }
+            $out[$name] = $list;
+        }
+
+        return $out;
+    }
+
+    /**
      * A list of spec-defined objects.
      *
      * @param array<string, mixed> $data
@@ -336,6 +375,30 @@ final class Data
         }
 
         return $out;
+    }
+
+    /**
+     * Backed enum cases to their wire values (used by `toArray()` implementations).
+     *
+     * @param list<BackedEnum>|null $cases
+     *
+     * @return list<int|string>|null
+     */
+    public static function enumValues(?array $cases): ?array
+    {
+        return $cases === null ? null : array_map(static fn (BackedEnum $case): int|string => $case->value, $cases);
+    }
+
+    /**
+     * DTOs to their JSON-ready arrays (used by `toArray()` implementations).
+     *
+     * @param list<Model>|null $models
+     *
+     * @return list<array<string, mixed>>|null
+     */
+    public static function toArrays(?array $models): ?array
+    {
+        return $models === null ? null : array_map(static fn (Model $model): array => $model->toArray(), $models);
     }
 
     /**

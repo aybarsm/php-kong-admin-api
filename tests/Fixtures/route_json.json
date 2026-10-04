@@ -1,0 +1,23 @@
+{
+  "created_at": 1706598432,
+  "destinations": [{"ip": "10.0.0.0/8", "port": 443}],
+  "headers": {"x-team": ["payments", "billing"], "x-version": ["~*v[12]"]},
+  "hosts": ["foo.example.com", "foo.example.us"],
+  "https_redirect_status_code": 426,
+  "id": "56c4566c-14cc-4132-9011-4139fcbbe50a",
+  "methods": ["GET", "POST"],
+  "name": "example-route",
+  "path_handling": "v0",
+  "paths": ["/v1", "/v2"],
+  "preserve_host": false,
+  "protocols": ["http", "https"],
+  "regex_priority": 0,
+  "request_buffering": true,
+  "response_buffering": true,
+  "service": {"id": "bd380f99-659d-415e-b0e7-72ea05df3218"},
+  "snis": ["foo.example.com"],
+  "sources": [{"ip": "192.168.0.0/16"}, {"port": 8000}],
+  "strip_path": true,
+  "tags": ["team-a"],
+  "updated_at": 1706684832
+}
