@@ -34,6 +34,14 @@ jobs:
       matrix:
         php: ["8.3", "8.4", "8.5"]
         deps: [lowest, highest]
+        # The lowest psr/http-factory (1.0.1, shipped by WHMCS 9.0.8 on PHP 8.3) declares implicitly nullable
+        # parameters, which PHP 8.4+ deprecates and failOnDeprecation turns into a failure. Lower bounds are
+        # tested on 8.3; 8.4+ runs the highest versions.
+        exclude:
+          - php: "8.4"
+            deps: lowest
+          - php: "8.5"
+            deps: lowest
     steps:
       - uses: actions/checkout@v7
       - uses: shivammathur/setup-php@v2
