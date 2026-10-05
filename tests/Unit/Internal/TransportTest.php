@@ -284,3 +284,11 @@ it('leaves the Kong error fields empty for plain {message} bodies and wrong type
     'no table' => [['status' => 500]],
     'wrong types' => [['code' => '2', 'name' => 2, 'fields' => 'x']],
 ]);
+
+it('shows only its configuration and client class in dumps', function (): void {
+    $config = new ClientConfig(adminToken: 'token-secret');
+    $transport = new Transport(new Client(['cert' => ['/tmp/cert.pem', 'passphrase-secret']]), new HttpFactory(), $config);
+
+    expect($transport->__debugInfo())->toBe(['config' => $config, 'client' => Client::class])
+        ->and(print_r($transport, true))->not->toContain('secret');
+});

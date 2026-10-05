@@ -90,6 +90,23 @@ $kong = new KongClient(new ClientConfig(
 | `workspace` | `null` | See [Workspaces](#workspaces). |
 | `timeout`, `connectTimeout` | `null` | Seconds. These apply to the default Guzzle client only. |
 | `headers` | `[]` | Extra headers sent with every request. |
+| `clientCert`, `clientKey` | `null` | PEM client certificate and private key files for mutual TLS. Leave `clientKey` out when the key is inside the certificate file. Default Guzzle client only. |
+| `clientKeyPassphrase` | `null` | Passphrase of an encrypted private key. Never included in exception messages or debug output. |
+| `verify` | `true` | Server certificate check: `true` uses the system CAs, a path uses that CA bundle file or directory, `false` turns verification off (insecure). Default Guzzle client only. |
+
+The certificate, key and CA paths must be readable files when the `ClientConfig` is created, otherwise it throws `InvalidArgumentException`.
+
+### Mutual TLS
+
+```php
+$kong = new KongClient(new ClientConfig(
+    baseUri: 'https://kong-admin.internal:8444/',
+    clientCert: $certFile,              // PEM client certificate
+    clientKey: $keyFile,                // PEM private key; omit it if the key is inside $certFile
+    clientKeyPassphrase: $passphrase,   // null for an unencrypted key
+    verify: $caFile,                    // CA bundle that signed the Admin API's server certificate
+));
+```
 
 ### Bring your own PSR-18 client
 
@@ -110,7 +127,7 @@ $kong = new KongClient(
 );
 ```
 
-When you inject a client, configure its timeouts, TLS and retries on that client yourself.
+When you inject a client, configure its timeouts, TLS (including client certificates) and retries on that client yourself; the `ClientConfig` timeout and TLS options apply only to the default client.
 
 ## Workspaces
 

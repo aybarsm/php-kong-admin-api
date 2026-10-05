@@ -61,6 +61,7 @@ use GuzzleHttp\RequestOptions;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\StreamFactoryInterface;
+use SensitiveParameter;
 
 /**
  * Entry point: a factory for Admin API resources. It never calls the API itself.
@@ -118,6 +119,16 @@ final readonly class KongClient
     public function withoutWorkspace(): self
     {
         return new self($this->config->withWorkspace(null), $this->httpClient, $this->httpFactory);
+    }
+
+    /**
+     * Never expose the HTTP client's settings (they can hold the TLS key passphrase) or the admin token in dumps.
+     *
+     * @return array<string, mixed>
+     */
+    public function __debugInfo(): array
+    {
+        return ['config' => $this->config, 'httpClient' => $this->httpClient::class];
     }
 
     /**
@@ -506,14 +517,31 @@ final readonly class KongClient
 
     private static function defaultHttpClient(ClientConfig $config): ClientInterface
     {
-        $options = [RequestOptions::HTTP_ERRORS => false];
+        $options = [RequestOptions::HTTP_ERRORS => false, RequestOptions::VERIFY => $config->verify];
         if ($config->timeout !== null) {
             $options[RequestOptions::TIMEOUT] = $config->timeout;
         }
         if ($config->connectTimeout !== null) {
             $options[RequestOptions::CONNECT_TIMEOUT] = $config->connectTimeout;
         }
+        if ($config->clientCert !== null) {
+            $options[RequestOptions::CERT] = self::withPassphrase($config->clientCert, $config->clientKeyPassphrase);
+        }
+        if ($config->clientKey !== null) {
+            $options[RequestOptions::SSL_KEY] = self::withPassphrase($config->clientKey, $config->clientKeyPassphrase);
+        }
 
         return new GuzzleClient($options);
+    }
+
+    /**
+     * Guzzle's `cert`/`ssl_key` value: the path, or `[path, passphrase]`. curl and PHP streams keep a single
+     * passphrase, so it is given to both the certificate and the key.
+     *
+     * @return string|array{string, string}
+     */
+    private static function withPassphrase(string $path, #[SensitiveParameter] ?string $passphrase): string|array
+    {
+        return $passphrase === null ? $path : [$path, $passphrase];
     }
 }

@@ -59,6 +59,16 @@ final readonly class Transport
     }
 
     /**
+     * Never expose the HTTP client's settings (they can hold the TLS key passphrase) or the admin token in dumps.
+     *
+     * @return array<string, mixed>
+     */
+    public function __debugInfo(): array
+    {
+        return ['config' => $this->config, 'client' => $this->client::class];
+    }
+
+    /**
      * Builds an encoded request path, adding the `/{workspace}` prefix as the operation's scope requires.
      *
      * @throws InvalidArgumentException when a segment is empty

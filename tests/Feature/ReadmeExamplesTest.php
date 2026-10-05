@@ -96,6 +96,25 @@ it('README: configuration', function (): void {
     putenv('KONG_ADMIN_TOKEN');
 });
 
+it('README: mutual TLS', function (): void {
+    [$certFile, $keyFile, $caFile] = [__FILE__, __DIR__ . '/ReadmeExamplesTest.php', __DIR__];
+    $passphrase = 'key-passphrase';
+
+    // --- README ---
+    $kong = new KongClient(new ClientConfig(
+        baseUri: 'https://kong-admin.internal:8444/',
+        clientCert: $certFile,              // PEM client certificate
+        clientKey: $keyFile,                // PEM private key; omit it if the key is inside $certFile
+        clientKeyPassphrase: $passphrase,   // null for an unencrypted key
+        verify: $caFile,                    // CA bundle that signed the Admin API's server certificate
+    ));
+    // --- /README ---
+
+    expect($kong->config()->clientCert)->toBe(__FILE__)
+        ->and($kong->config()->verify)->toBe(__DIR__)
+        ->and(print_r($kong, true))->not->toContain('key-passphrase');
+});
+
 it('README: bring your own PSR-18 client', function (): void {
     $handler = HandlerStack::create(new MockHandler([MockKong::json(200, Fixture::get('service'))]));
 
